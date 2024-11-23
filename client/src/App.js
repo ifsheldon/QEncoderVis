@@ -13,18 +13,21 @@ import Footer from "./Articles/footer";
 import Top from "./Articles/top";
 
 import Comp1 from "./Components/comp1";
+import Comp2 from "./Components/comp2";
 import Comp3 from "./Components/comp3";
 import Comp4 from "./Components/comp4";
 import Comp5 from "./Components/comp5";
+import Comp6 from "./Components/comp6";
+import Comp7 from "./Components/comp7";
+import Link from "./Components/link";
 
-import Module_draw_2dplot from "./Functions/module_draw_2dplot";
 
 
 
 
 // 布局参数
 let  vis_width = 1060
-let  vis_height = vis_width*0.5
+let  vis_height = vis_width*0.525
 
 let control_width = vis_width
 let control_height = vis_width*0.1
@@ -35,26 +38,41 @@ let comp1_left = vis_width*0.04, comp1_top = vis_width*0.023
 
 let comp2_width = vis_width*0.19
 let comp2_height = vis_width*0.133
-let comp2_left = vis_width*0.038, comp2_top = vis_width*0.3
-let comp2_paddingLeft = vis_width*0.01
-let comp2_paddingTop = vis_width*0.01
-let comp2_dataOption_distanceX = vis_width*0.059
-let comp2_dataOption_distanceY = vis_width*0.06
+let comp2_left = vis_width*0.038, comp2_top = vis_width*0.34
+
 
 
 let comp3_width = vis_width*0.45
-let comp3_height = vis_width*0.08
-let comp3_left = vis_width*0.27, comp3_top = vis_width*0.023
+let comp3_height = vis_width*0.07
+let comp3_left = vis_width*0.29, comp3_top = vis_width*0.023
 
 
 let comp4_width = vis_width*0.4
-let comp4_height = vis_width*0.4
+let comp4_height = vis_width*0.295
 let comp4_left = vis_width*0.720, comp4_top = vis_width*0.023
 
+let linkComp_width = comp3_left-(comp1_left+comp1_width) + comp3_width+40
+let linkComp_height = vis_width*0.07
+let linkComp_left = comp1_width-20, linkComp_top = comp3_top+comp3_height+10
 
-let comp5_width = vis_width*0.3
-let comp5_height = vis_width*0.18
-let comp5_left = vis_width*0.720, comp5_top = vis_width*0.33
+
+let comp5_width = vis_width*0.54
+let comp5_height = vis_width*0.2
+let comp5_left = vis_width*0.565, comp5_top = vis_width*0.34
+
+
+
+let comp6_width = vis_width*0.45
+let comp6_height = vis_width*0.25
+let comp6_left = comp3_left, comp6_top = comp3_top+comp3_height+10
+
+
+let comp7_width = vis_width*0.28
+let comp7_height = vis_width*0.145
+let comp7_left = vis_width*0.26, comp7_top = vis_width*0.34
+
+
+
 
 
 
@@ -70,20 +88,38 @@ let centered_footer_bgColor = 650
 
 // All color setting here
 // define colors here
-let color_class1 = '#eebc6f'
-let color_class2 = '#6fc6be'
+let color_class1 = '#ffe682'
+let color_class2 = '#006962'
+// let color_class1 = '#eebc6f'
+// let color_class2 = '#6fc6be'
+// let color_class1 = '#114057'
+// let color_class2 = '#fde625'
+// let color_class1 = '#f65262'
+// let color_class2 = '#4f7cff'
+// let color_class1 = '#80ee02'
+// let color_class2 = '#750d0d'
 let top_bg_color = '#183D4E'
 let centered_control_color = '#ffffff'
-let container_control_color = '#ecf8ea'
-let centered_vis_color = '#f9f9f9'
-let container_vis_color = '#ffeeee'
+let container_control_color = '#ffffff'
+let centered_vis_color = '#fafafa'
+let container_vis_color = '#fafafa'
 let play_btn_color = '#2c2c2c'
 let progress_color = "#545454"
 let centered_article_bgColor = '#ffeeff'
-let color_comp2_bg = '#f1f1f1'
-let color_comp3_bg = '#f1f1f1'
+let color_comp2_bg = '#ececec'
+let color_comp3_bg = '#ececec'
 let color_comp4_bg = '#f1f1f1'
-let color_comp5_bg = '#f1f1f1'
+let color_comp5_bg = '#f9f9f9'
+let color_comp6_bg = '#ffdcdc'
+let color_comp7_bg = '#ececec'
+let color_linkComp_bg = '#fafafa'
+
+
+// dataset and backend port API
+let data_port_map = {
+    'dataset_0': 'run_dataset_0',
+    'dataset_1': 'run_dataset_1',
+}
 
 
 
@@ -93,11 +129,13 @@ let color_comp5_bg = '#f1f1f1'
 function App() {
 
 
-    const [dataset, setData] = useState(null);
+
+    let [data_name, set_dataName] = useState('dataset_0')
+    let [dataset, setData] = useState(null);
 
 
-    const [selectedDataOption, setSelectedDataOption] = useState(0);  // State to track the selected module
     let [drawer_open, set_drawer_open] = useState(false)
+    let [comp6Loading, setComp6Loading] = useState(true);
 
 
 
@@ -115,15 +153,36 @@ function App() {
 
   // mount 的时候渲染一次
     useEffect(() => {
+
+        let port_name = data_port_map[data_name]
+
+        let request_url = `http://127.0.0.1:3030/api/${port_name}`
+
+
+
+
         const fetchData = async () => {
-            const result = await axios.get('http://127.0.0.1:3030/api/run_Jiang_dataset');
-            console.log(`'App.js' - Dataset loaded. `, result.data)
+            const result = await axios.get(request_url);
+            console.log(`'App.js' - Dataset (${data_name}) loaded. `, result.data)
+
             setData(result.data);
+
         };
+
 
         fetchData();
 
     }, [])
+
+
+
+    useEffect(() => {
+
+        setTimeout(() => {
+            setComp6Loading(false);
+        }, 1500); // Delay for 1.5 seconds
+
+    }, [dataset])
 
 
 
@@ -359,55 +418,14 @@ function App() {
 
                   {/* Component-2: data selector panel*/}
                   {dataset? (
-
-                      <div  className={'component'}
-                            style={{width: comp2_width, height:comp2_height, left:comp2_left, top: comp2_top}}>
-                          <span className="comp_title">Data Selector</span>
-
-                          {/*svg for one data selector*/}
-                          <svg id="comp1_data_selector" width={comp2_width} height={comp2_height} style={{ marginTop: '10px' }}>
-                              <rect x={0} y={0} width={comp2_width} height={comp2_height} fill={color_comp2_bg} rx="10" ry="10" />
-
-                              <g transform={`translate(${comp2_paddingLeft}, ${comp2_paddingTop})`}>
-                                  {/* Iteration to generate 6 option datasets in a 2x3 grid */}
-                                  {Array.from({ length: 6 }, (_, i) => {
-
-                                      return (
-                                          <g transform={`translate(${i % 3 * comp2_dataOption_distanceX+4}, ${Math.floor(i / 3) * comp2_dataOption_distanceY+4})`}
-                                             className={selectedDataOption === i ? 'data-option-selected' : 'data-option-unselected'}
-                                             key={i}
-                                             onClick={() => setSelectedDataOption(i)}  // Set the selected module on click
-                                          >
-
-                                              <g>
-                                                  <Module_draw_2dplot
-                                                      dataset={dataset['original_data']}
-                                                      class_color={[color_class1, color_class2]}
-                                                      boundary={null}
-                                                      translate={[0,0]}
-                                                      request_port={'run_Jiang_dataset'}
-                                                      mode={"small"}
-                                                      module_name={`comp2_2dplot_${i + 1}`}
-                                                  />
-                                              </g>
-                                              <rect
-                                                  x={0}
-                                                  y={0}
-                                                  width={comp2_dataOption_distanceX-12}
-                                                  height={comp2_dataOption_distanceY-12}
-                                                  strokeWidth={2.3} // Border width
-                                                  className={`data-option-border`}
-                                                  rx={'2px'}
-                                                  ry={'2px'}
-                                              />
-                                          </g>
-
-                                      );
-                                  })}
-                              </g>
-                          </svg>
-                      </div>
-
+                    <Comp2
+                        dataset={dataset['original_data']}
+                        colors={[[color_class1, color_class2], color_comp2_bg]}
+                        comp2_width={comp2_width}
+                        comp2_height={comp2_height}
+                        comp2_left={comp2_left}
+                        comp2_top={comp2_top}
+                        vis_width={vis_width}></Comp2>
 
                   ):( <></>)}
 
@@ -425,6 +443,7 @@ function App() {
                   ):(<></>)}
 
 
+
                   {/* Component-4: encoded map*/}
                   {dataset? (
                       <Comp4
@@ -439,10 +458,28 @@ function App() {
                   ):(<></>)}
 
 
+
+                  {/* Link: animated line from Comp1 to Comp4*/}
+                  {dataset? (
+                      <Link
+                          // dataset={dataset['encoded_data']}
+                          boundary={null}
+                          colors={[[color_class1, color_class2], color_linkComp_bg]}
+                          linkComp_width={linkComp_width}
+                          linkComp_height={linkComp_height}
+                          linkComp_left={linkComp_left}
+                          linkComp_top={linkComp_top}
+                      ></Link>
+                  ):(<></>)}
+
+
+
+
                   {/* Component-5: Model performance view*/}
                   {dataset? (
                       <Comp5
-                          dataset={dataset['performance']}
+                          dataset1={dataset['performance']}
+                          dataset2={dataset['trained_data']}
                           colors={[[color_class1, color_class2], color_comp5_bg]}
                           comp5_width={comp5_width}
                           comp5_height={comp5_height}
@@ -450,6 +487,42 @@ function App() {
                           comp5_top={comp5_top}
                       ></Comp5>
                   ):(<></>)}
+
+
+
+                  {/* Component-6: encoder step map*/}
+                  {dataset? (
+                      <Comp6
+                          dataset={dataset['encoded_steps']}
+                          comp6_width={comp6_width}
+                          comp6_height={comp6_height}
+                          comp6_left={comp6_left}
+                          comp6_top={comp6_top}
+                          colors={[[color_class1, color_class2], color_comp6_bg]}
+                      ></Comp6>
+                  ):(<></>)}
+
+
+
+
+                  {/* Component-7: Quantum state distribution*/}
+                  {dataset? (
+                      <Comp7
+                          // dataset={dataset['encoded_steps']}
+                          comp7_width={comp7_width}
+                          comp7_height={comp7_height}
+                          comp7_left={comp7_left}
+                          comp7_top={comp7_top}
+                          colors={[[color_class1, color_class2], color_comp7_bg]}
+                      ></Comp7>
+                  ):(<></>)}
+
+
+
+
+
+
+
 
               </div>
           </div>

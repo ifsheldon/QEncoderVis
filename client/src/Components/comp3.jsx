@@ -32,7 +32,7 @@ function Comp3(props) {
 
 
         let svg = d3.select("#comp3");
-        let margin = { top: 15, left:40, bottom: 15, right: 40 };
+        let margin = { top: 15, left:20, bottom: 15, right: 30 };
         let width = +svg.attr("width") - margin.left - margin.right;
         let height = +svg.attr("height")  - margin.top - margin.bottom;
         let qubit_number = dataset['qubit_number']
@@ -43,14 +43,14 @@ function Comp3(props) {
         let wire_height = height/qubit_number
         let gate_width = width/step_number
         let wire_stroke_width = 1
-        let gate_symbol_fill = 'rgb(241, 241, 241)'
-        let gate_symbol_stroke = 'rgb(241, 241, 241)'
+        let gate_symbol_fill = color_comp3_bg
+        let gate_symbol_stroke = color_comp3_bg
         let gate_symbol_text_fill = '#1a1a1a'
         let gate_symbol_r = 25
         let gate_symbol_r_control = 3
         let gate_symbol_text_fontSize = '1.1em'
         let gate_symbol_text_fontWeight = 400
-        let qubitDot_fill = '#f1f1f1'
+        let qubitDot_fill = color_comp3_bg
         let qubitDot_radius = 3
         let qubitDot_stroke = '#000000'
         let qubitDot_strokeWidth = 1.5
@@ -98,7 +98,7 @@ function Comp3(props) {
 
         data.forEach((step, step_i)=>{
 
-            const gateX = step_i * gate_width + gate_width / 2;
+            const gateX = step_i * gate_width + gate_width ;
             step.forEach((gate, gate_i)=>{
 
                 // 没有 “-”, 代表不是Controlled gate, 而是H等的gate
@@ -111,6 +111,7 @@ function Comp3(props) {
                         .attr('r', dataset['encoder'][step_i][gate_i].length*4+gate_symbol_r*0.2)
                         .attr("fill", gate_symbol_fill)
                         .attr('stroke', gate_symbol_stroke)
+                        .attr('class', 'symbol_position')
                         // .attr('stroke', '#000000')
 
 
@@ -139,7 +140,9 @@ function Comp3(props) {
                             .attr('r', gate_symbol_r)
                             .attr("fill", gate_symbol_fill)
                             .attr('stroke', 'none')
-                            .attr('stroke-width', 1);
+                            .attr('stroke-width', 1)
+                            .attr('class', 'symbol_position')
+
 
                     }
                 }
@@ -153,7 +156,7 @@ function Comp3(props) {
 
         data.forEach((step, step_i)=>{
 
-            const gateX = step_i * gate_width + gate_width / 2;
+            const gateX = step_i * gate_width + gate_width;
             step.forEach((gate, gate_i)=>{
 
                 // 没有 “-”, 代表不是Controlled gate, 而是H等的gate

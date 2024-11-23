@@ -13,6 +13,8 @@ function Module_draw_2dplot(props) {
 
     let {mode, module_name, translate, class_color} = props
 
+    let isLegend = props.isLegend || false
+
 
 
 
@@ -30,6 +32,7 @@ function Module_draw_2dplot(props) {
     useEffect(() => {
 
         draw_func()
+
 
     }, [])
 
@@ -59,16 +62,17 @@ function Module_draw_2dplot(props) {
 
 
         // define measures here
-        let largeSize = 1350, mediumSize = 950, smallSize = 320
-        let size = mode=='large'? largeSize: (mode=='medium'? mediumSize : smallSize)
+        let largeSize = 1350, mediumSize = 900, smallSize = 320, smallerSize = 240
+        let size = mode=='large'? largeSize: (mode=='medium'? mediumSize : (mode=='small'? smallSize : smallerSize))
 
 
 
         let axis_length = size*0.15
         let g_paddingLeft = mode!=='small'?size*0.027: 0, g_paddingTop =  mode!=='small'?size*0.02: 0
+        // let g_paddingLeft = 0,
         let axis_size = size*0.01
-        let dot_stroke_width = mode!=='small'?size*0.001: 0
-        let dot_radius = mode!=='small'?size*0.003: size*0.004
+        let dot_stroke_width = (mode=='large' || mode=='medium' )?size*0.001: 0
+        let dot_radius = (mode=='large' || mode=='medium' )?size*0.004: size*0.005
         let legend_width = size*0.1
         let legend_height = size*0.018
         let legend_dot_r = size*0.004
@@ -78,7 +82,7 @@ function Module_draw_2dplot(props) {
 
 
         let slit = 0.004
-        let color_scatterPlotBg = '#e9f2f6'
+        let color_scatterPlotBg = '#e5f4fa'
 
 
 
@@ -106,10 +110,19 @@ function Module_draw_2dplot(props) {
             .domain([-1, 1])
             .range([color_class1, color_class2])
 
+        // let colorScale = d3.scaleLinear()
+        //     .domain([-1, 0, 1]) // Three key points: -1, 0, and 1
+        //     .range([color_class1, '#ffffff', color_class2])
+
 
         let g = d3.select(`.${module_name}`)
             .append("g")
             .attr("transform", `translate(${g_paddingLeft},${g_paddingTop})`)
+            .attr('class', function(){
+                if (mode=='smaller'){
+                    return `.${module_name} loading_count`
+                }
+            })
 
 
 
@@ -132,7 +145,7 @@ function Module_draw_2dplot(props) {
         let yAxis = d3.axisLeft(yScale).tickValues([0.0, 0.2, 0.4, 0.6, 0.8, 1.0]).tickSize(0)
 
 
-        if(mode!=='small'){
+        if(mode=='large' || mode=='medium' ){
             g.append("g")
                 .attr("transform", `translate(0,${axis_length+axis_size})`)
                 .attr('class', 'axis')
@@ -148,14 +161,29 @@ function Module_draw_2dplot(props) {
 
 
 
+        // let dot = g.selectAll(".dot")
+        //     .data(data)
+        //     .enter().append("circle")
+        //
+        //     dot.attr("class", "dot")
+        //     .attr("r", dot_radius)
+        //     .attr("cx", d => xScale(d.feature[0]))
+        //     .attr("cy", d => yScale(d.feature[1]))
+        //     // .attr("fill", d => d.label === 1 ? color_class1 : color_class2)  // Assuming only two labels 1 and 0
+        //     .attr("fill", d =>colorScale(d['label']))  // Assuming only two labels 1 and 0
+        //     .attr("stroke", "#ffffff")
+        //     .attr("stroke-width", dot_stroke_width)
+
+
         let dot = g.selectAll(".dot")
             .data(data)
-            .enter().append("circle")
+            .enter().append("rect")
 
             dot.attr("class", "dot")
-            .attr("r", dot_radius)
-            .attr("cx", d => xScale(d.feature[0]))
-            .attr("cy", d => yScale(d.feature[1]))
+            .attr("width", 2*dot_radius)
+            .attr("height", 2*dot_radius)
+            .attr("x", d => xScale(d.feature[0])-dot_radius)
+            .attr("y", d => yScale(d.feature[1])-dot_radius)
             // .attr("fill", d => d.label === 1 ? color_class1 : color_class2)  // Assuming only two labels 1 and 0
             .attr("fill", d =>colorScale(d['label']))  // Assuming only two labels 1 and 0
             .attr("stroke", "#ffffff")
@@ -178,8 +206,6 @@ function Module_draw_2dplot(props) {
                 g.append('path')
                     .datum(region) // Bind the region data to the path element
                     .attr('d', lineGenerator)
-                    .attr('stroke-width', 2)
-                    .attr('stroke-dasharray', '8,4') // This makes the line dotted
                     .attr('class', `boundary-line region-${index}`); // A class to uniquely identify each region line if needed
             });
         }
@@ -187,7 +213,7 @@ function Module_draw_2dplot(props) {
 
 
         // 加legend
-        if(mode!='small'){
+        if(isLegend){
 
             let isContinuous = dataset['label'].every(value => value === -1 || value === 1)
 
@@ -224,7 +250,9 @@ function Module_draw_2dplot(props) {
                     .attr('y', legend_height / 2)
                     .attr('dy', '0.35em') // Center text vertically
                     .text(d => d.text)
-                    .style('font-size', legend_fontSize);
+                    .style('font-size', legend_fontSize)
+                    .attr('class', 'light-text')
+
 
             }
 
@@ -271,6 +299,8 @@ function Module_draw_2dplot(props) {
                     .attr('text-anchor', 'end')
                     .style('font-size', legend_fontSize)
                     .text('Class A (-1)')
+                    .attr('class', 'light-text')
+
 
 
                 // Append text for class B (+1)
@@ -280,7 +310,9 @@ function Module_draw_2dplot(props) {
                     .attr('dy', '0.35em')
                     .attr('text-anchor', 'start')
                     .style('font-size', legend_fontSize)
-                    .text('Class B (+1)');
+                    .text('Class B (+1)')
+                    .attr('class', 'light-text')
+
             }
 
 
@@ -290,7 +322,7 @@ function Module_draw_2dplot(props) {
 
 
         // 加交互
-        if(mode!='small'){
+        if(mode=='large' || mode=='medium' ){
             dot.style("cursor", "pointer")  // 只有large时有对每个dot的交互
                 .on('mouseover', function(event, d) {
                 tooltip
@@ -301,11 +333,15 @@ function Module_draw_2dplot(props) {
                     .style('top', `${event.pageY + 10}px`);
 
 
+                d3.select(this).raise();
             d3.select(this)
                 .transition()  // Start a transition
                 .duration(150)
-                .attr("r", dot_radius+3)
-                .attr("stroke-width", dot_stroke_width+1)
+                .attr("width", 2*dot_radius+5)
+                .attr("height", 2*dot_radius+5)
+                .attr("x", d => xScale(d.feature[0])-dot_radius-2.5)
+                .attr("y", d => yScale(d.feature[1])-dot_radius-2.5)
+                .attr("stroke-width", dot_stroke_width+1.5)
                 .style('z-index', 999)
             })
                 .on('mouseout', () => {
@@ -314,8 +350,14 @@ function Module_draw_2dplot(props) {
                     d3.selectAll(`.${module_name} .dot`)
                         .transition()  // Start a transition
                         .duration(100)
-                        .attr("r", dot_radius)
+                        .attr("width", 2*dot_radius)
+                        .attr("height", 2*dot_radius)
+                        .attr("x", d => xScale(d.feature[0])-dot_radius)
+                        .attr("y", d => yScale(d.feature[1])-dot_radius)
                         .attr("stroke-width", dot_stroke_width)
+
+                    d3.selectAll('.boundary-line')
+                        .raise()
 
                 });
         }

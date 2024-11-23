@@ -36,9 +36,9 @@ function Comp1(props) {
                     class_color={class_color}
                     boundary={null}
                     mode={'medium'}
-                    translate={[0, 0]} /*module这个g在svg元素里的位置*/
+                    translate={[5, 0]} /*module这个g在svg元素里的位置*/
                     module_name={'comp1_2dplot'} /*module这个g的名字*/
-
+                    isLegend={true}
                 >
                 </Module_draw_2dplot>
             </svg>

@@ -192,7 +192,7 @@ footer {
     font-weight: 400;
     font-size: 16px;
     text-transform: uppercase;
-    line-height: 1.4em;
+    line-height: 1.3em;
 }
 
 .comp1_vis .axis path{
@@ -234,6 +234,22 @@ footer {
     stroke: #1c1c1c
 }
 
+.encoder-step-border{
+    fill:none;
+    stroke: #1c1c1c
+}
+
+
+.encoder-step-sub-border{
+    fill:none;
+    stroke: #1c1c1c
+}
+
+.encoder-step-sub-sub-border{
+    fill:none;
+    stroke: #1c1c1c
+}
+
 .spin-comp1{
     position: absolute;
     margin-left: auto;
@@ -265,6 +281,22 @@ footer {
 
 .boundary-line{
     fill:none;
-    stroke: #183D4E
+    stroke: #ffffff;
+    stroke-width: 4;
+    stroke-dasharray: 6,4;
 }
 
+.acc_line{
+    fill: none;
+}
+
+
+.loss_line{
+    fill: none;
+}
+
+.light-text{
+    font-family: "Helvetica", "Arial", sans-serif;
+    fill: #656565;
+    font-weight: 300;
+}
