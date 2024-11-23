@@ -1,8 +1,8 @@
 from flask import Flask, render_template
 from flask_cors import CORS, cross_origin
 
-from routes.get_original_data import func_get_original_data
-from routes.run_Jiang_dataset import run_Jiang_dataset
+from routes.run_dataset_0 import run_datadet_0
+from routes.run_dataset_1 import run_dataset_1
 
 
 app = Flask(__name__)
@@ -35,11 +35,26 @@ def index():
 
 
 
-@app.route('/api/run_Jiang_dataset')
+@app.route('/api/run_dataset_0')
 def run_JiangDataset():
     try:
 
-        return run_Jiang_dataset()
+        return run_datadet_0()
+
+    except Exception as e:
+        print(e)
+        return 'error'
+
+
+
+
+
+
+@app.route('/api/run_dataset_1')
+def run_dataset1():
+    try:
+
+        return run_dataset_1()
 
     except Exception as e:
         print(e)
