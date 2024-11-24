@@ -20,6 +20,7 @@ import Comp5 from "./Components/comp5";
 import Comp6 from "./Components/comp6";
 import Comp7 from "./Components/comp7";
 import Link from "./Components/link";
+import DescriptionComp from "./Components/description";
 
 
 
@@ -72,6 +73,11 @@ let comp7_height = vis_width*0.145
 let comp7_left = vis_width*0.26, comp7_top = vis_width*0.34
 
 
+let descriptionComp_width = vis_width
+let descriptionComp_height = vis_height
+let descriptionComp_left = 0, descriptionComp_top = 0
+
+
 
 
 
@@ -110,15 +116,15 @@ let color_comp2_bg = '#ececec'
 let color_comp3_bg = '#ececec'
 let color_comp4_bg = '#f1f1f1'
 let color_comp5_bg = '#f9f9f9'
-let color_comp6_bg = '#ffdcdc'
+let color_comp6_bg = '#f9f9f9'
 let color_comp7_bg = '#ececec'
 let color_linkComp_bg = '#fafafa'
 
 
 // dataset and backend port API
 let data_port_map = {
-    'dataset_0': 'run_dataset_0',
-    'dataset_1': 'run_dataset_1',
+    'circuit_0': 'run_circuit_0',
+    'circuit_1': 'run_circuit_1',
 }
 
 
@@ -130,7 +136,7 @@ function App() {
 
 
 
-    let [data_name, set_dataName] = useState('dataset_0')
+    let [data_name, set_dataName] = useState('circuit_0')
     let [dataset, setData] = useState(null);
 
 
@@ -493,7 +499,7 @@ function App() {
                   {/* Component-6: encoder step map*/}
                   {dataset? (
                       <Comp6
-                          dataset={dataset['encoded_steps']}
+                          dataset={[dataset['encoded_steps'], dataset['encoded_steps_sub']]}
                           comp6_width={comp6_width}
                           comp6_height={comp6_height}
                           comp6_left={comp6_left}
@@ -515,6 +521,20 @@ function App() {
                           comp7_top={comp7_top}
                           colors={[[color_class1, color_class2], color_comp7_bg]}
                       ></Comp7>
+                  ):(<></>)}
+
+
+
+                  {/* Component-descriptionComp: some description*/}
+                  {dataset? (
+                      <DescriptionComp
+                          // dataset={dataset['encoded_steps']}
+                          descriptionComp_width={descriptionComp_width}
+                          descriptionComp_height={descriptionComp_height}
+                          descriptionComp_left={descriptionComp_left}
+                          descriptionComp_top={descriptionComp_top}
+                          // colors={[[color_class1, color_class2], color_comp7_bg]}
+                      ></DescriptionComp>
                   ):(<></>)}
 
 

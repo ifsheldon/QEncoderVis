@@ -30,7 +30,7 @@ function Module_draw_performance(props) {
 
     function draw_func(){
 
-        console.log(dataset)
+        // console.log(dataset)
 
 
 
