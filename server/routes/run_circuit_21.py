@@ -34,14 +34,14 @@ def recursive_convert(o):
 
 
 
-def run_circuit_0():
+def run_circuit_21():
 
     # Adjusting for a 2-dimensional feature input
     num_qubits = 2
     repetition = 2
     train_split = 0.75
     num_per_side = 20
-    dataset_source = 'Data/dataset_0.csv'
+    dataset_source = 'Data/dataset_2.csv'
 
     seed = 3407
     np.random.seed(seed)
@@ -85,7 +85,33 @@ def run_circuit_0():
     @qml.qnode(dev)
     def circuit(weights, x):
 
-        ### encoding
+        # ### encoding
+        # qml.Snapshot('flag1')
+        # qml.RX(x[0], wires=0)
+        # qml.RX(x[1], wires=1)
+        # qml.Snapshot('flag2')
+        # qml.RY(x[0], wires=0)
+        # qml.RY(x[1], wires=1)
+        # qml.Snapshot('flag3')
+        # qml.CNOT(wires=[0,1])
+
+        # qml.Snapshot('flag4')
+
+
+        # ### encoding 2 
+        # qml.Snapshot('flag1')
+        # qml.RX(x[0], wires=0)
+        # qml.RY(x[1], wires=1)
+        # qml.Snapshot('flag2')
+        # qml.RX(x[0], wires=0)
+        # qml.RY(x[1], wires=1)
+        # qml.Snapshot('flag3')
+        # qml.CNOT(wires=[0,1])
+
+        # qml.Snapshot('flag4')
+
+
+        ### encoding 3 - 90%
         qml.Snapshot('flag1')
         qml.RX(x[0], wires=0)
         qml.RX(x[1], wires=1)
@@ -93,10 +119,12 @@ def run_circuit_0():
         qml.RY(x[0], wires=0)
         qml.RY(x[1], wires=1)
         qml.Snapshot('flag3')
+        qml.RY(x[0], wires=0)
+        qml.RY(x[1], wires=1)
+        qml.Snapshot('flag4')
         qml.CNOT(wires=[0,1])
 
-        qml.Snapshot('flag4')
-
+        qml.Snapshot('flag5')
 
         # ansatz
         qml.RZ(weights[0], wires=0)
@@ -169,7 +197,7 @@ def run_circuit_0():
     # extract and draw the encoded data
     target_probs_list = []
 
-    flag_list = ['flag1', 'flag2', 'flag3', 'flag4']
+    flag_list = ['flag1', 'flag2', 'flag3', 'flag4', 'flag5']
 
 
     all_encoded_data = {
@@ -177,6 +205,7 @@ def run_circuit_0():
         'flag2': [],
         'flag3': [],
         'flag4': [],
+        'flag5': [],
     }
 
     result = {
@@ -184,6 +213,7 @@ def run_circuit_0():
         'flag2': [],
         'flag3': [],
         'flag4': [],
+        'flag5': [],
     }
 
 
@@ -242,16 +272,17 @@ def run_circuit_0():
     #  画acc和loss的数据
     cost_list = [x.item() for x in cost_list]
     acc_val_list = [x.item() for x in acc_val_list]
-    distribution_map = compute_distribution_map(circuit, weights, features, Y, snapshot='flag3')
+    distribution_map = compute_distribution_map(circuit, weights, features, Y, snapshot='flag5')
 
 
 
     # 创建dict for encoder, 来给前端返回, 画circuit的数据
     circuit_implementation = {
         'qubit_number': 2,
-        'encoder_step':3,
+        'encoder_step':4,
         'encoder': [
-            ['H', "H"], # encoder step 1
+            ['RX(x)', "RX(x)"], # encoder step 1
+            ['RY(x)','RY(x)'], # encoder step 2
             ['RY(x)','RY(x)'], # encoder step 2
             ['CNOT-0','CNOT-1'], # encoder step 3
         ],
@@ -284,7 +315,7 @@ def run_circuit_0():
         'circuit': circuit_implementation,
         'encoded_data':{
             'feature': feature,
-            'label': result['flag4'][0]
+            'label': result['flag5'][0]
         },
         # 'boundary': grouped_boundary,
         'performance': {
@@ -308,6 +339,10 @@ def run_circuit_0():
             {
                 'feature': feature,
                 'label':result['flag3'][0]
+            },
+                        {
+                'feature': feature,
+                'label':result['flag4'][0]
             }
         ],
         'encoded_steps_sub':[
@@ -339,6 +374,16 @@ def run_circuit_0():
                 {
                 'feature': feature,
                 'label':result['flag3'][2]
+                }
+            ],
+            [
+                {
+                'feature': feature,
+                'label':result['flag4'][1]
+                },
+                {
+                'feature': feature,
+                'label':result['flag4'][2]
                 }
             ],
         ],

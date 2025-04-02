@@ -34,14 +34,14 @@ def recursive_convert(o):
 
 
 
-def run_circuit_0():
+def run_circuit_2():
 
     # Adjusting for a 2-dimensional feature input
     num_qubits = 2
     repetition = 2
     train_split = 0.75
     num_per_side = 20
-    dataset_source = 'Data/dataset_0.csv'
+    dataset_source = 'Data/dataset_2.csv'
 
     seed = 3407
     np.random.seed(seed)
@@ -85,17 +85,43 @@ def run_circuit_0():
     @qml.qnode(dev)
     def circuit(weights, x):
 
-        ### encoding
-        qml.Snapshot('flag1')
-        qml.RX(x[0], wires=0)
-        qml.RX(x[1], wires=1)
-        qml.Snapshot('flag2')
-        qml.RY(x[0], wires=0)
-        qml.RY(x[1], wires=1)
-        qml.Snapshot('flag3')
-        qml.CNOT(wires=[0,1])
+        # ### encoding
+        # qml.Snapshot('flag1')
+        # qml.RX(x[0], wires=0)
+        # qml.RX(x[1], wires=1)
+        # qml.Snapshot('flag2')
+        # qml.RY(x[0], wires=0)
+        # qml.RY(x[1], wires=1)
+        # qml.Snapshot('flag3')
+        # qml.CNOT(wires=[0,1])
 
-        qml.Snapshot('flag4')
+        # qml.Snapshot('flag4')
+
+
+        # ### encoding 2 
+        # qml.Snapshot('flag1')
+        # qml.RX(x[0], wires=0)
+        # qml.RY(x[1], wires=1)
+        # qml.Snapshot('flag2')
+        # qml.RX(x[0], wires=0)
+        # qml.RY(x[1], wires=1)
+        # qml.Snapshot('flag3')
+        # qml.CNOT(wires=[0,1])
+
+        # qml.Snapshot('flag4')
+
+
+        # ### encoding 3 - 90%
+        # qml.Snapshot('flag1')
+        # qml.RX(x[0], wires=0)
+        # qml.RX(x[1], wires=1)
+        # qml.Snapshot('flag2')
+        # qml.RY(x[0], wires=0)
+        # qml.RY(x[1], wires=1)
+        # qml.Snapshot('flag3')
+        # qml.CNOT(wires=[0,1])
+
+        # qml.Snapshot('flag4')
 
 
         # ansatz
