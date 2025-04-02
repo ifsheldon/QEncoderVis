@@ -21,6 +21,18 @@ function Comp1(props) {
 
 
 
+    // mount 的时候渲染一次
+    useEffect(() => {
+
+        // console.log('comp1 mount')
+        // console
+
+
+    }, [])
+
+
+
+
     return (
 
         <div className={'component'}

@@ -1,15 +1,26 @@
 
-import React, {useState, useRef, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { Checkbox } from "antd";
-import * as d3 from 'd3'
-
+import * as d3 from 'd3';
 import Module_draw_2dplot from "../Functions/module_draw_2dplot";
+import PropTypes from 'prop-types';
+
+
+
 
 function Comp2(props) {
+
 
     // dataset
     let dataset = props.dataset
     let boundary=props.boundary
+
+
+    let onDatasetClick = props.onDatasetClick
+    const handleDatasetClick = (e) => {
+        onDatasetClick(e);
+    };
+
 
 
     let {comp2_width, comp2_height, comp2_left, comp2_top, vis_width} = props
@@ -24,7 +35,8 @@ function Comp2(props) {
     let comp2_dataOption_distanceY = vis_width*0.06
 
 
-    const [selectedDataOption, setSelectedDataOption] = useState(0);  // State to track the selected module
+    let default_circuit = props.default_circuit
+    const [selectedDataOption, setSelectedDataOption] = useState(default_circuit);
     // let {showBoundary, setShowBoundary} = useState('visible')
 
 
@@ -46,6 +58,9 @@ function Comp2(props) {
 
     // mount 的时候渲染一次
     useEffect(() => {
+
+        // console.log('comp2 mount')
+        // console
 
 
     }, [])
@@ -69,21 +84,21 @@ function Comp2(props) {
 
                         return (
                             <g transform={`translate(${i % 3 * comp2_dataOption_distanceX+4}, ${Math.floor(i / 3) * comp2_dataOption_distanceY+4})`}
-                               className={selectedDataOption === i ? 'data-option-selected' : 'data-option-unselected'}
+                               className={default_circuit.split('_')[1][0] == `${i}` ? 'data-option-selected' : 'data-option-unselected'}
                                key={i}
-                               onClick={() => setSelectedDataOption(i)}  // Set the selected module on click
+                               id={`circuit_${i}`}
+                               onClick={(e) => {
+                                   setSelectedDataOption(e.currentTarget.id);
+                                   handleDatasetClick(e.currentTarget.id);
+                               }}  // Set the selected module on click
                             >
-
-                                <g>
-                                    <Module_draw_2dplot
-                                        dataset={dataset}
-                                        boundary={null}
-                                        mode={"small"}
-                                        translate={[0, 0]} /*module这个g在svg元素里的位置*/
-                                        class_color={[color_class1, color_class2]}
-                                        module_name={`comp2_2dplot_${i + 1}`}
-                                    />
-                                </g>
+                                <image
+                                    href={`/thumbnails/circuit_${i}.png`}
+                                    x={0}
+                                    y={0}
+                                    width={comp2_dataOption_distanceX-12}
+                                    height={comp2_dataOption_distanceY-12}
+                                />
                                 <rect
                                     x={0}
                                     y={0}
@@ -95,7 +110,6 @@ function Comp2(props) {
                                     ry={'2px'}
                                 />
                             </g>
-
                         );
                     })}
                 </g>

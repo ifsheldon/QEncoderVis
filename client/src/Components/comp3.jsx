@@ -40,8 +40,10 @@ function Comp3(props) {
 
 
         let wire_length = width*1
+        let wire_gap_left = wire_length*0.2
+        let wire_gap_right = wire_length*0.25
         let wire_height = height/qubit_number
-        let gate_width = width/step_number
+        let gate_width = (wire_length - wire_gap_left - wire_gap_right)/(step_number-1)
         let wire_stroke_width = 1
         let gate_symbol_fill = color_comp3_bg
         let gate_symbol_stroke = color_comp3_bg
@@ -98,25 +100,12 @@ function Comp3(props) {
 
         data.forEach((step, step_i)=>{
 
-            const gateX = step_i * gate_width + gate_width ;
+            const gateX = wire_gap_left+ step_i * gate_width;
             step.forEach((gate, gate_i)=>{
 
                 // 没有 “-”, 代表不是Controlled gate, 而是H等的gate
-                if(!gate.includes('-')){
-                    const gateY = gate_i * wire_height + wire_height / 2;
+                if(gate.includes('-') && !gate.includes('(')){
 
-                    group.append("circle")
-                        .attr("cx", gateX)
-                        .attr("cy", gateY)
-                        .attr('r', dataset['encoder'][step_i][gate_i].length*4+gate_symbol_r*0.2)
-                        .attr("fill", gate_symbol_fill)
-                        .attr('stroke', gate_symbol_stroke)
-                        .attr('class', 'symbol_position')
-                        // .attr('stroke', '#000000')
-
-
-                }
-                else{
                     let gate_name = gate.split('-')[0]
                     let gate_role = gate.split('-')[1]
 
@@ -145,6 +134,21 @@ function Comp3(props) {
 
 
                     }
+
+                }
+                else{
+                    const gateY = gate_i * wire_height + wire_height / 2;
+
+                    group.append("circle")
+                        .attr("cx", gateX)
+                        .attr("cy", gateY)
+                        .attr('r', dataset['encoder'][step_i][gate_i].length*4+gate_symbol_r*0.2)
+                        .attr("fill", gate_symbol_fill)
+                        .attr('stroke', gate_symbol_stroke)
+                        .attr('class', 'symbol_position')
+                    // .attr('stroke', '#000000')
+
+
                 }
 
             })
@@ -156,25 +160,11 @@ function Comp3(props) {
 
         data.forEach((step, step_i)=>{
 
-            const gateX = step_i * gate_width + gate_width;
+            const gateX = wire_gap_left+ step_i * gate_width;
             step.forEach((gate, gate_i)=>{
 
                 // 没有 “-”, 代表不是Controlled gate, 而是H等的gate
-                if(!gate.includes('-')){
-                    const gateY = gate_i * wire_height + wire_height / 2;
-
-
-                    let gateText = group.append("text")
-                        .attr("x", gateX)
-                        .attr("y", gateY)
-                        .attr("dy", ".35em")
-                        .attr("text-anchor", "middle")
-                        .attr('font-size', gate_symbol_text_fontSize)
-                        .attr('font-weight', gate_symbol_text_fontWeight)
-                        .attr('fill', gate_symbol_text_fill)
-                        .text(d=>dataset['encoder'][step_i][gate_i])
-                }
-                else{
+                if(gate.includes('-') && !gate.includes('(')){
                     let gate_name = gate.split('-')[0]
                     let gate_role = gate.split('-')[1]
 
@@ -211,20 +201,38 @@ function Comp3(props) {
                         Y_dotTarget = gateY
                     }
                 }
+                else{
+
+                    const gateY = gate_i * wire_height + wire_height / 2;
+
+
+                    let gateText = group.append("text")
+                        .attr("x", gateX)
+                        .attr("y", gateY)
+                        .attr("dy", ".35em")
+                        .attr("text-anchor", "middle")
+                        .attr('font-size', gate_symbol_text_fontSize)
+                        .attr('font-weight', gate_symbol_text_fontWeight)
+                        .attr('fill', gate_symbol_text_fill)
+                        .text(d=>dataset['encoder'][step_i][gate_i])
+
+
+
+                }
 
 
             })
         })
 
         // CNOT的连接线
-        group.append("line")
-            .attr('class', 'comp3_wire')
-            .attr("x1", X_dot)
-            .attr("y1", Y_dotControl)
-            .attr("x2", X_dot)
-            .attr("y2", Y_dotTarget-9)
-            .attr("stroke", wire_color)
-            .attr('stroke-width', wire_stroke_width)
+        // group.append("line")
+        //     .attr('class', 'comp3_wire')
+        //     .attr("x1", X_dot)
+        //     .attr("y1", Y_dotControl)
+        //     .attr("x2", X_dot)
+        //     .attr("y2", Y_dotTarget-9)
+        //     .attr("stroke", wire_color)
+        //     .attr('stroke-width', wire_stroke_width)
 
 
     }, [])
@@ -236,7 +244,7 @@ function Comp3(props) {
 
         <div className={'component comp3'}
              style={{width: comp3_width, height:comp3_height, left:comp3_left, top: comp3_top}}>
-            <span className="comp_title">Quantum circuit</span>
+            <span className="comp_title">Quantum encoder</span>
             {/*svg for one 2dplot*/}
             <svg id={'comp3'} width={svg_width} height={svg_height} style={{ marginTop: '10px' }}>
                 <rect x={0} y={0} width={svg_width} height={svg_height} fill={color_comp3_bg} rx="10" ry="10" />

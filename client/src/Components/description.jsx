@@ -37,14 +37,14 @@ function DescriptionComp(props) {
     return (
         <>
             {/* SVG for the arrow */}
-            <svg style={{position: "absolute", top: 0, left: 0, width: "100%", height: "100%",}}>
-                <path d={curvePath} stroke={stroke_color} strokeWidth="1" fill="none" markerEnd="url(#arrowhead)"/>
-                <defs>
-                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="7" refY="3.5" orient="auto">
-                        <polygon points="0 0, 10 3.5, 0 7" fill={stroke_color} />
-                    </marker>
-                </defs>
-            </svg>
+            {/*<svg style={{position: "absolute", top: 0, left: 0, width: "100%", height: "100%",}}>*/}
+            {/*    <path d={curvePath} stroke={stroke_color} strokeWidth="1" fill="none" markerEnd="url(#arrowhead)"/>*/}
+            {/*    <defs>*/}
+            {/*        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="7" refY="3.5" orient="auto">*/}
+            {/*            <polygon points="0 0, 10 3.5, 0 7" fill={stroke_color} />*/}
+            {/*        </marker>*/}
+            {/*    </defs>*/}
+            {/*</svg>*/}
 
             {/* Text span */}
             <span

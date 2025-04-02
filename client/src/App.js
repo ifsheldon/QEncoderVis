@@ -96,14 +96,14 @@ let centered_footer_bgColor = 650
 // define colors here
 let color_class1 = '#ffe682'
 let color_class2 = '#006962'
-// let color_class1 = '#eebc6f'
-// let color_class2 = '#6fc6be'
-// let color_class1 = '#114057'
-// let color_class2 = '#fde625'
-// let color_class1 = '#f65262'
-// let color_class2 = '#4f7cff'
-// let color_class1 = '#80ee02'
-// let color_class2 = '#750d0d'
+let color_class1 = '#eebc6f'
+let color_class2 = '#6fc6be'
+let color_class1 = '#114057'
+let color_class2 = '#fde625'
+let color_class1 = '#f65262'
+let color_class2 = '#4f7cff'
+let color_class1 = '#80ee02'
+let color_class2 = '#750d0d'
 let top_bg_color = '#183D4E'
 let centered_control_color = '#ffffff'
 let container_control_color = '#ffffff'
@@ -125,6 +125,13 @@ let color_linkComp_bg = '#fafafa'
 let data_port_map = {
     'circuit_0': 'run_circuit_0',
     'circuit_1': 'run_circuit_1',
+    'circuit_2': 'run_circuit_2',
+    'circuit_3': 'run_circuit_3',
+    'circuit_4': 'run_circuit_4',
+    'circuit_5': 'run_circuit_5',
+
+    'circuit_21': 'run_circuit_21',
+
 }
 
 
@@ -136,13 +143,19 @@ function App() {
 
 
 
-    let [data_name, set_dataName] = useState('circuit_0')
-    let [dataset, setData] = useState(null);
+    let default_circuit = 'circuit_5'
+    let [data_name, set_dataName] = useState(default_circuit)
+    let [dataset, setDataset] = useState(null);
 
 
     let [drawer_open, set_drawer_open] = useState(false)
     let [comp6Loading, setComp6Loading] = useState(true);
 
+
+
+    const handleDatasetClick = (datasetName) => {
+        set_dataName(datasetName);
+    };
 
 
 
@@ -171,24 +184,24 @@ function App() {
             const result = await axios.get(request_url);
             console.log(`'App.js' - Dataset (${data_name}) loaded. `, result.data)
 
-            setData(result.data);
+            setDataset(result.data)
 
         };
 
 
         fetchData();
 
-    }, [])
+    }, [data_name])
 
 
 
-    useEffect(() => {
-
-        setTimeout(() => {
-            setComp6Loading(false);
-        }, 1500); // Delay for 1.5 seconds
-
-    }, [dataset])
+    // useEffect(() => {
+    //
+    //     setTimeout(() => {
+    //         setComp6Loading(false);
+    //     }, 1500); // Delay for 1.5 seconds
+    //
+    // }, [dataset])
 
 
 
@@ -237,7 +250,7 @@ function App() {
                                   }}
                                   size={'small'}
                                   placeholder="Select an encoder"
-                                  defaultValue={['a10']}
+                                  defaultValue={['(RX+RX)-(RY+RY)-(RY+RY)-(CNOT)']}
                                   // onChange={handleChange}
                                   // options={options}
                               />
@@ -313,7 +326,7 @@ function App() {
 
                   <div style={{marginTop:'10px', marginRight: '1.5em'}}>
                       <span className={'control_font'}>Training epoch</span>
-                      <Progress percent={50}
+                      <Progress percent={100}
                                 status="active"
                                 strokeColor={progress_color}
                                 style={{width: '150px', marginRight:'-30px', marginTop:'5px'}}
@@ -340,10 +353,10 @@ function App() {
                           <Row>
                               <Col span={14}>
                                   <Slider
-                                      min={1}
-                                      max={20}
-                                      step={1}
-                                      defaultValue={7}
+                                      min={0}
+                                      max={1000}
+                                      step={100}
+                                      value={100}
                                       // onAfterChange={this.view2_gate_qual_filter}
                                       // disabled={check1()}
                                   />
@@ -352,7 +365,7 @@ function App() {
                                   <InputNumber
                                       style={{width: '40px'}}
                                       size={'small'}
-                                      // value={this.state.view2_gate_qual_filter[1]}
+                                      value={100}
                                       controls={false}
                                   />
                               </Col>
@@ -366,21 +379,19 @@ function App() {
                           <Row>
                               <Col span={14}>
                                   <Slider
-                                      min={1}
-                                      max={20}
-                                      step={1}
-                                      defaultValue={7}
-                                      // min={this.state.view2_qual_extent[0]}
-                                      // max={this.state.view2_qual_extent[1]}
+                                      min={0}
+                                      max={0.1}
+                                      step={0.01}
+                                      value={0.02}
                                       // onAfterChange={this.view2_gate_qual_filter}
                                       // disabled={check1()}
                                   />
                               </Col>
-                              <Col span={7}>
+                              <Col>
                                   <InputNumber
                                       style={{width: '40px'}}
                                       size={'small'}
-                                      // value={this.state.view2_gate_qual_filter[1]}
+                                      value={0.02}
                                       controls={false}
                                   />
                               </Col>
@@ -414,9 +425,7 @@ function App() {
                           comp1_left={comp1_left}
                           comp1_top={comp1_top}
                       ></Comp1>):(
-                      //<div className="loading-overlay">
                           <Spin fullscreen={true} tip="Loading" className={'spin-comp1'} size="large" />
-                      //</div>
                   )}
 
 
@@ -426,6 +435,9 @@ function App() {
                   {dataset? (
                     <Comp2
                         dataset={dataset['original_data']}
+                        vis_width={vis_width}
+                        default_circuit={default_circuit}
+                        onDatasetClick={handleDatasetClick}
                         colors={[[color_class1, color_class2], color_comp2_bg]}
                         comp2_width={comp2_width}
                         comp2_height={comp2_height}
@@ -514,7 +526,7 @@ function App() {
                   {/* Component-7: Quantum state distribution*/}
                   {dataset? (
                       <Comp7
-                          // dataset={dataset['encoded_steps']}
+                          dataset={dataset['distribution_map']}
                           comp7_width={comp7_width}
                           comp7_height={comp7_height}
                           comp7_left={comp7_left}

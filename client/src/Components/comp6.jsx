@@ -27,7 +27,7 @@ function Comp6(props) {
     let svg_width = comp6_width*0.9
     let svg_height = comp6_height*0.8
     const margin = { top: 15, left: 40, bottom: 15, right: 40 };
-    let dx =105
+    let dx =40
     let border_r = 39
 
 

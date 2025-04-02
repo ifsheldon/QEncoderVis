@@ -34,7 +34,7 @@ function Module_draw_2dplot(props) {
         draw_func()
 
 
-    }, [])
+    }, [dataset])
 
 
 
