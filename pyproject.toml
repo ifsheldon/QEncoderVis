@@ -17,3 +17,7 @@ dev = [
     "poethepoet>=0.36.0",
     "ruff>=0.12.8",
 ]
+
+[tool.ruff]
+extend-exclude = ["client"]
+line-length = 100
