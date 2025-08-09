@@ -1,14 +1,14 @@
-import React, { useEffect } from "react";
+import useEffect from "react";
 import * as d3 from "d3";
 
 function Comp7(props) {
 	// dataset
-	let dataset = props.dataset;
+	const dataset = props.dataset;
 
-	let comp7_width = props.comp7_width;
-	let comp7_height = props.comp7_height;
-	let comp7_left = props.comp7_left;
-	let comp7_top = props.comp7_top;
+	const comp7_width = props.comp7_width;
+	const comp7_height = props.comp7_height;
+	const comp7_left = props.comp7_left;
+	const comp7_top = props.comp7_top;
 
 	// Colors
 	const [class_color, color_comp7_bg] = props.colors;
@@ -68,7 +68,7 @@ function Comp7(props) {
 			.attr("fill", (d) => (d.label === -1 ? class_color[0] : class_color[1]))
 			.attr("stroke", "#1f1f1f")
 			.attr("stroke-width", 0.5)
-			.on("mouseover", function (event, d) {
+			.on("mouseover", (event, d) => {
 				tooltip.transition().duration(200).style("opacity", 0.9);
 				tooltip
 					.html(
@@ -77,7 +77,7 @@ function Comp7(props) {
 					.style("left", event.pageX + 10 + "px")
 					.style("top", event.pageY - 28 + "px");
 			})
-			.on("mouseout", function () {
+			.on("mouseout", () => {
 				tooltip.transition().duration(500).style("opacity", 0);
 			});
 	}, []);
@@ -96,6 +96,7 @@ function Comp7(props) {
 		>
 			<span className="comp_title">Quantum Distribution Map</span>
 			<svg
+				title={"comp7"}
 				id={"comp7"}
 				width={comp7_width}
 				height={comp7_height}

@@ -1,33 +1,31 @@
-import React, { useState, useEffect } from "react";
-import { Checkbox } from "antd";
+import { useState, useEffect } from "react";
 import * as d3 from "d3";
-import Module_draw_2dplot from "../Functions/module_draw_2dplot";
-import PropTypes from "prop-types";
 
 function Comp2(props) {
 	// dataset
-	let dataset = props.dataset;
-	let boundary = props.boundary;
+	const _dataset = props.dataset;
+	const _boundary = props.boundary;
 
-	let onDatasetClick = props.onDatasetClick;
+	const onDatasetClick = props.onDatasetClick;
 	const handleDatasetClick = (e) => {
 		onDatasetClick(e);
 	};
 
-	let { comp2_width, comp2_height, comp2_left, comp2_top, vis_width } = props;
-	let [class_color, color_comp2_bg] = props.colors;
-	let [color_class1, color_class2] = class_color;
+	const { comp2_width, comp2_height, comp2_left, comp2_top, vis_width } = props;
+	const [class_color, color_comp2_bg] = props.colors;
+	const [_color_class1, _color_class2] = class_color;
 
-	let comp2_paddingLeft = vis_width * 0.01;
-	let comp2_paddingTop = vis_width * 0.01;
-	let comp2_dataOption_distanceX = vis_width * 0.059;
-	let comp2_dataOption_distanceY = vis_width * 0.06;
+	const comp2_paddingLeft = vis_width * 0.01;
+	const comp2_paddingTop = vis_width * 0.01;
+	const comp2_dataOption_distanceX = vis_width * 0.059;
+	const comp2_dataOption_distanceY = vis_width * 0.06;
 
-	let default_circuit = props.default_circuit;
-	const [selectedDataOption, setSelectedDataOption] = useState(default_circuit);
+	const default_circuit = props.default_circuit;
+	const [_selectedDataOption, setSelectedDataOption] =
+		useState(default_circuit);
 	// let {showBoundary, setShowBoundary} = useState('visible')
 
-	function onChange(e) {
+	function _onChange(e) {
 		if (e.target.checked) {
 			d3.selectAll(".boundary-line").style("visibility", "hidden");
 		} else {
@@ -57,6 +55,7 @@ function Comp2(props) {
 
 			{/*svg for one data selector*/}
 			<svg
+				title="comp1_data_selector"
 				id="comp1_data_selector"
 				width={comp2_width}
 				height={comp2_height}

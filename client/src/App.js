@@ -1,13 +1,10 @@
-import React, { useState, useRef, useEffect } from "react";
-import * as d3 from "d3";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
 import {
-	Switch,
 	Layout,
 	Form,
 	Button,
-	Input,
 	InputNumber,
 	Slider,
 	Spin,
@@ -19,12 +16,7 @@ import {
 	Avatar,
 	List,
 } from "antd";
-import {
-	RightOutlined,
-	PauseOutlined,
-	ReloadOutlined,
-	PlayCircleFilled,
-} from "@ant-design/icons";
+import { RightOutlined, PlayCircleFilled } from "@ant-design/icons";
 
 import P1 from "./Articles/p1";
 import Footer from "./Articles/footer";
@@ -41,90 +33,91 @@ import Link from "./Components/link";
 import DescriptionComp from "./Components/description";
 
 // 布局参数
-let vis_width = 1060;
-let vis_height = vis_width * 0.525;
+const vis_width = 1060;
+const vis_height = vis_width * 0.525;
 
-let control_width = vis_width;
-let control_height = vis_width * 0.1;
+const control_width = vis_width;
+const control_height = vis_width * 0.1;
 
-let comp1_width = vis_width * 0.23;
-let comp1_height = vis_width * 0.26;
-let comp1_left = vis_width * 0.04,
+const comp1_width = vis_width * 0.23;
+const comp1_height = vis_width * 0.26;
+const comp1_left = vis_width * 0.04,
 	comp1_top = vis_width * 0.023;
 
-let comp2_width = vis_width * 0.19;
-let comp2_height = vis_width * 0.133;
-let comp2_left = vis_width * 0.038,
+const comp2_width = vis_width * 0.19;
+const comp2_height = vis_width * 0.133;
+const comp2_left = vis_width * 0.038,
 	comp2_top = vis_width * 0.34;
 
-let comp3_width = vis_width * 0.45;
-let comp3_height = vis_width * 0.07;
-let comp3_left = vis_width * 0.29,
+const comp3_width = vis_width * 0.45;
+const comp3_height = vis_width * 0.07;
+const comp3_left = vis_width * 0.29,
 	comp3_top = vis_width * 0.023;
 
-let comp4_width = vis_width * 0.4;
-let comp4_height = vis_width * 0.295;
-let comp4_left = vis_width * 0.72,
+const comp4_width = vis_width * 0.4;
+const comp4_height = vis_width * 0.295;
+const comp4_left = vis_width * 0.72,
 	comp4_top = vis_width * 0.023;
 
-let linkComp_width = comp3_left - (comp1_left + comp1_width) + comp3_width + 40;
-let linkComp_height = vis_width * 0.07;
-let linkComp_left = comp1_width - 20,
+const linkComp_width =
+	comp3_left - (comp1_left + comp1_width) + comp3_width + 40;
+const linkComp_height = vis_width * 0.07;
+const linkComp_left = comp1_width - 20,
 	linkComp_top = comp3_top + comp3_height + 10;
 
-let comp5_width = vis_width * 0.54;
-let comp5_height = vis_width * 0.2;
-let comp5_left = vis_width * 0.565,
+const comp5_width = vis_width * 0.54;
+const comp5_height = vis_width * 0.2;
+const comp5_left = vis_width * 0.565,
 	comp5_top = vis_width * 0.34;
 
-let comp6_width = vis_width * 0.45;
-let comp6_height = vis_width * 0.25;
-let comp6_left = comp3_left,
+const comp6_width = vis_width * 0.45;
+const comp6_height = vis_width * 0.25;
+const comp6_left = comp3_left,
 	comp6_top = comp3_top + comp3_height + 10;
 
-let comp7_width = vis_width * 0.28;
-let comp7_height = vis_width * 0.145;
-let comp7_left = vis_width * 0.26,
+const comp7_width = vis_width * 0.28;
+const comp7_height = vis_width * 0.145;
+const comp7_left = vis_width * 0.26,
 	comp7_top = vis_width * 0.34;
 
-let descriptionComp_width = vis_width;
-let descriptionComp_height = vis_height;
-let descriptionComp_left = 0,
+const descriptionComp_width = vis_width;
+const descriptionComp_height = vis_height;
+const descriptionComp_left = 0,
 	descriptionComp_top = 0;
 
-let article_width = 650;
-let centered_footer_bgColor = 650;
+const article_width = 650;
+const centered_footer_bgColor = 650;
 
 // All color setting here
 // define colors here
-let color_class1 = "#ffe682";
-let color_class2 = "#006962";
-let color_class1 = "#eebc6f";
-let color_class2 = "#6fc6be";
-let color_class1 = "#114057";
-let color_class2 = "#fde625";
-let color_class1 = "#f65262";
-let color_class2 = "#4f7cff";
-let color_class1 = "#80ee02";
-let color_class2 = "#750d0d";
-let top_bg_color = "#183D4E";
-let centered_control_color = "#ffffff";
-let container_control_color = "#ffffff";
-let centered_vis_color = "#fafafa";
-let container_vis_color = "#fafafa";
-let play_btn_color = "#2c2c2c";
-let progress_color = "#545454";
-let centered_article_bgColor = "#ffeeff";
-let color_comp2_bg = "#ececec";
-let color_comp3_bg = "#ececec";
-let color_comp4_bg = "#f1f1f1";
-let color_comp5_bg = "#f9f9f9";
-let color_comp6_bg = "#f9f9f9";
-let color_comp7_bg = "#ececec";
-let color_linkComp_bg = "#fafafa";
+const color_class1 = "#ffe682";
+const color_class2 = "#006962";
+const color_class1 = "#eebc6f";
+const color_class2 = "#6fc6be";
+const color_class1 = "#114057";
+const color_class2 = "#fde625";
+const color_class1 = "#f65262";
+const color_class2 = "#4f7cff";
+const color_class1 = "#80ee02";
+const color_class2 = "#750d0d";
+const top_bg_color = "#183D4E";
+const centered_control_color = "#ffffff";
+const container_control_color = "#ffffff";
+const centered_vis_color = "#fafafa";
+const container_vis_color = "#fafafa";
+const play_btn_color = "#2c2c2c";
+const progress_color = "#545454";
+const centered_article_bgColor = "#ffeeff";
+const color_comp2_bg = "#ececec";
+const color_comp3_bg = "#ececec";
+const color_comp4_bg = "#f1f1f1";
+const color_comp5_bg = "#f9f9f9";
+const color_comp6_bg = "#f9f9f9";
+const color_comp7_bg = "#ececec";
+const color_linkComp_bg = "#fafafa";
 
 // dataset and backend port API
-let data_port_map = {
+const data_port_map = {
 	circuit_0: "run_circuit_0",
 	circuit_1: "run_circuit_1",
 	circuit_2: "run_circuit_2",
@@ -136,12 +129,12 @@ let data_port_map = {
 };
 
 function App() {
-	let default_circuit = "circuit_5";
-	let [data_name, set_dataName] = useState(default_circuit);
-	let [dataset, setDataset] = useState(null);
+	const default_circuit = "circuit_5";
+	const [data_name, set_dataName] = useState(default_circuit);
+	const [dataset, setDataset] = useState(null);
 
-	let [drawer_open, set_drawer_open] = useState(false);
-	let [comp6Loading, setComp6Loading] = useState(true);
+	const [drawer_open, set_drawer_open] = useState(false);
+	const [comp6Loading, setComp6Loading] = useState(true);
 
 	const handleDatasetClick = (datasetName) => {
 		set_dataName(datasetName);
@@ -160,9 +153,9 @@ function App() {
 
 	// mount 的时候渲染一次
 	useEffect(() => {
-		let port_name = data_port_map[data_name];
+		const port_name = data_port_map[data_name];
 
-		let request_url = `http://127.0.0.1:3030/api/${port_name}`;
+		const request_url = `http://127.0.0.1:3030/api/${port_name}`;
 
 		const fetchData = async () => {
 			const result = await axios.get(request_url);
@@ -431,7 +424,6 @@ function App() {
 					{dataset
 						? <Comp2
 								dataset={dataset["original_data"]}
-								vis_width={vis_width}
 								default_circuit={default_circuit}
 								onDatasetClick={handleDatasetClick}
 								colors={[[color_class1, color_class2], color_comp2_bg]}

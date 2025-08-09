@@ -5,16 +5,16 @@ import axios, { post } from "axios";
 
 function Module_draw_2dplot(props) {
 	// data
-	let dataset = props.dataset;
-	let boundary = props.boundary || null;
+	const dataset = props.dataset;
+	const boundary = props.boundary || null;
 
-	let { mode, module_name, translate, class_color } = props;
+	const { mode, module_name, translate, class_color } = props;
 
-	let isLegend = props.isLegend || false;
+	const isLegend = props.isLegend || false;
 
 	const divRef = useRef(null);
 
-	let [color_class1, color_class2] = class_color;
+	const [color_class1, color_class2] = class_color;
 
 	//////////////////////////////////////////////
 
@@ -44,11 +44,11 @@ function Module_draw_2dplot(props) {
 			.style("font-size", "0.9em");
 
 		// define measures here
-		let largeSize = 1350,
+		const largeSize = 1350,
 			mediumSize = 900,
 			smallSize = 320,
 			smallerSize = 240;
-		let size =
+		const size =
 			mode == "large"
 				? largeSize
 				: mode == "medium"
@@ -57,34 +57,34 @@ function Module_draw_2dplot(props) {
 						? smallSize
 						: smallerSize;
 
-		let axis_length = size * 0.15;
-		let g_paddingLeft = mode !== "small" ? size * 0.027 : 0,
+		const axis_length = size * 0.15;
+		const g_paddingLeft = mode !== "small" ? size * 0.027 : 0,
 			g_paddingTop = mode !== "small" ? size * 0.02 : 0;
 		// let g_paddingLeft = 0,
-		let axis_size = size * 0.01;
-		let dot_stroke_width =
+		const axis_size = size * 0.01;
+		const dot_stroke_width =
 			mode == "large" || mode == "medium" ? size * 0.001 : 0;
-		let dot_radius =
+		const dot_radius =
 			mode == "large" || mode == "medium" ? size * 0.004 : size * 0.005;
-		let legend_width = size * 0.1;
-		let legend_height = size * 0.018;
-		let legend_dot_r = size * 0.004;
-		let legend_dot_and_text_gap = size * 0.015;
-		let legend_fontSize = "0.85em";
+		const legend_width = size * 0.1;
+		const legend_height = size * 0.018;
+		const legend_dot_r = size * 0.004;
+		const legend_dot_and_text_gap = size * 0.015;
+		const legend_fontSize = "0.85em";
 
-		let slit = 0.004;
-		let color_scatterPlotBg = "#e5f4fa";
+		const slit = 0.004;
+		const color_scatterPlotBg = "#e5f4fa";
 
 		// data preparation
-		let features = dataset["feature"];
-		let labels = dataset["label"];
+		const features = dataset["feature"];
+		const labels = dataset["label"];
 
-		let data = features.map((feature, i) => ({
+		const data = features.map((feature, i) => ({
 			feature,
 			label: labels[i],
 		}));
 
-		let xScale = d3
+		const xScale = d3
 			.scaleLinear()
 			.domain([
 				d3.min(data, (d) => d.feature[0]),
@@ -92,7 +92,7 @@ function Module_draw_2dplot(props) {
 			]) // Assuming feature[0] is the x-value
 			.range([0, axis_length]);
 
-		let yScale = d3
+		const yScale = d3
 			.scaleLinear()
 			.domain([
 				d3.min(data, (d) => d.feature[1]),
@@ -100,7 +100,7 @@ function Module_draw_2dplot(props) {
 			]) // Assuming feature[1] is the y-value
 			.range([axis_length, 0]);
 
-		let colorScale = d3
+		const colorScale = d3
 			.scaleLinear()
 			.domain([-1, 1])
 			.range([color_class1, color_class2]);
@@ -109,11 +109,11 @@ function Module_draw_2dplot(props) {
 		//     .domain([-1, 0, 1]) // Three key points: -1, 0, and 1
 		//     .range([color_class1, '#ffffff', color_class2])
 
-		let g = d3
+		const g = d3
 			.select(`.${module_name}`)
 			.append("g")
 			.attr("transform", `translate(${g_paddingLeft},${g_paddingTop})`)
-			.attr("class", function () {
+			.attr("class", () => {
 				if (mode == "smaller") {
 					return `.${module_name} loading_count`;
 				}
@@ -132,11 +132,11 @@ function Module_draw_2dplot(props) {
 			}
 		}
 
-		let xAxis = d3
+		const xAxis = d3
 			.axisBottom(xScale)
 			.tickValues([0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
 			.tickSize(0);
-		let yAxis = d3
+		const yAxis = d3
 			.axisLeft(yScale)
 			.tickValues([0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
 			.tickSize(0);
@@ -166,7 +166,7 @@ function Module_draw_2dplot(props) {
 		//     .attr("stroke", "#ffffff")
 		//     .attr("stroke-width", dot_stroke_width)
 
-		let dot = g.selectAll(".dot").data(data).enter().append("rect");
+		const dot = g.selectAll(".dot").data(data).enter().append("rect");
 
 		dot
 			.attr("class", "dot")
@@ -201,7 +201,7 @@ function Module_draw_2dplot(props) {
 
 		// 加legend
 		if (isLegend) {
-			let isContinuous = dataset["label"].every(
+			const isContinuous = dataset["label"].every(
 				(value) => value === -1 || value === 1,
 			);
 

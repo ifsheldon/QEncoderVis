@@ -1,19 +1,19 @@
-import React, { useState, useRef, useEffect } from "react";
+import useEffect from "react";
 
 import Module_draw_2dplot from "../Functions/module_draw_2dplot";
 
 function Comp1(props) {
-	let dataset = props.dataset;
+	const dataset = props.dataset;
 
-	let comp1_width = props.comp1_width;
-	let comp1_height = props.comp1_height;
-	let comp1_left = props.comp1_left;
-	let comp1_top = props.comp1_top;
-	let { class_color } = props;
+	const comp1_width = props.comp1_width;
+	const comp1_height = props.comp1_height;
+	const comp1_left = props.comp1_left;
+	const comp1_top = props.comp1_top;
+	const { class_color } = props;
 
 	// 定义新的measure
-	let svg_width = comp1_width * 0.9;
-	let svg_height = comp1_height * 0.9;
+	const svg_width = comp1_width * 0.9;
+	const svg_height = comp1_height * 0.9;
 
 	// mount 的时候渲染一次
 	useEffect(() => {
@@ -34,7 +34,12 @@ function Comp1(props) {
 			<span className="comp_title">Original Data</span>
 
 			{/*svg for one 2dplot*/}
-			<svg id={"comp1_dataShow"} width={svg_width} height={svg_height}>
+			<svg
+				title="comp1_dataShow"
+				id={"comp1_dataShow"}
+				width={svg_width}
+				height={svg_height}
+			>
 				{/* g for scatter plot*/}
 				<Module_draw_2dplot
 					dataset={dataset}

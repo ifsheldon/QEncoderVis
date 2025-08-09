@@ -1,8 +1,7 @@
-import React from "react";
 import { MathJaxContext, MathJax } from "better-react-mathjax";
 
-function DescriptionComp(props) {
-	let text1_span = {
+function DescriptionComp(_props) {
+	const text1_span = {
 		left: 250,
 		top: 163,
 		width: 150,
@@ -11,10 +10,10 @@ function DescriptionComp(props) {
 		y2: 20,
 	};
 
-	text1_span["width_text"] = text1_span.width - text1_span.x2;
-	text1_span["height_text"] = text1_span.height - text1_span.y2;
+	text1_span.width_text = text1_span.width - text1_span.x2;
+	text1_span.height_text = text1_span.height - text1_span.y2;
 
-	let stroke_color = "#595959";
+	const stroke_color = "#595959";
 
 	const formula = "2 \\cdot \\arcsin\\left(\\sqrt{x_0}\\right)";
 
@@ -28,7 +27,7 @@ function DescriptionComp(props) {
 	const midY = (startY + endY) / 2 + 10; // Light curve above the midpoint
 
 	// Path for the curved arrow
-	const curvePath = `M ${startX},${startY} Q ${midX},${midY} ${endX},${endY}`;
+	const _curvePath = `M ${startX},${startY} Q ${midX},${midY} ${endX},${endY}`;
 
 	return (
 		<>
@@ -61,7 +60,7 @@ function DescriptionComp(props) {
 				<MathJaxContext>
 					<div>
 						<MathJax style={{ fontStyle: "italic", fill: "#000000" }}>
-							{"\\(" + formula + "\\)"}
+							{`\\(${formula}\\)`}
 						</MathJax>
 					</div>
 				</MathJaxContext>

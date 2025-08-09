@@ -1,19 +1,19 @@
-import React, { useEffect } from "react";
+import useEffect from "react";
 import * as d3 from "d3";
 
 function Link(props) {
 	// dataset
-	let linkComp_width = props.linkComp_width;
-	let linkComp_height = props.linkComp_height;
-	let linkComp_left = props.linkComp_left;
-	let linkComp_top = props.linkComp_top;
+	const linkComp_width = props.linkComp_width;
+	const linkComp_height = props.linkComp_height;
+	const linkComp_left = props.linkComp_left;
+	const linkComp_top = props.linkComp_top;
 
 	// Define new measure
-	let svg_width = linkComp_width;
-	let svg_height = linkComp_height;
+	const svg_width = linkComp_width;
+	const svg_height = linkComp_height;
 
 	// Colors
-	const [class_color, color_linkComp_bg] = props.colors;
+	const [_class_color, color_linkComp_bg] = props.colors;
 
 	//////////////////////////////////////////////
 	// Mount the component once
@@ -75,7 +75,7 @@ function Link(props) {
 		}
 
 		animateSegment();
-	}, [linkComp_width, linkComp_height]);
+	}, []);
 
 	//////////////////////////////////////////////
 
@@ -90,6 +90,7 @@ function Link(props) {
 			}}
 		>
 			<svg
+				title={"linkComp"}
 				id={"linkComp"}
 				width={linkComp_width}
 				height={linkComp_height}

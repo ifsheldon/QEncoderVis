@@ -1,35 +1,35 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import * as d3 from "d3";
 
 import Module_draw_2dplot from "../Functions/module_draw_2dplot";
 
 function Comp6(props) {
 	// dataset
-	let [encoded_data, encoded_sub_data] = props.dataset;
+	const [encoded_data, encoded_sub_data] = props.dataset;
 
 	// console.log(encoded_data)
 	// console.log(encoded_sub_data)
 
-	let comp6_width = props.comp6_width;
-	let comp6_height = props.comp6_height;
-	let comp6_left = props.comp6_left;
-	let comp6_top = props.comp6_top;
+	const comp6_width = props.comp6_width;
+	const comp6_height = props.comp6_height;
+	const comp6_left = props.comp6_left;
+	const comp6_top = props.comp6_top;
 
-	let g1_top = 65;
-	let g2_top = 115;
+	const g1_top = 65;
+	const g2_top = 115;
 
 	const [class_color, color_comp6_bg] = props.colors;
 
 	// 定义新的measure
-	let svg_width = comp6_width * 0.9;
-	let svg_height = comp6_height * 0.8;
+	const svg_width = comp6_width * 0.9;
+	const svg_height = comp6_height * 0.8;
 	const margin = { top: 15, left: 40, bottom: 15, right: 40 };
-	let dx = 40;
-	let border_r = 39;
+	const dx = 40;
+	const border_r = 39;
 
-	let [symbol_positions, set_symbol_positions] = useState(null);
+	const [symbol_positions, set_symbol_positions] = useState(null);
 
-	let [isFinished, set_isFinished] = useState(false);
+	const [_isFinished, _set_isFinished] = useState(false);
 
 	// function func_loading(step_number){
 	//     if (step_number*2 == d3.selectAll('.loading_count').size()){
@@ -37,7 +37,7 @@ function Comp6(props) {
 	//     }
 	// }
 
-	let svg = d3.select("#comp6");
+	const _svg = d3.select("#comp6");
 
 	// console.log(dataset)
 
@@ -45,9 +45,9 @@ function Comp6(props) {
 
 	// mount 的时候渲染一次
 	useEffect(() => {
-		let symbol_positions = [];
+		const symbol_positions = [];
 		d3.selectAll(".symbol_position").each(function () {
-			let cx = d3.select(this).attr("cx"); // Get the 'cx' attribute
+			const cx = d3.select(this).attr("cx"); // Get the 'cx' attribute
 			symbol_positions.push(cx); // Push the value into the array
 		});
 
@@ -97,12 +97,12 @@ function Comp6(props) {
 		}
 
 		for (let i = 0; i < N; i++) {
-			let group = d3.select(`.half-circle-group-${i}`);
-			let x = group.node().getBBox().x;
-			let y = group.node().getBBox().y + group.node().getBBox().height / 2;
+			const group = d3.select(`.half-circle-group-${i}`);
+			const x = group.node().getBBox().x;
+			const y = group.node().getBBox().y + group.node().getBBox().height / 2;
 
-			let symbol_g = container.append("g");
-			let r = 10;
+			const symbol_g = container.append("g");
+			const r = 10;
 
 			symbol_g
 				.append("circle")
@@ -131,11 +131,11 @@ function Comp6(props) {
 
 			const elementBBox_1 = elements[i].getBBox(); // Get bounding box of the border element
 
-			let band_length = 24;
-			let start_x = elementBBox_1.x + elementBBox_1.width / 2;
-			let start_y = elementBBox_1.y + elementBBox_1.height;
-			let end_x = elementBBox_1.x + elementBBox_1.width / 2;
-			let end_y = elementBBox_1.y + elementBBox_1.height + band_length;
+			const band_length = 24;
+			const start_x = elementBBox_1.x + elementBBox_1.width / 2;
+			const start_y = elementBBox_1.y + elementBBox_1.height;
+			const end_x = elementBBox_1.x + elementBBox_1.width / 2;
+			const end_y = elementBBox_1.y + elementBBox_1.height + band_length;
 
 			group
 				.append("line")

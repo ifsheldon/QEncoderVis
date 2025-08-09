@@ -1,5 +1,3 @@
-import React, { useState, useRef, useEffect } from "react";
-
 function P1() {
 	return (
 		<>

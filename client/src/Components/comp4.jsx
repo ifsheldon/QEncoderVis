@@ -1,15 +1,15 @@
-import React, { useState, useRef, useEffect } from "react";
+import useEffect from "react";
 import { Checkbox } from "antd";
 import * as d3 from "d3";
 
 import Module_draw_2dplot from "../Functions/module_draw_2dplot";
 
 function Comp4(props) {
-	let dataset = props.dataset;
-	let boundary = props.boundary;
+	const dataset = props.dataset;
+	const boundary = props.boundary;
 
 	const { comp4_width, comp4_height, comp4_left, comp4_top, colors } = props;
-	const [class_color, color_comp4_bg] = colors;
+	const [class_color, _color_comp4_bg] = colors;
 
 	const [showBoundary, setShowBoundary] = useState(false);
 
@@ -40,7 +40,7 @@ function Comp4(props) {
 			}}
 		>
 			<span className="comp_title">Encoder Map</span>
-			<svg id={"comp4"} width={svg_width} height={svg_height}>
+			<svg title={"comp4"} id={"comp4"} width={svg_width} height={svg_height}>
 				<Module_draw_2dplot
 					dataset={dataset}
 					boundary={boundary}

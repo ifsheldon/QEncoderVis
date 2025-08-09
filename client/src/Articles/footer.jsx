@@ -1,6 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
 import { Avatar, Tooltip } from "antd";
-import { UserOutlined, AntDesignOutlined } from "@ant-design/icons";
+import UserOutlined from "@ant-design/icons";
 
 function Footer() {
 	return (
