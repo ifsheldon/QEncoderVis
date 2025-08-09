@@ -9,7 +9,7 @@ from numpy import genfromtxt
 
 from Data.Jiang_dataset import Jiang_dataset
 
-from functions.detect_boundary import detect_boundary,assign_and_order_dots
+from functions.detect_boundary import detect_boundary, assign_and_order_dots
 from functions.dim_reduction import compute_distribution_map
 
 
@@ -33,15 +33,13 @@ def recursive_convert(o):
             return o
 
 
-
 def run_circuit_2():
-
     # Adjusting for a 2-dimensional feature input
     num_qubits = 2
     repetition = 2
     train_split = 0.75
     num_per_side = 20
-    dataset_source = 'Data/dataset_2.csv'
+    dataset_source = "Data/dataset_2.csv"
 
     seed = 3407
     np.random.seed(seed)
@@ -52,39 +50,30 @@ def run_circuit_2():
     batch_size = 3
     epoch_number = 100
 
-
-
     def get_angles(x):
         # ###
-        beta0 = 2*np.arcsin(np.sqrt(x[0]))
-        beta1 = 2*np.arcsin(np.sqrt(x[1]))
+        beta0 = 2 * np.arcsin(np.sqrt(x[0]))
+        beta1 = 2 * np.arcsin(np.sqrt(x[1]))
 
         return [beta0, beta1]
-    
-
 
     # Data
-    data = genfromtxt(dataset_source, delimiter=',', skip_header =1)
+    data = genfromtxt(dataset_source, delimiter=",", skip_header=1)
     np.random.shuffle(data)
 
-
-    X = np.array(data[:,:2])
+    X = np.array(data[:, :2])
     Y = np.array(data[:, 2])
 
     # data = Jiang_dataset(num_per_side)
     # X = np.array(data[0])
     # Y = np.array(data[1])
 
-
     X = np.array(X)
-
-
 
     features = np.array([get_angles(x) for x in X], requires_grad=False)
 
     @qml.qnode(dev)
     def circuit(weights, x):
-
         # ### encoding
         # qml.Snapshot('flag1')
         # qml.RX(x[0], wires=0)
@@ -97,8 +86,7 @@ def run_circuit_2():
 
         # qml.Snapshot('flag4')
 
-
-        # ### encoding 2 
+        # ### encoding 2
         # qml.Snapshot('flag1')
         # qml.RX(x[0], wires=0)
         # qml.RY(x[1], wires=1)
@@ -109,7 +97,6 @@ def run_circuit_2():
         # qml.CNOT(wires=[0,1])
 
         # qml.Snapshot('flag4')
-
 
         # ### encoding 3 - 90%
         # qml.Snapshot('flag1')
@@ -123,7 +110,6 @@ def run_circuit_2():
 
         # qml.Snapshot('flag4')
 
-
         # ansatz
         qml.RZ(weights[0], wires=0)
         qml.RY(weights[1], wires=0)
@@ -133,13 +119,7 @@ def run_circuit_2():
 
         qml.CNOT(wires=[0, 1])
 
-
-
-        return qml.expval(qml.PauliZ(0)) ### single qubit measurement
-
-  
-
-
+        return qml.expval(qml.PauliZ(0))  ### single qubit measurement
 
     # Prepare training and validation splits
     num_data = len(Y)
@@ -149,10 +129,8 @@ def run_circuit_2():
     feats_val = features[num_train:]
     Y_val = Y[num_train:]
 
-
     # Initialize weights
     weights_init = 0.01 * np.random.randn(4, requires_grad=True)
-
 
     def cost(weights, X, Y):
         predictions = circuit(weights, X.T)
@@ -162,15 +140,12 @@ def run_circuit_2():
         predictions = np.sign(predictions)
         acc = np.mean(labels == predictions)
         return acc
-    
 
     # Optimization
     weights = weights_init
     cost_list = []
     acc_val_list = []
-    counter= 0
-
-
+    counter = 0
 
     for iter in range(epoch_number):
         batch_index = np.random.randint(0, num_train, (batch_size,))
@@ -181,58 +156,63 @@ def run_circuit_2():
         # print(qml.snapshots(circuit)(weights, feats_train_batch))
         # print(counter)
 
-
         predictions_val = np.sign(circuit(weights, feats_val.T))
         acc_val = accuracy(Y_val, predictions_val)
         _cost = cost(weights, features, Y)
-        print(f"Iter: {iter + 1:5d} | Cost: {_cost:0.7f} | Acc validation: {acc_val:0.7f} ") # ###
+        print(f"Iter: {iter + 1:5d} | Cost: {_cost:0.7f} | Acc validation: {acc_val:0.7f} ")  # ###
         cost_list.append(_cost)
         acc_val_list.append(acc_val)
 
-        counter = counter+1
-
+        counter = counter + 1
 
     # extract and draw the encoded data
     target_probs_list = []
 
-    flag_list = ['flag1', 'flag2', 'flag3', 'flag4']
-
+    flag_list = ["flag1", "flag2", "flag3", "flag4"]
 
     all_encoded_data = {
-        'flag1': [],
-        'flag2': [],
-        'flag3': [],
-        'flag4': [],
+        "flag1": [],
+        "flag2": [],
+        "flag3": [],
+        "flag4": [],
     }
 
     result = {
-        'flag1': [],
-        'flag2': [],
-        'flag3': [],
-        'flag4': [],
+        "flag1": [],
+        "flag2": [],
+        "flag3": [],
+        "flag4": [],
     }
-
 
     for i, data_point in enumerate(features):
         encoded = qml.snapshots(circuit)(weights, data_point)
         for flag in flag_list:
             state_for_single_datapoint = encoded[flag]
-            target_probs = [format((ele.real **2 + ele.imag **2).item(), ".2f") for ele in state_for_single_datapoint]
+            target_probs = [
+                format((ele.real**2 + ele.imag**2).item(), ".2f")
+                for ele in state_for_single_datapoint
+            ]
             all_encoded_data[flag].append(target_probs)
 
-
-
     # target_probs_list = np.array(target_probs_list)
-
-
 
     # test qubit 0 measured expectancy
     for flag in flag_list:
         target_probs_list = all_encoded_data[flag]
         target_probs_list = np.array(target_probs_list)
-        
-        prob_measure_q0_0 = np.array([float(a.item()) + float(b.item()) for a, b in zip(target_probs_list[:, 0], target_probs_list[:, 1])])
-        prob_measure_q0_1 = np.array([float(a.item()) + float(b.item()) for a, b in zip(target_probs_list[:, 2], target_probs_list[:, 3])])
+
+        prob_measure_q0_0 = np.array(
+            [
+                float(a.item()) + float(b.item())
+                for a, b in zip(target_probs_list[:, 0], target_probs_list[:, 1])
+            ]
+        )
+        prob_measure_q0_1 = np.array(
+            [
+                float(a.item()) + float(b.item())
+                for a, b in zip(target_probs_list[:, 2], target_probs_list[:, 3])
+            ]
+        )
 
         # # test qubit 1 measured expectancy
         # result1 = np.array([float(a.item()) + float(b.item()) for a, b in zip(target_probs_list[:, 0], target_probs_list[:, 2])])
@@ -244,134 +224,77 @@ def run_circuit_2():
 
         result[flag] = [expval, prob_measure_q0_1, prob_measure_q0_0]
 
-
-
-
-
     #############################################################################################################
     # 画original data的数据
     # convert tensor to number
     feature = [[round(item[0].numpy(), 3), round(item[1].numpy(), 3)] for item in X]
     label = [round(item.item(), 3) for item in Y]
 
-
-
-
-
     # 画encoder map里面的boundary线的数据
     boundary = detect_boundary(feature, label, num_per_side)
     grouped_boundary = assign_and_order_dots(boundary, 2)
-    grouped_boundary = [[[float(tensor.item()) for tensor in pair] for pair in region] for region in grouped_boundary]
+    grouped_boundary = [
+        [[float(tensor.item()) for tensor in pair] for pair in region]
+        for region in grouped_boundary
+    ]
     # print(boundary)
-
 
     #  画acc和loss的数据
     cost_list = [x.item() for x in cost_list]
     acc_val_list = [x.item() for x in acc_val_list]
-    distribution_map = compute_distribution_map(circuit, weights, features, Y, snapshot='flag3')
-
-
+    distribution_map = compute_distribution_map(circuit, weights, features, Y, snapshot="flag3")
 
     # 创建dict for encoder, 来给前端返回, 画circuit的数据
     circuit_implementation = {
-        'qubit_number': 2,
-        'encoder_step':3,
-        'encoder': [
-            ['H', "H"], # encoder step 1
-            ['RY(x)','RY(x)'], # encoder step 2
-            ['CNOT-0','CNOT-1'], # encoder step 3
+        "qubit_number": 2,
+        "encoder_step": 3,
+        "encoder": [
+            ["H", "H"],  # encoder step 1
+            ["RY(x)", "RY(x)"],  # encoder step 2
+            ["CNOT-0", "CNOT-1"],  # encoder step 3
         ],
-
-        'ansatz':[
-            ['RZ', "RZ"], # ansatz step 1
-            ['RY','RY'], # ansatz step 2
-            ['CX-0','CX-1'], # ansatz step 3
+        "ansatz": [
+            ["RZ", "RZ"],  # ansatz step 1
+            ["RY", "RY"],  # ansatz step 2
+            ["CX-0", "CX-1"],  # ansatz step 3
         ],
-        'measure':[
-            ['Measure(Z)', '']
-        ]
+        "measure": [["Measure(Z)", ""]],
     }
-
 
     # 创建 encoded map的数据
     # encoded_label = encoded_map_cal()
 
-
     # 创建trained map的数据
     trained_label = [x.item() for x in circuit(weights, features.T)]
 
-
-
-    result_to_return =  {
-        'original_data': {
-            'feature': feature,
-            'label':label
-        },
-        'circuit': circuit_implementation,
-        'encoded_data':{
-            'feature': feature,
-            'label': result['flag4'][0]
-        },
+    result_to_return = {
+        "original_data": {"feature": feature, "label": label},
+        "circuit": circuit_implementation,
+        "encoded_data": {"feature": feature, "label": result["flag4"][0]},
         # 'boundary': grouped_boundary,
-        'performance': {
-            'epoch_number': epoch_number,
-            'loss': cost_list,
-            'accuracy': acc_val_list
-        },
-        'trained_data':{
-            'feature': feature,
-            'label': trained_label
-        },
-        'encoded_steps':[
-            {
-                'feature': feature,
-                'label':result['flag1'][0]
-            }, 
-            {
-                'feature': feature,
-                'label':result['flag2'][0]
-            },
-            {
-                'feature': feature,
-                'label':result['flag3'][0]
-            }
+        "performance": {"epoch_number": epoch_number, "loss": cost_list, "accuracy": acc_val_list},
+        "trained_data": {"feature": feature, "label": trained_label},
+        "encoded_steps": [
+            {"feature": feature, "label": result["flag1"][0]},
+            {"feature": feature, "label": result["flag2"][0]},
+            {"feature": feature, "label": result["flag3"][0]},
         ],
-        'encoded_steps_sub':[
+        "encoded_steps_sub": [
             [
-                {
-                'feature': feature,
-                'label':result['flag1'][1]
-                },
-                {
-                'feature': feature,
-                'label':result['flag1'][2]
-                }
+                {"feature": feature, "label": result["flag1"][1]},
+                {"feature": feature, "label": result["flag1"][2]},
             ],
             [
-                {
-                'feature': feature,
-                'label':result['flag2'][1]
-                },
-                {
-                'feature': feature,
-                'label':result['flag2'][2]
-                }
+                {"feature": feature, "label": result["flag2"][1]},
+                {"feature": feature, "label": result["flag2"][2]},
             ],
             [
-                {
-                'feature': feature,
-                'label':result['flag3'][1]
-                },
-                {
-                'feature': feature,
-                'label':result['flag3'][2]
-                }
+                {"feature": feature, "label": result["flag3"][1]},
+                {"feature": feature, "label": result["flag3"][2]},
             ],
         ],
-        'distribution_map': distribution_map
-
+        "distribution_map": distribution_map,
     }
 
-    
     plain_result = recursive_convert(result_to_return)
     return plain_result

@@ -1,4 +1,4 @@
-#good encoder 1 (bad encoder 2 is also from this encoder circuit but implementation has not been saved)
+# good encoder 1 (bad encoder 2 is also from this encoder circuit but implementation has not been saved)
 
 import pennylane as qml
 from pennylane import numpy as np
@@ -11,8 +11,6 @@ from functions.dim_reduction import compute_distribution_map
 
 from numpy import genfromtxt
 
-
-    
 
 def recursive_convert(o):
     """
@@ -34,13 +32,10 @@ def recursive_convert(o):
             return o
 
 
-
-
-
 def run_circuit_3():
     num_qubits = 2
     train_split = 0.75
-    num_per_side = 20  
+    num_per_side = 20
     seed = 3407
     np.random.seed(seed)
 
@@ -50,24 +45,20 @@ def run_circuit_3():
     batch_size = 3
     epoch_number = 100
 
-
     # Define feature mapping (angle encoding)
     def get_angles(x):
-        return [np.arccos(np.clip(x[0], -1, 1)) + np.log1p(x[0]) + np.sin(np.pi * x[1]),np.arcsin(np.clip(x[1], -1, 1)) + np.log1p(x[1]) + np.cos(np.pi * x[0])]
+        return [
+            np.arccos(np.clip(x[0], -1, 1)) + np.log1p(x[0]) + np.sin(np.pi * x[1]),
+            np.arcsin(np.clip(x[1], -1, 1)) + np.log1p(x[1]) + np.cos(np.pi * x[0]),
+        ]
 
-
-
-
-    data = genfromtxt('Data/dataset_0.csv', delimiter=',', skip_header =1)
+    data = genfromtxt("Data/dataset_0.csv", delimiter=",", skip_header=1)
     np.random.shuffle(data)
 
-    feature = np.array(data[:,:2])
+    feature = np.array(data[:, :2])
     label = np.array(data[:, 2])
 
     features = np.array([get_angles(x) for x in feature], requires_grad=False)
-
-
-
 
     # # Load and shuffle the dataset
     # feature, label = func_get_original_data(num_per_side)
@@ -81,24 +72,20 @@ def run_circuit_3():
     # # Map raw features into angles (features remains a numpy array)
     # features = np.array([get_angles(x) for x in feature], requires_grad=False)
 
-
-
-
     # Define the quantum node
     @qml.qnode(dev)
     def circuit(weights, x):
-        qml.Snapshot('flag1')
+        qml.Snapshot("flag1")
         qml.RY(x[0], wires=0)
         qml.RY(x[1], wires=1)
-        
-        qml.Snapshot('flag2')
+
+        qml.Snapshot("flag2")
         qml.RZ(x[1], wires=0)
         qml.RZ(x[0], wires=1)
-        
-        qml.Snapshot('flag3')
-        #qml.CNOT(wires=[0, 1])
-        
-        
+
+        qml.Snapshot("flag3")
+        # qml.CNOT(wires=[0, 1])
+
         # Ansatz
         qml.RZ(weights[0], wires=0)
         qml.RY(weights[1], wires=0)
@@ -107,13 +94,11 @@ def run_circuit_3():
         qml.CNOT(wires=[0, 1])
         return qml.expval(qml.PauliZ(0))
 
-
     # Prepare training/validation splits
     num_data = len(label)
     num_train = int(train_split * num_data)
     feats_train, Y_train = features[:num_train], label[:num_train]
     feats_val, Y_val = features[num_train:], label[num_train:]
-
 
     # Initialize weights
     weights = 0.01 * np.random.randn(4, requires_grad=True)
@@ -124,12 +109,13 @@ def run_circuit_3():
     def accuracy(labels, predictions):
         return np.mean(labels == np.sign(predictions))
 
-
     # Optimization loop
     cost_list, acc_val_list = [], []
     for iter in range(epoch_number):
         batch_index = np.random.randint(0, num_train, (batch_size,))
-        weights, _, _ = optimizer.step(cost, weights, feats_train[batch_index], Y_train[batch_index])
+        weights, _, _ = optimizer.step(
+            cost, weights, feats_train[batch_index], Y_train[batch_index]
+        )
         # Use feats_val for validation
         acc_val = accuracy(Y_val, np.sign(circuit(weights, feats_val.T)))
         _cost = cost(weights, features, label)
@@ -137,70 +123,67 @@ def run_circuit_3():
         cost_list.append(_cost)
         acc_val_list.append(acc_val)
 
-
     # Compute encoded data from snapshots
-    flag_list = ['flag1', 'flag2', 'flag3']
+    flag_list = ["flag1", "flag2", "flag3"]
     result = {flag: [] for flag in flag_list}
     all_encoded_data = {flag: [] for flag in flag_list}
-    
+
     for data_point in features:
         encoded = qml.snapshots(circuit)(weights, data_point)
         for flag in flag_list:
             # For each snapshot, convert probabilities to strings
-            all_encoded_data[flag].append([
-                format((ele.real ** 2 + ele.imag ** 2).item(), ".2f") for ele in encoded[flag]
-            ])
+            all_encoded_data[flag].append(
+                [format((ele.real**2 + ele.imag**2).item(), ".2f") for ele in encoded[flag]]
+            )
 
-    
     for flag in flag_list:
         target_probs_arr = np.array(all_encoded_data[flag])
         # Convert each element to float
-        prob_measure_q0_0 = np.array([
-            float(a) + float(b) for a, b in zip(target_probs_arr[:, 0], target_probs_arr[:, 1])
-        ])
-        prob_measure_q0_1 = np.array([
-            float(a) + float(b) for a, b in zip(target_probs_arr[:, 2], target_probs_arr[:, 3])
-        ])
+        prob_measure_q0_0 = np.array(
+            [float(a) + float(b) for a, b in zip(target_probs_arr[:, 0], target_probs_arr[:, 1])]
+        )
+        prob_measure_q0_1 = np.array(
+            [float(a) + float(b) for a, b in zip(target_probs_arr[:, 2], target_probs_arr[:, 3])]
+        )
         diff = prob_measure_q0_1 - prob_measure_q0_0
         result[flag] = [diff.tolist(), prob_measure_q0_1.tolist(), prob_measure_q0_0.tolist()]
-
-
 
     # Compute boundary and performance metrics.
     # boundary = assign_and_order_dots(detect_boundary(feature.tolist(), label.tolist(), num_per_side), 2)
     cost_list = [float(x) for x in cost_list]
     acc_val_list = [float(x) for x in acc_val_list]
     trained_label = [float(x) for x in circuit(weights, features.T)]
-    distribution_map = compute_distribution_map(circuit, weights, features, label, snapshot='flag3')
+    distribution_map = compute_distribution_map(circuit, weights, features, label, snapshot="flag3")
 
     original_feature = feature.tolist()
     original_label = label.tolist()
 
-
-
-
     result_to_return = {
-        'original_data': {'feature': original_feature, 'label': original_label},
-        'circuit': {
-            'qubit_number': 2,
-            'encoder_step': 2,
-            'encoder': [['RY(x)', 'RY(x)'], ['RZ(x)', 'RZ(x)']],
-            'ansatz': [['RZ', 'RZ'], ['RY', 'RY'], ['CX-0', 'CX-1']],
-            'measure': [['Measure(Z)', '']]
+        "original_data": {"feature": original_feature, "label": original_label},
+        "circuit": {
+            "qubit_number": 2,
+            "encoder_step": 2,
+            "encoder": [["RY(x)", "RY(x)"], ["RZ(x)", "RZ(x)"]],
+            "ansatz": [["RZ", "RZ"], ["RY", "RY"], ["CX-0", "CX-1"]],
+            "measure": [["Measure(Z)", ""]],
         },
-        'encoded_data': {'feature': original_feature, 'label': result['flag3'][0]},
+        "encoded_data": {"feature": original_feature, "label": result["flag3"][0]},
         # 'boundary': boundary,
-        'performance': {'epoch_number': epoch_number, 'loss': cost_list, 'accuracy': acc_val_list},
-        'trained_data': {'feature': original_feature, 'label': trained_label},
-        'encoded_steps': [{'feature': original_feature, 'label': result[flag][0]} for flag in ['flag1', 'flag2']],
-        'encoded_steps_sub': [
-            [{'feature': original_feature, 'label': result[flag][1]}, {'feature': original_feature, 'label': result[flag][2]}]
-            for flag in ['flag1', 'flag2']
+        "performance": {"epoch_number": epoch_number, "loss": cost_list, "accuracy": acc_val_list},
+        "trained_data": {"feature": original_feature, "label": trained_label},
+        "encoded_steps": [
+            {"feature": original_feature, "label": result[flag][0]} for flag in ["flag1", "flag2"]
         ],
-        'distribution_map': distribution_map
+        "encoded_steps_sub": [
+            [
+                {"feature": original_feature, "label": result[flag][1]},
+                {"feature": original_feature, "label": result[flag][2]},
+            ]
+            for flag in ["flag1", "flag2"]
+        ],
+        "distribution_map": distribution_map,
     }
-    
-    
+
     # Recursively convert the result to plain Python types.
     plain_result = recursive_convert(result_to_return)
     return plain_result

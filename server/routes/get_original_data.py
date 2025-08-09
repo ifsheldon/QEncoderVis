@@ -1,7 +1,7 @@
 from Data.Jiang_dataset import Jiang_dataset
 
-def func_get_original_data():
 
+def func_get_original_data():
     dataset = Jiang_dataset(num_per_side=20)
 
     # convert tensor to number

@@ -15,148 +15,97 @@ app = Flask(__name__)
 CORS(app)
 
 
-app.config['ENV'] = 'development' # 'production
-app.config['DEBUG'] = True
+app.config["ENV"] = "development"  # 'production
+app.config["DEBUG"] = True
 
 
-
-
-
-
-@app.route('/')
+@app.route("/")
 # @cross_origin(origin='*')
 def index():
     try:
-        return 'success'
+        return "success"
 
     except Exception as e:
         print(e)
-        return 'error'
-    
-
-
-
-
-
+        return "error"
 
 
 # Jiang - bad
-@app.route('/api/run_circuit_0')
+@app.route("/api/run_circuit_0")
 def run_circuit0():
     try:
-
         return run_circuit_0()
 
     except Exception as e:
         print(e)
-        return 'error'
-    
-
-
+        return "error"
 
 
 # wavy - bad
-@app.route('/api/run_circuit_1')
+@app.route("/api/run_circuit_1")
 def run_circuit1():
     try:
-
         return run_circuit_1()
 
     except Exception as e:
         print(e)
-        return 'error'
-    
-
-
+        return "error"
 
 
 # circle - bad
-@app.route('/api/run_circuit_2')
+@app.route("/api/run_circuit_2")
 def run_circuit2():
     try:
-
         return run_circuit_2()
 
     except Exception as e:
         print(e)
-        return 'error'
-    
+        return "error"
+
 
 # circle - bad
-@app.route('/api/run_circuit_21')
+@app.route("/api/run_circuit_21")
 def run_circuit21():
     try:
-
         return run_circuit_21()
 
     except Exception as e:
         print(e)
-        return 'error'
-    
-    
-
-
-
-
-
+        return "error"
 
 
 # semicircle - good
-@app.route('/api/run_circuit_3')
+@app.route("/api/run_circuit_3")
 def run_circuit3():
     try:
-
         return run_circuit_3()
 
     except Exception as e:
         print(e)
-        return 'error'
-    
-
-
+        return "error"
 
 
 # diagnal_slit - good
-@app.route('/api/run_circuit_4')
+@app.route("/api/run_circuit_4")
 def run_circuit4():
     try:
-
         return run_circuit_4()
 
     except Exception as e:
         print(e)
-        return 'error'
-    
-
+        return "error"
 
 
 # triangle - good
-@app.route('/api/run_circuit_5')
+@app.route("/api/run_circuit_5")
 def run_circuit5():
     try:
-
         return run_circuit_5()
 
     except Exception as e:
         print(e)
-        return 'error'
-    
-    
+        return "error"
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(port=3030)
