@@ -24,3 +24,25 @@ line-length = 100
 
 [tool.ruff.lint]
 ignore = ["F401", "F841"]
+
+[tool.poe.tasks.format-js]
+cmd = "npx @biomejs/biome format --write"
+cwd = "./client"
+
+[tool.poe.tasks.run-client]
+cmd = "npm start"
+cwd = "./client"
+
+[tool.poe.tasks.run-server]
+cmd = "uv run python app.py"
+cwd = "./server"
+
+[tool.poe.tasks.check-js]
+cmd = "npx @biomejs/biome lint"
+cwd = "./client"
+
+[tool.poe.tasks]
+format-python = "uv run ruff format"
+format = ["format-python", "format-js"]
+check-python = "uv run ruff check"
+check = ["check-python", "check-js"]
