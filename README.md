@@ -3,7 +3,7 @@
 
 ### React-app building
 1. enter the frontend forder
-2. run `npm install -S` for installing all required packages
+2. run `npm install` for installing all required packages
 
 ### Backend building
 1. `workon` the venv you made beforehand
