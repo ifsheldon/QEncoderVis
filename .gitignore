@@ -1,5 +1,7 @@
 # Byte-compiled / optimized / DLL files
+# Ignore Python cache directories recursively (redundant with the line below, but explicit)
 __pycache__/
+**/__pycache__/
 *.py[codz]
 *$py.class
 
