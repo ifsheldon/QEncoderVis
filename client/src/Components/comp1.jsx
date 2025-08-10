@@ -2,7 +2,7 @@ import { useEffect } from "react";
 
 import Module_draw_2dplot from "../Functions/module_draw_2dplot";
 
-function Comp1(props) {
+function OriginalDataView(props) {
 	const dataset = props.dataset;
 
 	const comp1_width = props.comp1_width;
@@ -23,7 +23,7 @@ function Comp1(props) {
 
 	return (
 		<div
-			className={"component"}
+			className={"component original-data-view"}
 			style={{
 				width: comp1_width,
 				height: comp1_height,
@@ -55,4 +55,4 @@ function Comp1(props) {
 	);
 }
 
-export default Comp1;
+export default OriginalDataView;

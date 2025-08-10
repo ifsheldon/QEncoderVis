@@ -22,13 +22,13 @@ import P1 from "./Articles/p1";
 import Footer from "./Articles/footer";
 import Top from "./Articles/top";
 
-import Comp1 from "./Components/comp1";
-import Comp2 from "./Components/comp2";
-import Comp3 from "./Components/comp3";
-import Comp4 from "./Components/comp4";
-import Comp5 from "./Components/comp5";
-import Comp6 from "./Components/comp6";
-import Comp7 from "./Components/comp7";
+import OriginalDataView from "./Components/comp1";
+import DataSelectorPanel from "./Components/comp2";
+import QuantumCircuitView from "./Components/comp3";
+import EncodedMapView from "./Components/comp4";
+import ModelPerformanceView from "./Components/comp5";
+import EncoderStepMappingView from "./Components/comp6";
+import QuantumStateDistributionView from "./Components/comp7";
 import Link from "./Components/link";
 import DescriptionComp from "./Components/description";
 
@@ -405,14 +405,14 @@ function App() {
 				>
 					{/* Component-1: original data view*/}
 					{dataset
-						? <Comp1
+						? <OriginalDataView
 								dataset={dataset["original_data"]}
 								class_color={[color_class1, color_class2]}
 								comp1_width={comp1_width}
 								comp1_height={comp1_height}
 								comp1_left={comp1_left}
 								comp1_top={comp1_top}
-							></Comp1>
+							></OriginalDataView>
 						: <Spin
 								fullscreen={true}
 								tip="Loading"
@@ -422,7 +422,7 @@ function App() {
 
 					{/* Component-2: data selector panel*/}
 					{dataset && (
-						<Comp2
+						<DataSelectorPanel
 							dataset={dataset["original_data"]}
 							default_circuit={default_circuit}
 							onDatasetClick={handleDatasetClick}
@@ -432,24 +432,24 @@ function App() {
 							comp2_left={comp2_left}
 							comp2_top={comp2_top}
 							vis_width={vis_width}
-						></Comp2>
+						></DataSelectorPanel>
 					)}
 
 					{/* Component-3: quantum circuit show*/}
 					{dataset && (
-						<Comp3
+						<QuantumCircuitView
 							dataset={dataset["circuit"]}
 							comp3_width={comp3_width}
 							comp3_height={comp3_height}
 							comp3_left={comp3_left}
 							comp3_top={comp3_top}
 							color_comp3_bg={color_comp3_bg}
-						></Comp3>
+						></QuantumCircuitView>
 					)}
 
 					{/* Component-4: encoded map*/}
 					{dataset && (
-						<Comp4
+						<EncodedMapView
 							dataset={dataset["encoded_data"]}
 							boundary={dataset["boundary"]}
 							colors={[[color_class1, color_class2], color_comp4_bg]}
@@ -457,7 +457,7 @@ function App() {
 							comp4_height={comp4_height}
 							comp4_left={comp4_left}
 							comp4_top={comp4_top}
-						></Comp4>
+						></EncodedMapView>
 					)}
 
 					{/* Link: animated line from Comp1 to Comp4*/}
@@ -475,7 +475,7 @@ function App() {
 
 					{/* Component-5: Model performance view*/}
 					{dataset && (
-						<Comp5
+						<ModelPerformanceView
 							dataset1={dataset["performance"]}
 							dataset2={dataset["trained_data"]}
 							colors={[[color_class1, color_class2], color_comp5_bg]}
@@ -483,31 +483,31 @@ function App() {
 							comp5_height={comp5_height}
 							comp5_left={comp5_left}
 							comp5_top={comp5_top}
-						></Comp5>
+						></ModelPerformanceView>
 					)}
 
 					{/* Component-6: encoder step map*/}
 					{dataset && (
-						<Comp6
+						<EncoderStepMappingView
 							dataset={[dataset["encoded_steps"], dataset["encoded_steps_sub"]]}
 							comp6_width={comp6_width}
 							comp6_height={comp6_height}
 							comp6_left={comp6_left}
 							comp6_top={comp6_top}
 							colors={[[color_class1, color_class2], color_comp6_bg]}
-						></Comp6>
+						></EncoderStepMappingView>
 					)}
 
 					{/* Component-7: Quantum state distribution*/}
 					{dataset && (
-						<Comp7
+						<QuantumStateDistributionView
 							dataset={dataset["distribution_map"]}
 							comp7_width={comp7_width}
 							comp7_height={comp7_height}
 							comp7_left={comp7_left}
 							comp7_top={comp7_top}
 							colors={[[color_class1, color_class2], color_comp7_bg]}
-						></Comp7>
+						></QuantumStateDistributionView>
 					)}
 
 					{/* Component-descriptionComp: some description*/}

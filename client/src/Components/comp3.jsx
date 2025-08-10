@@ -3,7 +3,7 @@ import * as d3 from "d3";
 
 // import Module_draw_2dplot from "../Functions/module_draw_2dplot";
 
-function Comp3(props) {
+function QuantumCircuitView(props) {
 	// dataset
 	const dataset = props.dataset;
 
@@ -230,4 +230,4 @@ function Comp3(props) {
 	);
 }
 
-export default Comp3;
+export default QuantumCircuitView;

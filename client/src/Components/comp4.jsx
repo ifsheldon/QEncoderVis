@@ -4,7 +4,7 @@ import * as d3 from "d3";
 
 import Module_draw_2dplot from "../Functions/module_draw_2dplot";
 
-function Comp4(props) {
+function EncodedMapView(props) {
 	const dataset = props.dataset;
 	const boundary = props.boundary;
 
@@ -62,4 +62,4 @@ function Comp4(props) {
 	);
 }
 
-export default Comp4;
+export default EncodedMapView;

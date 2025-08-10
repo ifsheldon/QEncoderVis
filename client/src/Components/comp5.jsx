@@ -4,7 +4,7 @@ import * as d3 from "d3";
 import Module_draw_performance from "../Functions/module_draw_performance";
 import Module_draw_2dplot from "../Functions/module_draw_2dplot";
 
-function Comp5(props) {
+function ModelPerformanceView(props) {
 	// dataset
 	const dataset1 = props.dataset1;
 	const dataset2 = props.dataset2;
@@ -70,4 +70,4 @@ function Comp5(props) {
 	);
 }
 
-export default Comp5;
+export default ModelPerformanceView;

@@ -3,7 +3,7 @@ import * as d3 from "d3";
 
 import Module_draw_2dplot from "../Functions/module_draw_2dplot";
 
-function Comp6(props) {
+function EncoderStepMappingView(props) {
 	// dataset
 	const [encoded_data, encoded_sub_data] = props.dataset;
 
@@ -284,4 +284,4 @@ function Comp6(props) {
 	);
 }
 
-export default Comp6;
+export default EncoderStepMappingView;

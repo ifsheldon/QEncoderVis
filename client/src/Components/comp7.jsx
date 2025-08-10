@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import * as d3 from "d3";
 
-function Comp7(props) {
+function QuantumStateDistributionView(props) {
 	// dataset
 	const dataset = props.dataset;
 
@@ -116,4 +116,4 @@ function Comp7(props) {
 	);
 }
 
-export default Comp7;
+export default QuantumStateDistributionView;

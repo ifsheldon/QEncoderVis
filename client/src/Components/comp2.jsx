@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import * as d3 from "d3";
 
-function Comp2(props) {
+function DataSelectorPanel(props) {
 	// dataset
 	const _dataset = props.dataset;
 	const _boundary = props.boundary;
@@ -43,7 +43,7 @@ function Comp2(props) {
 
 	return (
 		<div
-			className={"component"}
+			className={"component data-selector-panel"}
 			style={{
 				width: comp2_width,
 				height: comp2_height,
@@ -115,4 +115,4 @@ function Comp2(props) {
 	);
 }
 
-export default Comp2;
+export default DataSelectorPanel;
