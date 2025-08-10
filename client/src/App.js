@@ -90,14 +90,14 @@ const centered_footer_bgColor = 650;
 
 // All color setting here
 // define colors here
-const color_class1 = "#ffe682";
-const color_class2 = "#006962";
-const color_class1 = "#eebc6f";
-const color_class2 = "#6fc6be";
-const color_class1 = "#114057";
-const color_class2 = "#fde625";
-const color_class1 = "#f65262";
-const color_class2 = "#4f7cff";
+// const color_class1 = "#ffe682";
+// const color_class2 = "#006962";
+// const color_class1 = "#eebc6f";
+// const color_class2 = "#6fc6be";
+// const color_class1 = "#114057";
+// const color_class2 = "#fde625";
+// const color_class1 = "#f65262";
+// const color_class2 = "#4f7cff";
 const color_class1 = "#80ee02";
 const color_class2 = "#750d0d";
 const top_bg_color = "#183D4E";
@@ -134,7 +134,7 @@ function App() {
 	const [dataset, setDataset] = useState(null);
 
 	const [drawer_open, set_drawer_open] = useState(false);
-	const [comp6Loading, setComp6Loading] = useState(true);
+	const [_comp6Loading, _setComp6Loading] = useState(true);
 
 	const handleDatasetClick = (datasetName) => {
 		set_dataName(datasetName);
@@ -421,109 +421,106 @@ function App() {
 							/>}
 
 					{/* Component-2: data selector panel*/}
-					{dataset
-						? <Comp2
-								dataset={dataset["original_data"]}
-								default_circuit={default_circuit}
-								onDatasetClick={handleDatasetClick}
-								colors={[[color_class1, color_class2], color_comp2_bg]}
-								comp2_width={comp2_width}
-								comp2_height={comp2_height}
-								comp2_left={comp2_left}
-								comp2_top={comp2_top}
-								vis_width={vis_width}
-							></Comp2>
-						: <></>}
+					{dataset && (
+						<Comp2
+							dataset={dataset["original_data"]}
+							default_circuit={default_circuit}
+							onDatasetClick={handleDatasetClick}
+							colors={[[color_class1, color_class2], color_comp2_bg]}
+							comp2_width={comp2_width}
+							comp2_height={comp2_height}
+							comp2_left={comp2_left}
+							comp2_top={comp2_top}
+							vis_width={vis_width}
+						></Comp2>
+					)}
 
 					{/* Component-3: quantum circuit show*/}
-					{dataset
-						? <Comp3
-								dataset={dataset["circuit"]}
-								comp3_width={comp3_width}
-								comp3_height={comp3_height}
-								comp3_left={comp3_left}
-								comp3_top={comp3_top}
-								color_comp3_bg={color_comp3_bg}
-							></Comp3>
-						: <></>}
+					{dataset && (
+						<Comp3
+							dataset={dataset["circuit"]}
+							comp3_width={comp3_width}
+							comp3_height={comp3_height}
+							comp3_left={comp3_left}
+							comp3_top={comp3_top}
+							color_comp3_bg={color_comp3_bg}
+						></Comp3>
+					)}
 
 					{/* Component-4: encoded map*/}
-					{dataset
-						? <Comp4
-								dataset={dataset["encoded_data"]}
-								boundary={dataset["boundary"]}
-								colors={[[color_class1, color_class2], color_comp4_bg]}
-								comp4_width={comp4_width}
-								comp4_height={comp4_height}
-								comp4_left={comp4_left}
-								comp4_top={comp4_top}
-							></Comp4>
-						: <></>}
+					{dataset && (
+						<Comp4
+							dataset={dataset["encoded_data"]}
+							boundary={dataset["boundary"]}
+							colors={[[color_class1, color_class2], color_comp4_bg]}
+							comp4_width={comp4_width}
+							comp4_height={comp4_height}
+							comp4_left={comp4_left}
+							comp4_top={comp4_top}
+						></Comp4>
+					)}
 
 					{/* Link: animated line from Comp1 to Comp4*/}
-					{dataset
-						? <Link
-								// dataset={dataset['encoded_data']}
-								boundary={null}
-								colors={[[color_class1, color_class2], color_linkComp_bg]}
-								linkComp_width={linkComp_width}
-								linkComp_height={linkComp_height}
-								linkComp_left={linkComp_left}
-								linkComp_top={linkComp_top}
-							></Link>
-						: <></>}
+					{dataset && (
+						<Link
+							// dataset={dataset['encoded_data']}
+							boundary={null}
+							colors={[[color_class1, color_class2], color_linkComp_bg]}
+							linkComp_width={linkComp_width}
+							linkComp_height={linkComp_height}
+							linkComp_left={linkComp_left}
+							linkComp_top={linkComp_top}
+						></Link>
+					)}
 
 					{/* Component-5: Model performance view*/}
-					{dataset
-						? <Comp5
-								dataset1={dataset["performance"]}
-								dataset2={dataset["trained_data"]}
-								colors={[[color_class1, color_class2], color_comp5_bg]}
-								comp5_width={comp5_width}
-								comp5_height={comp5_height}
-								comp5_left={comp5_left}
-								comp5_top={comp5_top}
-							></Comp5>
-						: <></>}
+					{dataset && (
+						<Comp5
+							dataset1={dataset["performance"]}
+							dataset2={dataset["trained_data"]}
+							colors={[[color_class1, color_class2], color_comp5_bg]}
+							comp5_width={comp5_width}
+							comp5_height={comp5_height}
+							comp5_left={comp5_left}
+							comp5_top={comp5_top}
+						></Comp5>
+					)}
 
 					{/* Component-6: encoder step map*/}
-					{dataset
-						? <Comp6
-								dataset={[
-									dataset["encoded_steps"],
-									dataset["encoded_steps_sub"],
-								]}
-								comp6_width={comp6_width}
-								comp6_height={comp6_height}
-								comp6_left={comp6_left}
-								comp6_top={comp6_top}
-								colors={[[color_class1, color_class2], color_comp6_bg]}
-							></Comp6>
-						: <></>}
+					{dataset && (
+						<Comp6
+							dataset={[dataset["encoded_steps"], dataset["encoded_steps_sub"]]}
+							comp6_width={comp6_width}
+							comp6_height={comp6_height}
+							comp6_left={comp6_left}
+							comp6_top={comp6_top}
+							colors={[[color_class1, color_class2], color_comp6_bg]}
+						></Comp6>
+					)}
 
 					{/* Component-7: Quantum state distribution*/}
-					{dataset
-						? <Comp7
-								dataset={dataset["distribution_map"]}
-								comp7_width={comp7_width}
-								comp7_height={comp7_height}
-								comp7_left={comp7_left}
-								comp7_top={comp7_top}
-								colors={[[color_class1, color_class2], color_comp7_bg]}
-							></Comp7>
-						: <></>}
+					{dataset && (
+						<Comp7
+							dataset={dataset["distribution_map"]}
+							comp7_width={comp7_width}
+							comp7_height={comp7_height}
+							comp7_left={comp7_left}
+							comp7_top={comp7_top}
+							colors={[[color_class1, color_class2], color_comp7_bg]}
+						></Comp7>
+					)}
 
 					{/* Component-descriptionComp: some description*/}
-					{dataset
-						? <DescriptionComp
-								// dataset={dataset['encoded_steps']}
-								descriptionComp_width={descriptionComp_width}
-								descriptionComp_height={descriptionComp_height}
-								descriptionComp_left={descriptionComp_left}
-								descriptionComp_top={descriptionComp_top}
-								// colors={[[color_class1, color_class2], color_comp7_bg]}
-							></DescriptionComp>
-						: <></>}
+					{dataset && (
+						<DescriptionComp
+							// dataset={dataset['encoded_steps']}
+							descriptionComp_width={descriptionComp_width}
+							descriptionComp_height={descriptionComp_height}
+							descriptionComp_left={descriptionComp_left}
+							descriptionComp_top={descriptionComp_top}
+							// colors={[[color_class1, color_class2], color_comp7_bg]}
+						></DescriptionComp>
+					)}
 				</div>
 			</div>
 
