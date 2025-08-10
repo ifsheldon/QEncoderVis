@@ -1,4 +1,4 @@
-import useEffect from "react";
+import { useEffect } from "react";
 import * as d3 from "d3";
 
 import Module_draw_performance from "../Functions/module_draw_performance";

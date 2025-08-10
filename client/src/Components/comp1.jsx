@@ -1,4 +1,4 @@
-import useEffect from "react";
+import { useEffect } from "react";
 
 import Module_draw_2dplot from "../Functions/module_draw_2dplot";
 

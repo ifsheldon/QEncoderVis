@@ -1,4 +1,4 @@
-import useEffect from "react";
+import { useEffect } from "react";
 import * as d3 from "d3";
 
 function Comp7(props) {
