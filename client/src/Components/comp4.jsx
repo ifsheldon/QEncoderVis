@@ -1,4 +1,4 @@
-import useEffect from "react";
+import {useEffect, useState} from "react";
 import { Checkbox } from "antd";
 import * as d3 from "d3";
 

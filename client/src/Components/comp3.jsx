@@ -133,7 +133,7 @@ function Comp3(props) {
 			});
 		});
 
-		let _Y_dotControl, _Y_dotTarget, _X_dot;
+		let Y_dotControl, Y_dotTarget, X_dot;
 
 		data.forEach((step, step_i) => {
 			const gateX = wire_gap_left + step_i * gate_width;
