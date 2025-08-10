@@ -11,6 +11,7 @@
 3. enter the backend forder
 4. run `pip install -r requirements.txt`
 
+Alternatively, use `uv` and just run `uv sync`.
 
 ### Launch the application
 1. run `npm start` to launch the frontend React app
