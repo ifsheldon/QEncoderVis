@@ -53,7 +53,8 @@ def run_circuit_5():
             np.pi * np.exp(-x[1]) + np.cos(2 * np.pi * x[0]),
         ]
 
-    data = genfromtxt("Data/dataset_4.csv", delimiter=",", skip_header=1)
+    # Use dataset_5 for the triangle dataset to match the UI thumbnail
+    data = genfromtxt("Data/dataset_5.csv", delimiter=",", skip_header=1)
     np.random.shuffle(data)
 
     feature = np.array(data[:, :2])

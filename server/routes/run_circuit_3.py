@@ -52,7 +52,7 @@ def run_circuit_3():
             np.arcsin(np.clip(x[1], -1, 1)) + np.log1p(x[1]) + np.cos(np.pi * x[0]),
         ]
 
-    data = genfromtxt("Data/dataset_0.csv", delimiter=",", skip_header=1)
+    data = genfromtxt("Data/dataset_3.csv", delimiter=",", skip_header=1)
     np.random.shuffle(data)
 
     feature = np.array(data[:, :2])
