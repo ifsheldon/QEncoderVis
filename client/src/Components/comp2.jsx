@@ -20,9 +20,14 @@ function DataSelectorPanel(props) {
 	const comp2_dataOption_distanceX = vis_width * 0.059;
 	const comp2_dataOption_distanceY = vis_width * 0.06;
 
-	const default_circuit = props.default_circuit;
-	const [_selectedDataOption, setSelectedDataOption] =
-		useState(default_circuit);
+    const default_circuit = props.default_circuit;
+    const [_selectedDataOption, setSelectedDataOption] =
+        useState(default_circuit);
+
+    // keep local selection in sync if parent updates default
+    useEffect(() => {
+        setSelectedDataOption(default_circuit);
+    }, [default_circuit]);
 	// let {showBoundary, setShowBoundary} = useState('visible')
 
 	function _onChange(e) {
@@ -77,11 +82,11 @@ function DataSelectorPanel(props) {
 						return (
 							<g
 								transform={`translate(${(i % 3) * comp2_dataOption_distanceX + 4}, ${Math.floor(i / 3) * comp2_dataOption_distanceY + 4})`}
-								className={
-									default_circuit.split("_")[1][0] == `${i}`
-										? "data-option-selected"
-										: "data-option-unselected"
-								}
+                                className={
+                                    (_selectedDataOption?.split("_")[1] === `${i}`)
+                                        ? "data-option-selected"
+                                        : "data-option-unselected"
+                                }
 								key={i}
 								id={`circuit_${i}`}
 								onClick={(e) => {
