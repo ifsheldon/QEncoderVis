@@ -14,10 +14,12 @@ function QuantumStateDistributionView(props) {
 	const [class_color, color_comp7_bg] = props.colors;
 
 	//////////////////////////////////////////////
-	// Mount the component once
-	useEffect(() => {
+    // Re-render whenever dataset changes
+    useEffect(() => {
+        if (!dataset || dataset.length === 0) return;
 		const svg = d3.select("#comp7");
-		svg.selectAll("circle.data-point").remove();
+        // clear previous points
+        svg.selectAll("circle.data-point").remove();
 
 		// Define margins and inner dimensions
 		const margin = { top: 20, right: 25, bottom: 20, left: 25 };
@@ -80,7 +82,7 @@ function QuantumStateDistributionView(props) {
 			.on("mouseout", () => {
 				tooltip.transition().duration(500).style("opacity", 0);
 			});
-	}, []);
+    }, [dataset]);
 
 	//////////////////////////////////////////////
 
