@@ -146,10 +146,10 @@ const data_port_map = {
 
 // feature map options and defaults by circuit
 const featureMapOptions = [
-	{ label: "FMArcsin", value: "FMArcsin" },
-	{ label: "FMArcLogTrig", value: "FMArcLogTrig" },
-	{ label: "FMArctanTrig", value: "FMArctanTrig" },
-	{ label: "FMExpTrig", value: "FMExpTrig" },
+	{ label: "Arcsin", value: "FMArcsin" },
+	{ label: "ArcLogTrig", value: "FMArcLogTrig" },
+	{ label: "ArctanTrig", value: "FMArctanTrig" },
+	{ label: "ExpTrig", value: "FMExpTrig" },
 ];
 
 const defaultFeatureMapByCircuit = {
