@@ -1,13 +1,7 @@
-from flask import jsonify
 import pennylane as qml
 from pennylane import numpy as np
 from pennylane.optimize import NesterovMomentumOptimizer
-import matplotlib.pyplot as plt
-import math
-from sklearn.datasets import make_circles, make_moons
 from numpy import genfromtxt
-
-from Data.Jiang_dataset import Jiang_dataset
 
 from functions.detect_boundary import detect_boundary, assign_and_order_dots
 from functions.dim_reduction import compute_distribution_map

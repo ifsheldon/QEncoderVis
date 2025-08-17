@@ -3,10 +3,6 @@
 import pennylane as qml
 from pennylane import numpy as np
 from pennylane.optimize import NesterovMomentumOptimizer
-import math
-import json
-
-from functions.detect_boundary import detect_boundary, assign_and_order_dots
 from functions.dim_reduction import compute_distribution_map
 
 from numpy import genfromtxt
@@ -59,18 +55,6 @@ def run_circuit_3():
     label = np.array(data[:, 2])
 
     features = np.array([get_angles(x) for x in feature], requires_grad=False)
-
-    # # Load and shuffle the dataset
-    # feature, label = func_get_original_data(num_per_side)
-    # dataset = list(zip(feature, label))
-    # np.random.shuffle(dataset)
-    # feature, label = zip(*dataset)
-    # # Convert to numpy arrays for processing, then later to plain lists.
-    # feature = np.array(feature)
-    # label = np.array(label)
-
-    # # Map raw features into angles (features remains a numpy array)
-    # features = np.array([get_angles(x) for x in feature], requires_grad=False)
 
     # Define the quantum node
     @qml.qnode(dev)

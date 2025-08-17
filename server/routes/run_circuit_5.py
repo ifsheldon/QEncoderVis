@@ -3,11 +3,6 @@
 import pennylane as qml
 from pennylane import numpy as np
 from pennylane.optimize import NesterovMomentumOptimizer
-import math
-import json
-
-# from Data.flipped_triangle_dataset import flipped_triangle_dataset
-from functions.detect_boundary import detect_boundary, assign_and_order_dots
 from functions.dim_reduction import compute_distribution_map
 
 from numpy import genfromtxt
