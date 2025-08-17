@@ -7,8 +7,8 @@ from functions.dim_reduction import compute_distribution_map
 
 from numpy import genfromtxt
 from functions.utils import recursive_convert
-from functions.encoding import (
-    rz_ry_cnot_encode,
+from functions.encoding import rz_ry_cnot_encode
+from functions.feature_mapping import (
     get_feature_map_by_name,
     get_default_feature_map_for_circuit,
 )

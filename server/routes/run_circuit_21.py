@@ -5,8 +5,8 @@ from numpy import genfromtxt
 
 from functions.detect_boundary import detect_boundary, assign_and_order_dots
 from functions.dim_reduction import compute_distribution_map
-from functions.encoding import (
-    rx_ry_ry_cnot_encode,
+from functions.encoding import rx_ry_ry_cnot_encode
+from functions.feature_mapping import (
     get_feature_map_by_name,
     get_default_feature_map_for_circuit,
 )
