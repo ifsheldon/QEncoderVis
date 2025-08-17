@@ -137,7 +137,6 @@ def run_circuit_5():
         result[flag] = [diff.tolist(), prob_measure_q0_1.tolist(), prob_measure_q0_0.tolist()]
 
     # Compute boundary and performance metrics.
-    # boundary = assign_and_order_dots(detect_boundary(feature.tolist(), label.tolist(), num_per_side), 2)
     cost_list = [float(x) for x in cost_list]
     acc_val_list = [float(x) for x in acc_val_list]
     trained_label = [float(x) for x in circuit(weights, features.T)]

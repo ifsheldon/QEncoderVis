@@ -147,8 +147,6 @@ def run_circuit_1():
         Y_train_batch = Y_train[batch_index]
 
         weights, _, _ = optimizer.step(cost, weights, feats_train_batch, Y_train_batch)
-        # print(qml.snapshots(circuit)(weights, feats_train_batch))
-        # print(counter)
 
         predictions_val = np.sign(circuit(weights, feats_val.T))
         acc_val = accuracy(Y_val, predictions_val)
@@ -188,8 +186,6 @@ def run_circuit_1():
             ]
             all_encoded_data[flag].append(target_probs)
 
-    # target_probs_list = np.array(target_probs_list)
-
     # test qubit 0 measured expectancy
     for flag in flag_list:
         target_probs_list = all_encoded_data[flag]
@@ -207,10 +203,6 @@ def run_circuit_1():
                 for a, b in zip(target_probs_list[:, 2], target_probs_list[:, 3])
             ]
         )
-
-        # # test qubit 1 measured expectancy
-        # result1 = np.array([float(a.item()) + float(b.item()) for a, b in zip(target_probs_list[:, 0], target_probs_list[:, 2])])
-        # result2 = np.array([float(a.item()) + float(b.item()) for a, b in zip(target_probs_list[:, 1], target_probs_list[:, 3])])
 
         expval = [x.item() for x in (prob_measure_q0_1 - prob_measure_q0_0)]
         prob_measure_q0_1 = [x.item() for x in prob_measure_q0_1]
@@ -231,7 +223,6 @@ def run_circuit_1():
         [[float(tensor.item()) for tensor in pair] for pair in region]
         for region in grouped_boundary
     ]
-    # print(boundary)
 
     #  画acc和loss的数据
     cost_list = [x.item() for x in cost_list]
@@ -255,9 +246,6 @@ def run_circuit_1():
         "measure": [["Measure(Z)", ""]],
     }
 
-    # 创建 encoded map的数据
-    # encoded_label = encoded_map_cal()
-
     # 创建trained map的数据
     trained_label = [x.item() for x in circuit(weights, features.T)]
 
@@ -265,7 +253,6 @@ def run_circuit_1():
         "original_data": {"feature": feature, "label": label},
         "circuit": circuit_implementation,
         "encoded_data": {"feature": feature, "label": result["flag4"][0]},
-        # 'boundary': grouped_boundary,
         "performance": {"epoch_number": epoch_number, "loss": cost_list, "accuracy": acc_val_list},
         "trained_data": {"feature": feature, "label": trained_label},
         "encoded_steps": [

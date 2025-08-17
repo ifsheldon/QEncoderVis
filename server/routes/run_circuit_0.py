@@ -58,12 +58,6 @@ def run_circuit_0():
     X = np.array(data[:, :2])
     Y = np.array(data[:, 2])
 
-    # data = Jiang_dataset(num_per_side)
-    # X = np.array(data[0])
-    # Y = np.array(data[1])
-
-    X = np.array(X)
-
     features = np.array([get_angles(x) for x in X], requires_grad=False)
 
     @qml.qnode(dev)
@@ -123,8 +117,6 @@ def run_circuit_0():
         Y_train_batch = Y_train[batch_index]
 
         weights, _, _ = optimizer.step(cost, weights, feats_train_batch, Y_train_batch)
-        # print(qml.snapshots(circuit)(weights, feats_train_batch))
-        # print(counter)
 
         predictions_val = np.sign(circuit(weights, feats_val.T))
         acc_val = accuracy(Y_val, predictions_val)
@@ -164,8 +156,6 @@ def run_circuit_0():
             ]
             all_encoded_data[flag].append(target_probs)
 
-    # target_probs_list = np.array(target_probs_list)
-
     # test qubit 0 measured expectancy
     for flag in flag_list:
         target_probs_list = all_encoded_data[flag]
@@ -183,10 +173,6 @@ def run_circuit_0():
                 for a, b in zip(target_probs_list[:, 2], target_probs_list[:, 3])
             ]
         )
-
-        # # test qubit 1 measured expectancy
-        # result1 = np.array([float(a.item()) + float(b.item()) for a, b in zip(target_probs_list[:, 0], target_probs_list[:, 2])])
-        # result2 = np.array([float(a.item()) + float(b.item()) for a, b in zip(target_probs_list[:, 1], target_probs_list[:, 3])])
 
         expval = [x.item() for x in (prob_measure_q0_1 - prob_measure_q0_0)]
         prob_measure_q0_1 = [x.item() for x in prob_measure_q0_1]
@@ -207,7 +193,6 @@ def run_circuit_0():
         [[float(tensor.item()) for tensor in pair] for pair in region]
         for region in grouped_boundary
     ]
-    # print(boundary)
 
     #  画acc和loss的数据
     cost_list = [x.item() for x in cost_list]
@@ -230,9 +215,6 @@ def run_circuit_0():
         ],
         "measure": [["Measure(Z)", ""]],
     }
-
-    # 创建 encoded map的数据
-    # encoded_label = encoded_map_cal()
 
     # 创建trained map的数据
     trained_label = [x.item() for x in circuit(weights, features.T)]
