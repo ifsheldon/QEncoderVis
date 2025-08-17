@@ -5,26 +5,8 @@ from numpy import genfromtxt
 
 from functions.detect_boundary import detect_boundary, assign_and_order_dots
 from functions.dim_reduction import compute_distribution_map
-
-
-def recursive_convert(o):
-    """
-    Recursively convert objects to plain Python types.
-    If an object has a 'tolist' method, call it and recursively convert the result.
-    """
-    if isinstance(o, dict):
-        return {k: recursive_convert(v) for k, v in o.items()}
-    elif isinstance(o, (list, tuple)):
-        return [recursive_convert(x) for x in o]
-    elif hasattr(o, "tolist"):
-        return recursive_convert(o.tolist())
-    elif isinstance(o, (int, float, str)):
-        return o
-    else:
-        try:
-            return float(o)
-        except Exception:
-            return o
+from functions.encoding import get_angles_arcsin
+from functions.utils import recursive_convert
 
 
 def run_circuit_21():
@@ -44,13 +26,6 @@ def run_circuit_21():
     batch_size = 3
     epoch_number = 100
 
-    def get_angles(x):
-        # ###
-        beta0 = 2 * np.arcsin(np.sqrt(x[0]))
-        beta1 = 2 * np.arcsin(np.sqrt(x[1]))
-
-        return [beta0, beta1]
-
     # Data
     data = genfromtxt(dataset_source, delimiter=",", skip_header=1)
     np.random.shuffle(data)
@@ -60,7 +35,7 @@ def run_circuit_21():
 
     X = np.array(X)
 
-    features = np.array([get_angles(x) for x in X], requires_grad=False)
+    features = np.array([get_angles_arcsin(x) for x in X], requires_grad=False)
 
     @qml.qnode(dev)
     def circuit(weights, x):
@@ -188,7 +163,6 @@ def run_circuit_21():
                 for ele in state_for_single_datapoint
             ]
             all_encoded_data[flag].append(target_probs)
-
 
     # test qubit 0 measured expectancy
     for flag in flag_list:

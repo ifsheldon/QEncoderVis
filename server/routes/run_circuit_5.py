@@ -6,26 +6,8 @@ from pennylane.optimize import NesterovMomentumOptimizer
 from functions.dim_reduction import compute_distribution_map
 
 from numpy import genfromtxt
-
-
-def recursive_convert(o):
-    """
-    Recursively convert objects to plain Python types.
-    If an object has a 'tolist' method, call it and recursively convert the result.
-    """
-    if isinstance(o, dict):
-        return {k: recursive_convert(v) for k, v in o.items()}
-    elif isinstance(o, (list, tuple)):
-        return [recursive_convert(x) for x in o]
-    elif hasattr(o, "tolist"):
-        return recursive_convert(o.tolist())
-    elif isinstance(o, (int, float, str)):
-        return o
-    else:
-        try:
-            return float(o)
-        except Exception:
-            return o
+from functions.utils import recursive_convert
+from functions.encoding import get_angles_exp_trig
 
 
 def run_circuit_5():
@@ -41,13 +23,6 @@ def run_circuit_5():
     batch_size = 3
     epoch_number = 100
 
-    # Define feature mapping (angle encoding)
-    def get_angles(x):
-        return [
-            np.pi * np.exp(-x[0]) + np.sin(2 * np.pi * x[1]),
-            np.pi * np.exp(-x[1]) + np.cos(2 * np.pi * x[0]),
-        ]
-
     # Use dataset_5 for the triangle dataset to match the UI thumbnail
     data = genfromtxt("Data/dataset_5.csv", delimiter=",", skip_header=1)
     np.random.shuffle(data)
@@ -56,7 +31,7 @@ def run_circuit_5():
     label = np.array(data[:, 2])
 
     # Map raw features into angles (features remains a numpy array)
-    features = np.array([get_angles(x) for x in feature], requires_grad=False)
+    features = np.array([get_angles_exp_trig(x) for x in feature], requires_grad=False)
 
     # Define the quantum node
     @qml.qnode(dev)
