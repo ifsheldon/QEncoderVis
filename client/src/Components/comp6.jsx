@@ -43,22 +43,49 @@ function EncoderStepMappingView(props) {
 
 	//////////////////////////////////////////////
 
-	// mount 的时候渲染一次
-	useEffect(() => {
-		const symbol_positions = [];
-		d3.selectAll(".symbol_position").each(function () {
-			const cx = d3.select(this).attr("cx"); // Get the 'cx' attribute
-			symbol_positions.push(cx); // Push the value into the array
-		});
-
-		set_symbol_positions(
-			[...new Set(symbol_positions.map(Number))].sort((a, b) => a - b),
-		);
-	}, []);
-
-	// mount 的时候渲染一次
+	// Recompute symbol positions when dataset (encoder) changes
 	useEffect(() => {
 		const container = d3.select("#comp6");
+		// clear previously drawn helper groups
+		container.selectAll('[class^="half-circle-group-"]').remove();
+		container.selectAll(".band").remove();
+		container.selectAll(".comp6-symbol").remove();
+
+		const collectPositions = () => {
+			const positions = [];
+			d3.selectAll(".symbol_position").each(function () {
+				const cx = d3.select(this).attr("cx");
+				positions.push(cx);
+			});
+			if (positions.length > 0) {
+				set_symbol_positions(
+					[...new Set(positions.map(Number))].sort((a, b) => a - b),
+				);
+			} else {
+				// comp3 may not have rendered yet; try next frame
+				requestAnimationFrame(collectPositions);
+			}
+		};
+
+		collectPositions();
+	}, [encoded_data, encoded_sub_data]);
+
+	// Draw auxiliary shapes only when data is ready and positions are known
+	useEffect(() => {
+		const ready =
+			symbol_positions &&
+			Array.isArray(encoded_data) &&
+			Array.isArray(encoded_sub_data) &&
+			encoded_data.length === symbol_positions.length &&
+			encoded_sub_data.length === symbol_positions.length &&
+			encoded_sub_data.every((e) => Array.isArray(e) && e.length >= 2);
+		if (!ready) return;
+
+		const container = d3.select("#comp6");
+		// clear any stale drawings
+		container.selectAll('[class^="half-circle-group-"]').remove();
+		container.selectAll(".band").remove();
+		container.selectAll(".comp6-symbol").remove();
 
 		const borderElements_1 = d3.selectAll(".encoder-step-sub-border").nodes();
 		const borderElements_2 = d3
@@ -101,7 +128,7 @@ function EncoderStepMappingView(props) {
 			const x = group.node().getBBox().x;
 			const y = group.node().getBBox().y + group.node().getBBox().height / 2;
 
-			const symbol_g = container.append("g");
+			const symbol_g = container.append("g").attr("class", "comp6-symbol");
 			const r = 10;
 
 			symbol_g
@@ -147,7 +174,15 @@ function EncoderStepMappingView(props) {
 				.attr("stroke", "#d9d9d9")
 				.attr("stroke-width", "15px");
 		}
-	}, [symbol_positions]);
+	}, [symbol_positions, encoded_data, encoded_sub_data]);
+
+	const ready =
+		symbol_positions &&
+		Array.isArray(encoded_data) &&
+		Array.isArray(encoded_sub_data) &&
+		encoded_data.length === symbol_positions.length &&
+		encoded_sub_data.length === symbol_positions.length &&
+		encoded_sub_data.every((e) => Array.isArray(e) && e.length >= 2);
 
 	return (
 		<div
@@ -178,7 +213,7 @@ function EncoderStepMappingView(props) {
 					ry="10"
 				/>
 
-				{symbol_positions ? (
+				{ready ? (
 					symbol_positions.map((symbol_position, i) => {
 						// console.log(symbol_position)
 
@@ -210,7 +245,7 @@ function EncoderStepMappingView(props) {
 					<div>Loading...</div>
 				)}
 
-				{symbol_positions ? (
+				{ready ? (
 					symbol_positions.map((symbol_position, i) => {
 						// console.log(symbol_position)
 
@@ -245,7 +280,7 @@ function EncoderStepMappingView(props) {
 					<div>Loading...</div>
 				)}
 
-				{symbol_positions ? (
+				{ready ? (
 					symbol_positions.map((symbol_position, i) => {
 						// console.log(symbol_position)
 
