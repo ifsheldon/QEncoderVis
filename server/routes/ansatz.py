@@ -7,3 +7,10 @@ def ansatz(weights):
     qml.RZ(weights[2], wires=1)
     qml.RY(weights[3], wires=1)
     qml.CNOT(wires=[0, 1])
+
+
+ansatz_steps = [
+    ["RZ", "RZ"],  # ansatz step 1
+    ["RY", "RY"],  # ansatz step 2
+    ["CX-0", "CX-1"],  # ansatz step 3
+]
