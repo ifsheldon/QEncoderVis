@@ -3,7 +3,7 @@ from sklearn.decomposition import PCA
 import pennylane as qml
 
 
-def compute_distribution_map(circuit, weights, features, labels, snapshot="flag4"):
+def compute_distribution_map(circuit, weights, features, labels, snapshot):
     density_matrices = []
     for i, data_point in enumerate(features):
         encoded = qml.snapshots(circuit)(weights, data_point)
