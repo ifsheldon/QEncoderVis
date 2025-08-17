@@ -142,8 +142,6 @@ const data_port_map = {
 	circuit_3: 3,
 	circuit_4: 4,
 	circuit_5: 5,
-
-	circuit_21: 21,
 };
 
 // feature map options and defaults by circuit
@@ -161,7 +159,6 @@ const defaultFeatureMapByCircuit = {
 	3: "FMArcLogTrig",
 	4: "FMArctanTrig",
 	5: "FMExpTrig",
-	21: "FMArcsin",
 };
 
 function App() {

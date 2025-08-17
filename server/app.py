@@ -13,8 +13,8 @@ from routes.run_circuit_2 import run_circuit_2
 from routes.run_circuit_3 import run_circuit_3
 from routes.run_circuit_4 import run_circuit_4
 from routes.run_circuit_5 import run_circuit_5
-
-from routes.run_circuit_21 import run_circuit_21
+from pennylane import numpy as np
+from routes.hyperparameters import SEED
 
 
 app = Flask(__name__)
@@ -26,13 +26,13 @@ app.config["DEBUG"] = True
 
 
 # Allowed circuit ids
-ALLOWED_CIRCUITS = {0, 1, 2, 3, 4, 5, 21}
+ALLOWED_CIRCUITS = {0, 1, 2, 3, 4, 5}
 
 
 class CircuitRequest(BaseModel):
     """Pydantic model for /api/run_circuit request body."""
 
-    circuit: int = Field(..., description="Circuit id (one of 0,1,2,3,4,5,21)")
+    circuit: int = Field(..., description="Circuit id (one of 0,1,2,3,4,5)")
     feature_map: str | None = Field(
         None,
         description="Feature map class name, e.g., 'FMArcsin'. Optional; defaults per circuit.",
@@ -89,11 +89,12 @@ def run_circuit():
             3: run_circuit_3,
             4: run_circuit_4,
             5: run_circuit_5,
-            21: run_circuit_21,
         }
 
         # Call the selected circuit runner and return its result (already plain types)
-        return circuit_map[circuit_id](feature_map_name)
+        np.random.seed(SEED)
+        circuit = circuit_map[circuit_id]
+        return circuit(feature_map_name)
 
     except Exception as e:
         print(e)

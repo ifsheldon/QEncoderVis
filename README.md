@@ -23,7 +23,7 @@ Body:
 { "circuit": 0 }
 ```
 
-Allowed circuit ids: 0, 1, 2, 3, 4, 5, 21.
+Allowed circuit ids: 0, 1, 2, 3, 4, 5.
 
 Example:
 

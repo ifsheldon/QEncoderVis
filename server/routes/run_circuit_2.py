@@ -11,32 +11,28 @@ from functions.feature_mapping import (
     get_default_feature_map_for_circuit,
 )
 from functions.utils import recursive_convert
+from hyperparameters import (
+    TRAIN_SPLIT,
+    NUM_QUBITS,
+    BATCH_SIZE,
+    DEFAULT_EPOCH_NUMBER,
+    DEFAULT_LR,
+)
 
 
-def run_circuit_2(feature_map_name: str | None = None):
-    # Adjusting for a 2-dimensional feature input
-    num_qubits = 2
-    train_split = 0.75
-    num_per_side = 20
+def run_circuit_2(
+    feature_map_name: str | None = None,
+    epoch_number: int = DEFAULT_EPOCH_NUMBER,
+    lr: float = DEFAULT_LR,
+):
     dataset_source = "Data/dataset_2.csv"
-
-    seed = 3407
-    np.random.seed(seed)
-
-    dev = qml.device("default.qubit", wires=num_qubits)
-    lr = 0.02
+    dev = qml.device("default.qubit", wires=NUM_QUBITS)
     optimizer = NesterovMomentumOptimizer(lr)
-    batch_size = 3
-    epoch_number = 100
-
     # Data
     data = genfromtxt(dataset_source, delimiter=",", skip_header=1)
     np.random.shuffle(data)
-
     X = np.array(data[:, :2])
     Y = np.array(data[:, 2])
-
-    X = np.array(X)
 
     if feature_map_name is None:
         fm = get_default_feature_map_for_circuit(2)
@@ -53,17 +49,15 @@ def run_circuit_2(feature_map_name: str | None = None):
         # ansatz
         qml.RZ(weights[0], wires=0)
         qml.RY(weights[1], wires=0)
-
         qml.RZ(weights[2], wires=1)
         qml.RY(weights[3], wires=1)
-
         qml.CNOT(wires=[0, 1])
 
         return qml.expval(qml.PauliZ(0))  ### single qubit measurement
 
     # Prepare training and validation splits
     num_data = len(Y)
-    num_train = int(train_split * num_data)
+    num_train = int(TRAIN_SPLIT * num_data)
     feats_train = features[:num_train]
     Y_train = Y[:num_train]
     feats_val = features[num_train:]
@@ -88,7 +82,7 @@ def run_circuit_2(feature_map_name: str | None = None):
     counter = 0
 
     for iter in range(epoch_number):
-        batch_index = np.random.randint(0, num_train, (batch_size,))
+        batch_index = np.random.randint(0, num_train, (BATCH_SIZE,))
         feats_train_batch = feats_train[batch_index]
         Y_train_batch = Y_train[batch_index]
 
@@ -161,14 +155,6 @@ def run_circuit_2(feature_map_name: str | None = None):
     # convert tensor to number
     feature = [[round(item[0].numpy(), 3), round(item[1].numpy(), 3)] for item in X]
     label = [round(item.item(), 3) for item in Y]
-
-    # 画encoder map里面的boundary线的数据
-    boundary = detect_boundary(feature, label, num_per_side)
-    grouped_boundary = assign_and_order_dots(boundary, 2)
-    grouped_boundary = [
-        [[float(tensor.item()) for tensor in pair] for pair in region]
-        for region in grouped_boundary
-    ]
 
     #  画acc和loss的数据
     cost_list = [x.item() for x in cost_list]

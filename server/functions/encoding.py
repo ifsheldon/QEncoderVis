@@ -1,5 +1,6 @@
 import pennylane as qml
 
+
 def rx_ry_cnot_encode(x):
     qml.Snapshot("flag1")
     qml.RX(x[0], wires=0)

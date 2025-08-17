@@ -13,23 +13,16 @@ from functions.feature_mapping import (
     get_default_feature_map_for_circuit,
 )
 
+from hyperparameters import TRAIN_SPLIT, NUM_QUBITS, BATCH_SIZE, DEFAULT_EPOCH_NUMBER
 
-def run_circuit_5(feature_map_name: str | None = None):
-    num_qubits = 2
-    train_split = 0.75
-    seed = 3407
-    np.random.seed(seed)
 
-    dev = qml.device("default.qubit", wires=num_qubits)
-    lr = 0.2
+def run_circuit_5(
+    feature_map_name: str | None = None, epoch_number: int = DEFAULT_EPOCH_NUMBER, lr: float = 0.2
+):
+    dev = qml.device("default.qubit", wires=NUM_QUBITS)
     optimizer = NesterovMomentumOptimizer(lr)
-    batch_size = 3
-    epoch_number = 100
-
-    # Use dataset_5 for the triangle dataset to match the UI thumbnail
     data = genfromtxt("Data/dataset_5.csv", delimiter=",", skip_header=1)
     np.random.shuffle(data)
-
     feature = np.array(data[:, :2])
     label = np.array(data[:, 2])
 
@@ -55,7 +48,7 @@ def run_circuit_5(feature_map_name: str | None = None):
 
     # Prepare training/validation splits
     num_data = len(label)
-    num_train = int(train_split * num_data)
+    num_train = int(TRAIN_SPLIT * num_data)
     feats_train, Y_train = features[:num_train], label[:num_train]
     feats_val, Y_val = features[num_train:], label[num_train:]
 
@@ -71,7 +64,7 @@ def run_circuit_5(feature_map_name: str | None = None):
     # Optimization loop
     cost_list, acc_val_list = [], []
     for iter in range(epoch_number):
-        batch_index = np.random.randint(0, num_train, (batch_size,))
+        batch_index = np.random.randint(0, num_train, (BATCH_SIZE,))
         weights, _, _ = optimizer.step(
             cost, weights, feats_train[batch_index], Y_train[batch_index]
         )

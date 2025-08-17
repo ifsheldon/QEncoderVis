@@ -109,7 +109,6 @@ DEFAULT_FEATURE_MAP_BY_CIRCUIT = {
     3: "FMArcLogTrig",
     4: "FMArctanTrig",
     5: "FMExpTrig",
-    21: "FMArcsin",
 }
 
 
