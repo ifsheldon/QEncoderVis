@@ -21,9 +21,11 @@ function QuantumCircuitView(props) {
 
 	//////////////////////////////////////////////
 
-	// mount 的时候渲染一次
+	// Redraw when dataset changes
 	useEffect(() => {
 		const svg = d3.select("#comp3");
+		// remove previous circuit drawing if any
+		svg.select(".quantum_circuit").remove();
 		const margin = { top: 15, left: 20, bottom: 15, right: 30 };
 		const width = +svg.attr("width") - margin.left - margin.right;
 		const height = +svg.attr("height") - margin.top - margin.bottom;
@@ -196,7 +198,7 @@ function QuantumCircuitView(props) {
 		//     .attr("y2", Y_dotTarget-9)
 		//     .attr("stroke", wire_color)
 		//     .attr('stroke-width', wire_stroke_width)
-	}, []);
+	}, [dataset]);
 
 	return (
 		<div
