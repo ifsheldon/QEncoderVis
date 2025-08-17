@@ -28,7 +28,7 @@ class FMArcsin(FeatureMap):
 
     def get_formula(self):
         # latex formula
-        return r"$\beta_0 = 2 \cdot \arcsin(\sqrt{x_0}), \beta_1 = 2 \cdot \arcsin(\sqrt{x_1})$"
+        return r"\beta_0 = 2 \cdot \arcsin(\sqrt{x_0}), \beta_1 = 2 \cdot \arcsin(\sqrt{x_1})"
 
 
 # def get_angles_arc_log_trig(x):
@@ -46,7 +46,7 @@ class FMArcLogTrig(FeatureMap):
         return [beta0, beta1]
 
     def get_formula(self):
-        return r"$\beta_0 = \arccos(\mathrm{clip}(x_0, -1, 1)) + \log(1 + x_0) + \sin(\pi x_1),\ \beta_1 = \arcsin(\mathrm{clip}(x_1, -1, 1)) + \log(1 + x_1) + \cos(\pi x_0)$"
+        return r"\beta_0 = \arccos(\mathrm{clip}(x_0, -1, 1)) + \log(1 + x_0) + \sin(\pi x_1),\ \beta_1 = \arcsin(\mathrm{clip}(x_1, -1, 1)) + \log(1 + x_1) + \cos(\pi x_0)"
 
 
 class FMArctanTrig(FeatureMap):
@@ -57,7 +57,7 @@ class FMArctanTrig(FeatureMap):
         return [beta0, beta1]
 
     def get_formula(self):
-        return r"$\beta_0 = \pi \cdot \arctan(x_0) + \cos(\pi x_1),\ \beta_1 = \pi \cdot \arctan(x_1) + \sin(\pi x_0)$"
+        return r"\beta_0 = \pi \cdot \arctan(x_0) + \cos(\pi x_1),\ \beta_1 = \pi \cdot \arctan(x_1) + \sin(\pi x_0)"
 
 
 # def get_angles_exp_trig(x):
@@ -75,7 +75,47 @@ class FMExpTrig(FeatureMap):
         return [beta0, beta1]
 
     def get_formula(self):
-        return r"$\beta_0 = \pi \cdot e^{-x_0} + \sin(2\pi x_1),\ \beta_1 = \pi \cdot e^{-x_1} + \cos(2\pi x_0)$"
+        return r"\beta_0 = \pi \cdot e^{-x_0} + \sin(2\pi x_1),\ \beta_1 = \pi \cdot e^{-x_1} + \cos(2\pi x_0)"
+
+
+# ------------------------------
+# Registry and helpers for FeatureMaps
+# ------------------------------
+FEATURE_MAP_CLASSES = {
+    "FMArcsin": FMArcsin,
+    "FMArcLogTrig": FMArcLogTrig,
+    "FMArctanTrig": FMArctanTrig,
+    "FMExpTrig": FMExpTrig,
+}
+
+ALLOWED_FEATURE_MAP_NAMES = set(FEATURE_MAP_CLASSES.keys())
+
+
+def get_feature_map_by_name(name):
+    """
+    Return an instance of the FeatureMap class by name.
+    Raises KeyError if the name is not registered.
+    """
+    cls = FEATURE_MAP_CLASSES.get(name)
+    if cls is None:
+        raise KeyError(f"Unknown feature map name: {name}")
+    return cls()
+
+
+DEFAULT_FEATURE_MAP_BY_CIRCUIT = {
+    0: "FMArcsin",
+    1: "FMArcsin",
+    2: "FMArcsin",
+    3: "FMArcLogTrig",
+    4: "FMArctanTrig",
+    5: "FMExpTrig",
+    21: "FMArcsin",
+}
+
+
+def get_default_feature_map_for_circuit(circuit_id: int):
+    name = DEFAULT_FEATURE_MAP_BY_CIRCUIT[circuit_id]
+    return get_feature_map_by_name(name)
 
 
 def rx_ry_cnot_encode(x):

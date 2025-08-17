@@ -6,10 +6,14 @@ from numpy import genfromtxt
 from functions.detect_boundary import detect_boundary, assign_and_order_dots
 from functions.dim_reduction import compute_distribution_map
 from functions.utils import recursive_convert
-from functions.encoding import FMArcsin, rxy_cnot_encode
+from functions.encoding import (
+    rxy_cnot_encode,
+    get_feature_map_by_name,
+    get_default_feature_map_for_circuit,
+)
 
 
-def run_circuit_1():
+def run_circuit_1(feature_map_name: str | None = None):
     # Adjusting for a 2-dimensional feature input
     num_qubits = 2
     repetition = 2
@@ -39,7 +43,10 @@ def run_circuit_1():
 
     X = np.array(X)
 
-    fm = FMArcsin()
+    if feature_map_name is None:
+        fm = get_default_feature_map_for_circuit(1)
+    else:
+        fm = get_feature_map_by_name(feature_map_name)
     features = np.array([fm.feature_map(x) for x in X], requires_grad=False)
 
     @qml.qnode(dev)
@@ -218,6 +225,9 @@ def run_circuit_1():
         ],
         "distribution_map": distribution_map,
     }
+
+    # Attach feature map formula for frontend description
+    result_to_return["feature_map_formula"] = fm.get_formula()
 
     plain_result = recursive_convert(result_to_return)
     return plain_result

@@ -1,11 +1,17 @@
 import { MathJaxContext, MathJax } from "better-react-mathjax";
 
-function DescriptionComp(_props) {
+function DescriptionComp(props) {
+	// Allow external positioning and sizing
+	const baseLeft = props.left ?? 250;
+	const baseTop = props.top ?? 163;
+	const baseWidth = props.width ?? 150;
+	const baseHeight = props.height ?? 100;
+
 	const text1_span = {
-		left: 250,
-		top: 163,
-		width: 150,
-		height: 100,
+		left: baseLeft,
+		top: baseTop,
+		width: baseWidth,
+		height: baseHeight,
 		x2: 20,
 		y2: 20,
 	};
@@ -15,7 +21,7 @@ function DescriptionComp(_props) {
 
 	const stroke_color = "#595959";
 
-	const formula = "2 \\cdot \\arcsin\\left(\\sqrt{x_0}\\right)";
+	const formula = props.formula || "";
 
 	const startX = text1_span.left + text1_span.x2; // x2 of the text box
 	const startY = text1_span.top + text1_span.y2; // y2 of the text box
@@ -28,7 +34,6 @@ function DescriptionComp(_props) {
 
 	// Path for the curved arrow
 	const _curvePath = `M ${startX},${startY} Q ${midX},${midY} ${endX},${endY}`;
-	// TODO: add description
 
 	return (
 		<span
@@ -48,9 +53,11 @@ function DescriptionComp(_props) {
 			Two data dimensions will be converted initially based on:
 			<MathJaxContext>
 				<div>
-					<MathJax style={{ fontStyle: "italic", fill: "#000000" }}>
-						{`\\(${formula}\\)`}
-					</MathJax>
+					{formula && (
+						<MathJax style={{ fontStyle: "italic", fill: "#000000" }}>
+							{`\\(${formula}\\)`}
+						</MathJax>
+					)}
 				</div>
 			</MathJaxContext>
 		</span>

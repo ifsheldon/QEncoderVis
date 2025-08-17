@@ -7,10 +7,14 @@ from functions.dim_reduction import compute_distribution_map
 
 from numpy import genfromtxt
 from functions.utils import recursive_convert
-from functions.encoding import FMArctanTrig, ry_rx_encode
+from functions.encoding import (
+    ry_rx_encode,
+    get_feature_map_by_name,
+    get_default_feature_map_for_circuit,
+)
 
 
-def run_circuit_4():
+def run_circuit_4(feature_map_name: str | None = None):
     num_qubits = 2
     train_split = 0.75
     num_per_side = 20
@@ -29,7 +33,10 @@ def run_circuit_4():
     feature = np.array(data[:, :2])
     label = np.array(data[:, 2])
 
-    fm = FMArctanTrig()
+    if feature_map_name is None:
+        fm = get_default_feature_map_for_circuit(4)
+    else:
+        fm = get_feature_map_by_name(feature_map_name)
     features = np.array([fm.feature_map(x) for x in feature], requires_grad=False)
 
     # Define the quantum node
@@ -134,5 +141,8 @@ def run_circuit_4():
     }
 
     # Recursively convert the result to plain Python types.
+    # Attach feature map formula for frontend description
+    result_to_return["feature_map_formula"] = fm.get_formula()
+
     plain_result = recursive_convert(result_to_return)
     return plain_result

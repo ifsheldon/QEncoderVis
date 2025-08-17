@@ -80,10 +80,28 @@ const comp7_height = vis_width * 0.145;
 const comp7_left = vis_width * 0.26,
 	comp7_top = vis_width * 0.34;
 
-const descriptionComp_width = vis_width;
-const descriptionComp_height = vis_height;
-const descriptionComp_left = 0,
-	descriptionComp_top = 0;
+// Description: position it below the Original Data view
+const descriptionComp_width = comp1_width;
+const descriptionComp_height = comp1_height * 0.22;
+const descriptionComp_left = comp1_left;
+const descriptionComp_top = comp1_top + comp1_height + 6;
+
+// Ensure components below description have enough padding
+const below_desc_padding = 20;
+const comp2_top_adjusted = Math.max(
+	comp2_top,
+	descriptionComp_top + descriptionComp_height + below_desc_padding,
+);
+
+const comp7_top_adjusted = Math.max(
+	comp7_top,
+	descriptionComp_top + descriptionComp_height + below_desc_padding,
+);
+
+const comp5_top_adjusted = Math.max(
+	comp5_top,
+	descriptionComp_top + descriptionComp_height + below_desc_padding,
+);
 
 const article_width = 650;
 const centered_footer_bgColor = 650;
@@ -128,16 +146,50 @@ const data_port_map = {
 	circuit_21: 21,
 };
 
+// feature map options and defaults by circuit
+const featureMapOptions = [
+	{ label: "FMArcsin", value: "FMArcsin" },
+	{ label: "FMArcLogTrig", value: "FMArcLogTrig" },
+	{ label: "FMArctanTrig", value: "FMArctanTrig" },
+	{ label: "FMExpTrig", value: "FMExpTrig" },
+];
+
+const defaultFeatureMapByCircuit = {
+	0: "FMArcsin",
+	1: "FMArcsin",
+	2: "FMArcsin",
+	3: "FMArcLogTrig",
+	4: "FMArctanTrig",
+	5: "FMExpTrig",
+	21: "FMArcsin",
+};
+
 function App() {
 	const default_circuit = "circuit_5";
 	const [data_name, set_dataName] = useState(default_circuit);
 	const [dataset, setDataset] = useState(null);
+	const [featureMap, setFeatureMap] = useState(
+		defaultFeatureMapByCircuit[data_port_map[default_circuit]],
+	);
+
+	// Derive circuit-specific default feature map label for options
+	const currentCircuitId = data_port_map[data_name];
+	const recommendedFeatureMap = defaultFeatureMapByCircuit[currentCircuitId];
+	const featureMapOptionsWithDefault = featureMapOptions.map((opt) => ({
+		label:
+			opt.value === recommendedFeatureMap
+				? `${opt.label} (default)`
+				: opt.label,
+		value: opt.value,
+	}));
 
 	const [drawer_open, set_drawer_open] = useState(false);
 	const [_comp6Loading, _setComp6Loading] = useState(true);
 
 	const handleDatasetClick = (datasetName) => {
 		set_dataName(datasetName);
+		const cid = data_port_map[datasetName];
+		setFeatureMap(defaultFeatureMapByCircuit[cid]);
 	};
 
 	/*设置抽屉的状态的函数*/
@@ -158,7 +210,10 @@ function App() {
 
 		const fetchData = async () => {
 			try {
-				const result = await axios.post(request_url, { circuit: circuit_id });
+				const result = await axios.post(request_url, {
+					circuit: circuit_id,
+					feature_map: featureMap,
+				});
 				console.log(`'App.js' - Dataset (${data_name}) loaded. `, result.data);
 				setDataset(result.data);
 			} catch (err) {
@@ -168,7 +223,7 @@ function App() {
 		};
 
 		fetchData();
-	}, [data_name]);
+	}, [data_name, featureMap]);
 
 	// useEffect(() => {
 	//
@@ -289,6 +344,26 @@ function App() {
 										</Button>
 									</div>
 								</Drawer>
+							</Col>
+						</Row>
+					</div>
+
+					{/* Feature map selector */}
+					<div style={{ marginTop: "10px", marginLeft: "1.4em" }}>
+						<span className={"control_font"}>Feature map</span>
+						<Row style={{ width: "220px", marginTop: "5px" }}>
+							<Col span={16}>
+								<Select
+									style={{
+										width: "100%",
+										height: "32px",
+									}}
+									size={"small"}
+									placeholder="Select feature map"
+									value={featureMap}
+									onChange={(val) => setFeatureMap(val)}
+									options={featureMapOptionsWithDefault}
+								/>
 							</Col>
 						</Row>
 					</div>
@@ -433,7 +508,7 @@ function App() {
 							comp2_width={comp2_width}
 							comp2_height={comp2_height}
 							comp2_left={comp2_left}
-							comp2_top={comp2_top}
+							comp2_top={comp2_top_adjusted}
 							vis_width={vis_width}
 						></DataSelectorPanel>
 					)}
@@ -485,7 +560,7 @@ function App() {
 							comp5_width={comp5_width}
 							comp5_height={comp5_height}
 							comp5_left={comp5_left}
-							comp5_top={comp5_top}
+							comp5_top={comp5_top_adjusted}
 						></ModelPerformanceView>
 					)}
 
@@ -508,7 +583,7 @@ function App() {
 							comp7_width={comp7_width}
 							comp7_height={comp7_height}
 							comp7_left={comp7_left}
-							comp7_top={comp7_top}
+							comp7_top={comp7_top_adjusted}
 							colors={[[color_class1, color_class2], color_comp7_bg]}
 						></QuantumStateDistributionView>
 					)}
@@ -516,18 +591,16 @@ function App() {
 					{/* Component-descriptionComp: some description*/}
 					{dataset && (
 						<DescriptionComp
-							// dataset={dataset['encoded_steps']}
-							descriptionComp_width={descriptionComp_width}
-							descriptionComp_height={descriptionComp_height}
-							descriptionComp_left={descriptionComp_left}
-							descriptionComp_top={descriptionComp_top}
-							// colors={[[color_class1, color_class2], color_comp7_bg]}
-						></DescriptionComp>
+							formula={dataset["feature_map_formula"]}
+							left={descriptionComp_left}
+							top={descriptionComp_top}
+							width={descriptionComp_width}
+							height={descriptionComp_height}
+						/>
 					)}
 				</div>
 			</div>
 
-			{/*article after the vis view*/}
 			<article>
 				<div
 					className="article-body"
@@ -537,7 +610,6 @@ function App() {
 				</div>
 			</article>
 
-			{/* footer*/}
 			<footer>
 				<div
 					className="centered-footer"
