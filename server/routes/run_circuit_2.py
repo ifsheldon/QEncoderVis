@@ -16,7 +16,6 @@ from functions.utils import recursive_convert
 def run_circuit_2(feature_map_name: str | None = None):
     # Adjusting for a 2-dimensional feature input
     num_qubits = 2
-    repetition = 2
     train_split = 0.75
     num_per_side = 20
     dataset_source = "Data/dataset_2.csv"

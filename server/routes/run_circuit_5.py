@@ -17,7 +17,6 @@ from functions.feature_mapping import (
 def run_circuit_5(feature_map_name: str | None = None):
     num_qubits = 2
     train_split = 0.75
-    num_per_side = 20
     seed = 3407
     np.random.seed(seed)
 
