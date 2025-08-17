@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from pydantic import BaseModel, Field, ValidationError, field_validator
-from functions.encoding import (
+from functions.feature_mapping import (
     ALLOWED_FEATURE_MAP_NAMES,
     get_feature_map_by_name,
     DEFAULT_FEATURE_MAP_BY_CIRCUIT,

@@ -13,16 +13,16 @@ from functions.feature_mapping import (
     get_default_feature_map_for_circuit,
 )
 
-from hyperparameters import (
+from routes.hyperparameters import (
     TRAIN_SPLIT,
     NUM_QUBITS,
     BATCH_SIZE,
     DEFAULT_EPOCH_NUMBER,
     DEFAULT_LR,
 )
-from cost import cost as cost_fn
+from routes.cost import cost as cost_fn
 from functools import partial
-from accuracy import accuracy
+from routes.accuracy import accuracy
 
 
 def run_circuit_3(

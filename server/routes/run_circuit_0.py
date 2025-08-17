@@ -10,7 +10,7 @@ from functions.feature_mapping import (
     get_default_feature_map_for_circuit,
 )
 from functions.utils import recursive_convert
-from hyperparameters import (
+from routes.hyperparameters import (
     TRAIN_SPLIT,
     NUM_QUBITS,
     BATCH_SIZE,
@@ -18,10 +18,10 @@ from hyperparameters import (
     DEFAULT_LR,
 )
 
-from ansatz import ansatz
-from cost import cost as cost_fn
+from routes.ansatz import ansatz
+from routes.cost import cost as cost_fn
 from functools import partial
-from accuracy import accuracy
+from routes.accuracy import accuracy
 
 
 def run_circuit_0(
