@@ -7,14 +7,14 @@ from functions.dim_reduction import compute_distribution_map
 
 from numpy import genfromtxt
 from functions.utils import recursive_convert
-from functions.encoding import rz_ry_cnot_encode
+from functions.encoding import EncoderRzRyCnot
 from functions.feature_mapping import (
     get_feature_map_by_name,
     get_default_feature_map_for_circuit,
 )
 
 from routes.hyperparameters import TRAIN_SPLIT, NUM_QUBITS, BATCH_SIZE, DEFAULT_EPOCH_NUMBER
-from routes.ansatz import ansatz
+from routes.ansatz import ansatz, ansatz_steps
 from routes.cost import cost as cost_fn
 from functools import partial
 from routes.accuracy import accuracy
@@ -36,10 +36,11 @@ def run_circuit_5(
     else:
         fm = get_feature_map_by_name(feature_map_name)
     features = np.array([fm.feature_map(x) for x in feature], requires_grad=False)
+    encoder = EncoderRzRyCnot()
 
     @qml.qnode(dev)
     def circuit(weights, x):
-        rz_ry_cnot_encode(x)
+        encoder.encode(x)
         ansatz(weights)
         return qml.expval(qml.PauliZ(0))
 
@@ -69,7 +70,7 @@ def run_circuit_5(
         acc_val_list.append(acc_val)
 
     # Compute encoded data from snapshots
-    flag_list = ["flag1", "flag2", "flag3", "flag4"]
+    flag_list = encoder.flags()
     result = {flag: [] for flag in flag_list}
     all_encoded_data = {flag: [] for flag in flag_list}
 
@@ -97,7 +98,9 @@ def run_circuit_5(
     cost_list = [float(x) for x in cost_list]
     acc_val_list = [float(x) for x in acc_val_list]
     trained_label = [float(x) for x in circuit(weights, features.T)]
-    distribution_map = compute_distribution_map(circuit, weights, features, label, snapshot="flag3")
+    distribution_map = compute_distribution_map(
+        circuit, weights, features, label, snapshot=flag_list[-2]
+    )
 
     original_feature = feature.tolist()
     original_label = label.tolist()
@@ -105,24 +108,24 @@ def run_circuit_5(
     result_to_return = {
         "original_data": {"feature": original_feature, "label": original_label},
         "circuit": {
-            "qubit_number": 2,
-            "encoder_step": 2,
-            "encoder": [["RZ(x)", "RZ(x)"], ["RY(x)", "RY(x)"], []],
-            "ansatz": [["RZ", "RZ"], ["RY", "RY"], ["CX-0", "CX-1"]],
+            "qubit_number": NUM_QUBITS,
+            "encoder_step": encoder.num_steps(),
+            "encoder": encoder.steps(),
+            "ansatz": ansatz_steps,
             "measure": [["Measure(Z)", ""]],
         },
-        "encoded_data": {"feature": original_feature, "label": result["flag3"][0]},
+        "encoded_data": {"feature": original_feature, "label": result[flag_list[-2]][0]},
         "performance": {"epoch_number": epoch_number, "loss": cost_list, "accuracy": acc_val_list},
         "trained_data": {"feature": original_feature, "label": trained_label},
         "encoded_steps": [
-            {"feature": original_feature, "label": result[flag][0]} for flag in ["flag1", "flag2"]
+            {"feature": original_feature, "label": result[f][0]} for f in flag_list[:-1]
         ],
         "encoded_steps_sub": [
             [
-                {"feature": original_feature, "label": result[flag][1]},
-                {"feature": original_feature, "label": result[flag][2]},
+                {"feature": original_feature, "label": result[f][1]},
+                {"feature": original_feature, "label": result[f][2]},
             ]
-            for flag in ["flag1", "flag2"]
+            for f in flag_list[:-1]
         ],
         "distribution_map": distribution_map,
     }

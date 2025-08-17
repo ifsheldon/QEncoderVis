@@ -3,9 +3,8 @@ from pennylane import numpy as np
 from pennylane.optimize import NesterovMomentumOptimizer
 from numpy import genfromtxt
 
-from functions.detect_boundary import detect_boundary, assign_and_order_dots
 from functions.dim_reduction import compute_distribution_map
-from functions.encoding import rxy_cnot_encode
+from functions.encoding import EncoderRxyCnot
 from functions.feature_mapping import (
     get_feature_map_by_name,
     get_default_feature_map_for_circuit,
@@ -18,7 +17,7 @@ from routes.hyperparameters import (
     DEFAULT_EPOCH_NUMBER,
     DEFAULT_LR,
 )
-from routes.ansatz import ansatz
+from routes.ansatz import ansatz, ansatz_steps
 from routes.cost import cost as cost_fn
 from functools import partial
 from routes.accuracy import accuracy
@@ -42,10 +41,11 @@ def run_circuit_1(
     else:
         fm = get_feature_map_by_name(feature_map_name)
     features = np.array([fm.feature_map(x) for x in X], requires_grad=False)
+    encoder = EncoderRxyCnot()
 
     @qml.qnode(dev)
     def circuit(weights, x):
-        rxy_cnot_encode(x)
+        encoder.encode(x)
         ansatz(weights)
         return qml.expval(qml.PauliZ(0))  ### single qubit measurement
 
@@ -89,21 +89,11 @@ def run_circuit_1(
     # extract and draw the encoded data
     target_probs_list = []
 
-    flag_list = ["flag1", "flag2", "flag3", "flag4"]
+    flag_list = encoder.flags()
 
-    all_encoded_data = {
-        "flag1": [],
-        "flag2": [],
-        "flag3": [],
-        "flag4": [],
-    }
+    all_encoded_data = {flag: [] for flag in flag_list}
 
-    result = {
-        "flag1": [],
-        "flag2": [],
-        "flag3": [],
-        "flag4": [],
-    }
+    result = {flag: [] for flag in flag_list}
 
     for i, data_point in enumerate(features):
         encoded = qml.snapshots(circuit)(weights, data_point)
@@ -148,22 +138,16 @@ def run_circuit_1(
     #  画acc和loss的数据
     cost_list = [x.item() for x in cost_list]
     acc_val_list = [x.item() for x in acc_val_list]
-    distribution_map = compute_distribution_map(circuit, weights, features, Y, snapshot="flag3")
+    distribution_map = compute_distribution_map(
+        circuit, weights, features, Y, snapshot=flag_list[-2]
+    )
 
     # 创建dict for encoder, 来给前端返回, 画circuit的数据
     circuit_implementation = {
-        "qubit_number": 2,
-        "encoder_step": 3,
-        "encoder": [
-            ["H", "H"],  # encoder step 1
-            ["RY(x)", "RY(x)"],  # encoder step 2
-            ["CNOT-0", "CNOT-1"],  # encoder step 3
-        ],
-        "ansatz": [
-            ["RZ", "RZ"],  # ansatz step 1
-            ["RY", "RY"],  # ansatz step 2
-            ["CX-0", "CX-1"],  # ansatz step 3
-        ],
+        "qubit_number": NUM_QUBITS,
+        "encoder_step": encoder.num_steps(),
+        "encoder": encoder.steps(),
+        "ansatz": ansatz_steps,
         "measure": [["Measure(Z)", ""]],
     }
 
@@ -173,27 +157,16 @@ def run_circuit_1(
     result_to_return = {
         "original_data": {"feature": feature, "label": label},
         "circuit": circuit_implementation,
-        "encoded_data": {"feature": feature, "label": result["flag4"][0]},
+        "encoded_data": {"feature": feature, "label": result[flag_list[-1]][0]},
         "performance": {"epoch_number": epoch_number, "loss": cost_list, "accuracy": acc_val_list},
         "trained_data": {"feature": feature, "label": trained_label},
-        "encoded_steps": [
-            {"feature": feature, "label": result["flag1"][0]},
-            {"feature": feature, "label": result["flag2"][0]},
-            {"feature": feature, "label": result["flag3"][0]},
-        ],
+        "encoded_steps": [{"feature": feature, "label": result[f][0]} for f in flag_list[:-1]],
         "encoded_steps_sub": [
             [
-                {"feature": feature, "label": result["flag1"][1]},
-                {"feature": feature, "label": result["flag1"][2]},
-            ],
-            [
-                {"feature": feature, "label": result["flag2"][1]},
-                {"feature": feature, "label": result["flag2"][2]},
-            ],
-            [
-                {"feature": feature, "label": result["flag3"][1]},
-                {"feature": feature, "label": result["flag3"][2]},
-            ],
+                {"feature": feature, "label": result[f][1]},
+                {"feature": feature, "label": result[f][2]},
+            ]
+            for f in flag_list[:-1]
         ],
         "distribution_map": distribution_map,
     }

@@ -72,33 +72,28 @@ def index():
 
 @app.route("/api/run_circuit", methods=["POST"])
 def run_circuit():
+    payload = request.get_json(silent=True) or {}
     try:
-        payload = request.get_json(silent=True) or {}
-        try:
-            req = CircuitRequest.model_validate(payload)
-        except ValidationError as ve:
-            return jsonify({"error": "Validation error", "details": ve.errors()}), 422
+        req = CircuitRequest.model_validate(payload)
+    except ValidationError as ve:
+        return jsonify({"error": "Validation error", "details": ve.errors()}), 422
 
-        circuit_id = req.circuit
-        feature_map_name = req.feature_map or DEFAULT_FEATURE_MAP_BY_CIRCUIT.get(circuit_id)
+    circuit_id = req.circuit
+    feature_map_name = req.feature_map or DEFAULT_FEATURE_MAP_BY_CIRCUIT.get(circuit_id)
 
-        circuit_map = {
-            0: run_circuit_0,
-            1: run_circuit_1,
-            2: run_circuit_2,
-            3: run_circuit_3,
-            4: run_circuit_4,
-            5: run_circuit_5,
-        }
+    circuit_map = {
+        0: run_circuit_0,
+        1: run_circuit_1,
+        2: run_circuit_2,
+        3: run_circuit_3,
+        4: run_circuit_4,
+        5: run_circuit_5,
+    }
 
-        # Call the selected circuit runner and return its result (already plain types)
-        np.random.seed(SEED)
-        circuit = circuit_map[circuit_id]
-        return circuit(feature_map_name)
-
-    except Exception as e:
-        print(e)
-        return "error"
+    # Call the selected circuit runner and return its result (already plain types)
+    np.random.seed(SEED)
+    circuit = circuit_map[circuit_id]
+    return circuit(feature_map_name)
 
 
 if __name__ == "__main__":
