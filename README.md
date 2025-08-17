@@ -32,3 +32,9 @@ curl -X POST http://127.0.0.1:3030/api/run_circuit \
   -H 'Content-Type: application/json' \
   -d '{"circuit": 5}'
 ```
+
+## TODOs
+* Implement training progress
+* Fix all buttons
+* Implement edge detection
+* Add different descriptions for different encodings
