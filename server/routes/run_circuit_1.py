@@ -6,7 +6,7 @@ from numpy import genfromtxt
 from functions.detect_boundary import detect_boundary, assign_and_order_dots
 from functions.dim_reduction import compute_distribution_map
 from functions.utils import recursive_convert
-from functions.encoding import get_angles_arcsin, rxy_cnot_encode
+from functions.encoding import FMArcsin, rxy_cnot_encode
 
 
 def run_circuit_1():
@@ -39,35 +39,11 @@ def run_circuit_1():
 
     X = np.array(X)
 
-    features = np.array([get_angles_arcsin(x) for x in X], requires_grad=False)
+    fm = FMArcsin()
+    features = np.array([fm.feature_map(x) for x in X], requires_grad=False)
 
     @qml.qnode(dev)
     def circuit(weights, x):
-        # ### encoding 1 - 57%
-        # qml.Snapshot('flag1')
-        # qml.RX(x[0], wires=0)
-        # qml.RX(x[1], wires=1)
-        # qml.Snapshot('flag2')
-        # qml.RY(x[0], wires=0)
-        # qml.RY(x[1], wires=1)
-        # qml.Snapshot('flag3')
-        # qml.CNOT(wires=[0,1])
-
-        # qml.Snapshot('flag4')
-
-        # ### encoding 2 - 52%
-        # qml.Snapshot('flag1')
-        # qml.RX(x[0], wires=0)
-        # qml.RY(x[1], wires=1)
-        # qml.Snapshot('flag2')
-        # qml.RX(x[0], wires=0)
-        # qml.RY(x[1], wires=1)
-        # qml.Snapshot('flag3')
-        # qml.CNOT(wires=[0,1])
-
-        # qml.Snapshot('flag4')
-
-        ### encoding 3 - 90%
         rxy_cnot_encode(x)
 
         # ansatz

@@ -6,7 +6,7 @@ from numpy import genfromtxt
 from functions.detect_boundary import detect_boundary, assign_and_order_dots
 from functions.dim_reduction import compute_distribution_map
 from functions.utils import recursive_convert
-from functions.encoding import get_angles_arcsin, rx_ry_cnot_encode
+from functions.encoding import FMArcsin, rx_ry_cnot_encode
 
 
 def run_circuit_2():
@@ -35,7 +35,8 @@ def run_circuit_2():
 
     X = np.array(X)
 
-    features = np.array([get_angles_arcsin(x) for x in X], requires_grad=False)
+    fm = FMArcsin()
+    features = np.array([fm.feature_map(x) for x in X], requires_grad=False)
 
     @qml.qnode(dev)
     def circuit(weights, x):

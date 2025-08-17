@@ -7,7 +7,7 @@ from functions.dim_reduction import compute_distribution_map
 
 from numpy import genfromtxt
 from functions.utils import recursive_convert
-from functions.encoding import get_angles_exp_trig, rz_ry_cnot_encode
+from functions.encoding import FMExpTrig, rz_ry_cnot_encode
 
 
 def run_circuit_5():
@@ -31,7 +31,8 @@ def run_circuit_5():
     label = np.array(data[:, 2])
 
     # Map raw features into angles (features remains a numpy array)
-    features = np.array([get_angles_exp_trig(x) for x in feature], requires_grad=False)
+    fm = FMExpTrig()
+    features = np.array([fm.feature_map(x) for x in feature], requires_grad=False)
 
     # Define the quantum node
     @qml.qnode(dev)

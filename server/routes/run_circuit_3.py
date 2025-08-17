@@ -7,7 +7,7 @@ from functions.dim_reduction import compute_distribution_map
 
 from numpy import genfromtxt
 from functions.utils import recursive_convert
-from functions.encoding import get_angles_arc_log_trig, rz_ry_encode
+from functions.encoding import FMArcLogTrig, rz_ry_encode
 
 
 def run_circuit_3():
@@ -29,7 +29,8 @@ def run_circuit_3():
     feature = np.array(data[:, :2])
     label = np.array(data[:, 2])
 
-    features = np.array([get_angles_arc_log_trig(x) for x in feature], requires_grad=False)
+    fm = FMArcLogTrig()
+    features = np.array([fm.feature_map(x) for x in feature], requires_grad=False)
 
     # Define the quantum node
     @qml.qnode(dev)

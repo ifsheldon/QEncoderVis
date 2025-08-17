@@ -7,7 +7,7 @@ from functions.dim_reduction import compute_distribution_map
 
 from numpy import genfromtxt
 from functions.utils import recursive_convert
-from functions.encoding import get_angles_arctan_trig, ry_rx_encode
+from functions.encoding import FMArctanTrig, ry_rx_encode
 
 
 def run_circuit_4():
@@ -29,7 +29,8 @@ def run_circuit_4():
     feature = np.array(data[:, :2])
     label = np.array(data[:, 2])
 
-    features = np.array([get_angles_arctan_trig(x) for x in feature], requires_grad=False)
+    fm = FMArctanTrig()
+    features = np.array([fm.feature_map(x) for x in feature], requires_grad=False)
 
     # Define the quantum node
     @qml.qnode(dev)
