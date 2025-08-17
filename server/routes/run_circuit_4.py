@@ -7,7 +7,7 @@ from functions.dim_reduction import compute_distribution_map
 
 from numpy import genfromtxt
 from functions.utils import recursive_convert
-from functions.encoding import get_angles_arctan_trig
+from functions.encoding import get_angles_arctan_trig, ry_rx_encode
 
 
 def run_circuit_4():
@@ -34,15 +34,7 @@ def run_circuit_4():
     # Define the quantum node
     @qml.qnode(dev)
     def circuit(weights, x):
-        qml.Snapshot("flag1")
-        qml.RY(x[0], wires=0)
-        qml.RY(x[1], wires=1)
-
-        qml.Snapshot("flag2")
-        qml.RX(x[1], wires=0)
-        qml.RX(x[0], wires=1)
-
-        qml.Snapshot("flag3")
+        ry_rx_encode(x)
 
         # Ansatz
         qml.RZ(weights[0], wires=0)

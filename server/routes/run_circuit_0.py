@@ -5,7 +5,7 @@ from numpy import genfromtxt
 
 from functions.detect_boundary import detect_boundary, assign_and_order_dots
 from functions.dim_reduction import compute_distribution_map
-from functions.encoding import get_angles_arcsin
+from functions.encoding import get_angles_arcsin, rx_ry_cnot_encode
 from functions.utils import recursive_convert
 
 
@@ -38,16 +38,7 @@ def run_circuit_0():
     @qml.qnode(dev)
     def circuit(weights, x):
         ### encoding
-        qml.Snapshot("flag1")
-        qml.RX(x[0], wires=0)
-        qml.RX(x[1], wires=1)
-        qml.Snapshot("flag2")
-        qml.RY(x[0], wires=0)
-        qml.RY(x[1], wires=1)
-        qml.Snapshot("flag3")
-        qml.CNOT(wires=[0, 1])
-
-        qml.Snapshot("flag4")
+        rx_ry_cnot_encode(x)
 
         # ansatz
         qml.RZ(weights[0], wires=0)
@@ -198,7 +189,6 @@ def run_circuit_0():
         "original_data": {"feature": feature, "label": label},
         "circuit": circuit_implementation,
         "encoded_data": {"feature": feature, "label": result["flag4"][0]},
-        # 'boundary': grouped_boundary,
         "performance": {"epoch_number": epoch_number, "loss": cost_list, "accuracy": acc_val_list},
         "trained_data": {"feature": feature, "label": trained_label},
         "encoded_steps": [

@@ -6,7 +6,7 @@ from numpy import genfromtxt
 from functions.detect_boundary import detect_boundary, assign_and_order_dots
 from functions.dim_reduction import compute_distribution_map
 from functions.utils import recursive_convert
-from functions.encoding import get_angles_arcsin
+from functions.encoding import get_angles_arcsin, rxy_cnot_encode
 
 
 def run_circuit_1():
@@ -68,16 +68,7 @@ def run_circuit_1():
         # qml.Snapshot('flag4')
 
         ### encoding 3 - 90%
-        qml.Snapshot("flag1")
-        # qml.Hadamard(wires=0)
-        # qml.Hadamard(wires=1)
-        qml.Snapshot("flag2")
-        qml.RX(x[0], wires=0)
-        qml.RY(x[1], wires=1)
-        qml.Snapshot("flag3")
-        qml.CNOT(wires=[0, 1])
-
-        qml.Snapshot("flag4")
+        rxy_cnot_encode(x)
 
         # ansatz
         qml.RZ(weights[0], wires=0)
