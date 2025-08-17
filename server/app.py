@@ -1,5 +1,5 @@
-from flask import Flask, render_template
-from flask_cors import CORS, cross_origin
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 
 from routes.run_circuit_0 import run_circuit_0
 from routes.run_circuit_1 import run_circuit_1
@@ -30,77 +30,32 @@ def index():
         return "error"
 
 
-# Jiang - bad
-@app.route("/api/run_circuit_0")
-def run_circuit0():
+@app.route("/api/run_circuit", methods=["POST"])
+def run_circuit():
     try:
-        return run_circuit_0()
+        payload = request.get_json(silent=True) or {}
+        circuit_id = payload.get("circuit")
 
-    except Exception as e:
-        print(e)
-        return "error"
+        circuit_map = {
+            0: run_circuit_0,
+            1: run_circuit_1,
+            2: run_circuit_2,
+            3: run_circuit_3,
+            4: run_circuit_4,
+            5: run_circuit_5,
+            21: run_circuit_21,
+        }
 
+        if circuit_id not in circuit_map:
+            return jsonify(
+                {
+                    "error": "Invalid circuit id",
+                    "allowed": sorted(list(circuit_map.keys())),
+                }
+            ), 400
 
-# wavy - bad
-@app.route("/api/run_circuit_1")
-def run_circuit1():
-    try:
-        return run_circuit_1()
-
-    except Exception as e:
-        print(e)
-        return "error"
-
-
-# circle - bad
-@app.route("/api/run_circuit_2")
-def run_circuit2():
-    try:
-        return run_circuit_2()
-
-    except Exception as e:
-        print(e)
-        return "error"
-
-
-# circle - bad
-@app.route("/api/run_circuit_21")
-def run_circuit21():
-    try:
-        return run_circuit_21()
-
-    except Exception as e:
-        print(e)
-        return "error"
-
-
-# semicircle - good
-@app.route("/api/run_circuit_3")
-def run_circuit3():
-    try:
-        return run_circuit_3()
-
-    except Exception as e:
-        print(e)
-        return "error"
-
-
-# diagnal_slit - good
-@app.route("/api/run_circuit_4")
-def run_circuit4():
-    try:
-        return run_circuit_4()
-
-    except Exception as e:
-        print(e)
-        return "error"
-
-
-# triangle - good
-@app.route("/api/run_circuit_5")
-def run_circuit5():
-    try:
-        return run_circuit_5()
+        # Call the selected circuit runner and return its result (already plain types)
+        return circuit_map[circuit_id]()
 
     except Exception as e:
         print(e)

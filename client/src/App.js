@@ -116,16 +116,16 @@ const color_comp6_bg = "#f9f9f9";
 const color_comp7_bg = "#ececec";
 const color_linkComp_bg = "#fafafa";
 
-// dataset and backend port API
+// dataset and backend circuit ids
 const data_port_map = {
-	circuit_0: "run_circuit_0",
-	circuit_1: "run_circuit_1",
-	circuit_2: "run_circuit_2",
-	circuit_3: "run_circuit_3",
-	circuit_4: "run_circuit_4",
-	circuit_5: "run_circuit_5",
+	circuit_0: 0,
+	circuit_1: 1,
+	circuit_2: 2,
+	circuit_3: 3,
+	circuit_4: 4,
+	circuit_5: 5,
 
-	circuit_21: "run_circuit_21",
+	circuit_21: 21,
 };
 
 function App() {
@@ -153,15 +153,18 @@ function App() {
 
 	// mount 的时候渲染一次
 	useEffect(() => {
-		const port_name = data_port_map[data_name];
-
-		const request_url = `http://127.0.0.1:3030/api/${port_name}`;
+		const circuit_id = data_port_map[data_name];
+		const request_url = `http://127.0.0.1:3030/api/run_circuit`;
 
 		const fetchData = async () => {
-			const result = await axios.get(request_url);
-			console.log(`'App.js' - Dataset (${data_name}) loaded. `, result.data);
-
-			setDataset(result.data);
+			try {
+				const result = await axios.post(request_url, { circuit: circuit_id });
+				console.log(`'App.js' - Dataset (${data_name}) loaded. `, result.data);
+				setDataset(result.data);
+			} catch (err) {
+				console.error("Failed to load dataset", err);
+				setDataset(null);
+			}
 		};
 
 		fetchData();
