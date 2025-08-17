@@ -1,5 +1,4 @@
 from pennylane import numpy as np
-import pennylane as qml
 from abc import ABC, abstractmethod
 
 
