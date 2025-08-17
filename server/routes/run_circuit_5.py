@@ -14,6 +14,10 @@ from functions.feature_mapping import (
 )
 
 from hyperparameters import TRAIN_SPLIT, NUM_QUBITS, BATCH_SIZE, DEFAULT_EPOCH_NUMBER
+from ansatz import ansatz
+from cost import cost as cost_fn
+from functools import partial
+from accuracy import accuracy
 
 
 def run_circuit_5(
@@ -33,17 +37,10 @@ def run_circuit_5(
         fm = get_feature_map_by_name(feature_map_name)
     features = np.array([fm.feature_map(x) for x in feature], requires_grad=False)
 
-    # Define the quantum node
     @qml.qnode(dev)
     def circuit(weights, x):
         rz_ry_cnot_encode(x)
-
-        # Ansatz
-        qml.RZ(weights[0], wires=0)
-        qml.RY(weights[1], wires=0)
-        qml.RZ(weights[2], wires=1)
-        qml.RY(weights[3], wires=1)
-        qml.CNOT(wires=[0, 1])
+        ansatz(weights)
         return qml.expval(qml.PauliZ(0))
 
     # Prepare training/validation splits
@@ -55,11 +52,7 @@ def run_circuit_5(
     # Initialize weights
     weights = 0.01 * np.random.randn(4, requires_grad=True)
 
-    def cost(weights, X, Y):
-        return np.mean((Y - circuit(weights, X.T)) ** 2)
-
-    def accuracy(labels, predictions):
-        return np.mean(labels == np.sign(predictions))
+    cost = partial(cost_fn, circuit)
 
     # Optimization loop
     cost_list, acc_val_list = [], []
@@ -70,9 +63,9 @@ def run_circuit_5(
         )
         # Use feats_val for validation
         acc_val = accuracy(Y_val, np.sign(circuit(weights, feats_val.T)))
-        _cost = cost(weights, features, label)
-        print(f"Iter: {iter + 1:5d} | Cost: {_cost:0.7f} | Acc validation: {acc_val:0.7f}")
-        cost_list.append(_cost)
+        cost_val = cost(weights, features, label)
+        print(f"Iter: {iter + 1:5d} | Cost: {cost_val:0.7f} | Acc validation: {acc_val:0.7f}")
+        cost_list.append(cost_val)
         acc_val_list.append(acc_val)
 
     # Compute encoded data from snapshots
@@ -119,7 +112,6 @@ def run_circuit_5(
             "measure": [["Measure(Z)", ""]],
         },
         "encoded_data": {"feature": original_feature, "label": result["flag3"][0]},
-        # 'boundary': boundary,
         "performance": {"epoch_number": epoch_number, "loss": cost_list, "accuracy": acc_val_list},
         "trained_data": {"feature": original_feature, "label": trained_label},
         "encoded_steps": [

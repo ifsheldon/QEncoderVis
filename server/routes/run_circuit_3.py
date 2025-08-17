@@ -20,6 +20,9 @@ from hyperparameters import (
     DEFAULT_EPOCH_NUMBER,
     DEFAULT_LR,
 )
+from cost import cost as cost_fn
+from functools import partial
+from accuracy import accuracy
 
 
 def run_circuit_3(
@@ -62,11 +65,7 @@ def run_circuit_3(
     # Initialize weights
     weights = 0.01 * np.random.randn(4, requires_grad=True)
 
-    def cost(weights, X, Y):
-        return np.mean((Y - circuit(weights, X.T)) ** 2)
-
-    def accuracy(labels, predictions):
-        return np.mean(labels == np.sign(predictions))
+    cost = partial(cost_fn, circuit)
 
     # Optimization loop
     cost_list, acc_val_list = [], []
@@ -77,9 +76,9 @@ def run_circuit_3(
         )
         # Use feats_val for validation
         acc_val = accuracy(Y_val, np.sign(circuit(weights, feats_val.T)))
-        _cost = cost(weights, features, label)
-        print(f"Iter: {iter + 1:5d} | Cost: {_cost:0.7f} | Acc validation: {acc_val:0.7f}")
-        cost_list.append(_cost)
+        cost_val = cost(weights, features, label)
+        print(f"Iter: {iter + 1:5d} | Cost: {cost_val:0.7f} | Acc validation: {acc_val:0.7f}")
+        cost_list.append(cost_val)
         acc_val_list.append(acc_val)
 
     # Compute encoded data from snapshots

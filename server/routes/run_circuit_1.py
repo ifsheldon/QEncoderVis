@@ -18,6 +18,10 @@ from hyperparameters import (
     DEFAULT_EPOCH_NUMBER,
     DEFAULT_LR,
 )
+from ansatz import ansatz
+from cost import cost as cost_fn
+from functools import partial
+from accuracy import accuracy
 
 
 def run_circuit_1(
@@ -42,14 +46,7 @@ def run_circuit_1(
     @qml.qnode(dev)
     def circuit(weights, x):
         rxy_cnot_encode(x)
-
-        # ansatz
-        qml.RZ(weights[0], wires=0)
-        qml.RY(weights[1], wires=0)
-        qml.RZ(weights[2], wires=1)
-        qml.RY(weights[3], wires=1)
-        qml.CNOT(wires=[0, 1])
-
+        ansatz(weights)
         return qml.expval(qml.PauliZ(0))  ### single qubit measurement
 
     # Prepare training and validation splits
@@ -63,14 +60,7 @@ def run_circuit_1(
     # Initialize weights
     weights_init = 0.01 * np.random.randn(4, requires_grad=True)
 
-    def cost(weights, X, Y):
-        predictions = circuit(weights, X.T)
-        return np.mean((Y - predictions) ** 2)
-
-    def accuracy(labels, predictions):
-        predictions = np.sign(predictions)
-        acc = np.mean(labels == predictions)
-        return acc
+    cost = partial(cost_fn, circuit)
 
     # Optimization
     weights = weights_init
@@ -87,9 +77,11 @@ def run_circuit_1(
 
         predictions_val = np.sign(circuit(weights, feats_val.T))
         acc_val = accuracy(Y_val, predictions_val)
-        _cost = cost(weights, features, Y)
-        print(f"Iter: {iter + 1:5d} | Cost: {_cost:0.7f} | Acc validation: {acc_val:0.7f} ")  # ###
-        cost_list.append(_cost)
+        cost_val = cost(weights, features, Y)
+        print(
+            f"Iter: {iter + 1:5d} | Cost: {cost_val:0.7f} | Acc validation: {acc_val:0.7f} "
+        )  # ###
+        cost_list.append(cost_val)
         acc_val_list.append(acc_val)
 
         counter = counter + 1
