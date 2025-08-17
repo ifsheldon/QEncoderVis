@@ -11,14 +11,14 @@ function Module_draw_performance(props) {
 
 	//////////////////////////////////////////////
 
-    // Re-render whenever performance dataset changes
-    useEffect(() => {
-        draw_func();
-    }, [dataset]);
+	// Re-render whenever performance dataset changes
+	useEffect(() => {
+		draw_func();
+	}, [dataset]);
 
 	function draw_func() {
-        // Clear previous render before drawing fresh
-        d3.select(divRef.current).selectAll("*").remove();
+		// Clear previous render before drawing fresh
+		d3.select(divRef.current).selectAll("*").remove();
 
 		const size = 1000;
 		const width = size * 0.21;
@@ -55,10 +55,10 @@ function Module_draw_performance(props) {
 			.domain([d3.min(dataset["loss"]), d3.max(dataset["loss"])])
 			.range([axis_height, 0]);
 
-        const yScaleAccuracy = d3
-            .scaleLinear()
-            .domain([0, 1])
-            .range([axis_height, 0]);
+		const yScaleAccuracy = d3
+			.scaleLinear()
+			.domain([0, 1])
+			.range([axis_height, 0]);
 
 		const dataLoss = d3
 			.range(dataset["epoch_number"])
@@ -119,7 +119,7 @@ function Module_draw_performance(props) {
 
 		gAcc
 			.append("g")
-            .call(d3.axisLeft(yScaleAccuracy).tickValues([0, 1]))
+			.call(d3.axisLeft(yScaleAccuracy).tickValues([0, 1]))
 			.attr("transform", `translate(${-3}, 0)`);
 
 		gAcc

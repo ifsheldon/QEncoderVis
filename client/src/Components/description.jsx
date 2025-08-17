@@ -31,31 +31,29 @@ function DescriptionComp(_props) {
 	// TODO: add description
 
 	return (
-		<>
-			<span
-				style={{
-					position: "absolute",
-					width: text1_span.width_text,
-					height: text1_span.height_text,
-					left: text1_span.left + text1_span.x2 - 40,
-					top: text1_span.top + text1_span.y2 + 5,
-					fontSize: "11px",
-					fontWeight: 350,
-					lineHeight: "1.38em",
-					color: stroke_color,
-					fontStyle: "italic",
-				}}
-			>
-				Two data dimensions will be converted initially based on:
-				<MathJaxContext>
-					<div>
-						<MathJax style={{ fontStyle: "italic", fill: "#000000" }}>
-							{`\\(${formula}\\)`}
-						</MathJax>
-					</div>
-				</MathJaxContext>
-			</span>
-		</>
+		<span
+			style={{
+				position: "absolute",
+				width: text1_span.width_text,
+				height: text1_span.height_text,
+				left: text1_span.left + text1_span.x2 - 40,
+				top: text1_span.top + text1_span.y2 + 5,
+				fontSize: "11px",
+				fontWeight: 350,
+				lineHeight: "1.38em",
+				color: stroke_color,
+				fontStyle: "italic",
+			}}
+		>
+			Two data dimensions will be converted initially based on:
+			<MathJaxContext>
+				<div>
+					<MathJax style={{ fontStyle: "italic", fill: "#000000" }}>
+						{`\\(${formula}\\)`}
+					</MathJax>
+				</div>
+			</MathJaxContext>
+		</span>
 	);
 }
 
