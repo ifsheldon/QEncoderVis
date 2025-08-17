@@ -1,5 +1,5 @@
 import { Avatar, Tooltip } from "antd";
-import UserOutlined from "@ant-design/icons";
+import { UserOutlined } from "@ant-design/icons";
 
 function Footer() {
 	return (
@@ -17,13 +17,14 @@ function Footer() {
 					</a>
 				</Tooltip>
 				<Tooltip title="User" placement="top">
-					<Avatar
-						gap={20}
-						style={{
-							backgroundColor: "#87d068",
-						}}
-						icon={<UserOutlined />}
-					/>
+					<a href="">
+						<Avatar
+							style={{
+								backgroundColor: "#93b7d9",
+							}}
+							src={"https://api.dicebear.com/7.x/miniavs/svg?seed=1"}
+						/>
+					</a>
 				</Tooltip>
 				<Tooltip title="User" placement="top">
 					<Avatar

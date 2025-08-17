@@ -1,6 +1,6 @@
 import { Layout } from "antd";
 
-const Header = Layout;
+const { Header } = Layout;
 
 function Top(props) {
 	const { top_bg_color } = props;
