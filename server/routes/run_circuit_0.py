@@ -137,10 +137,10 @@ def run_circuit_0(
     #  画acc和loss的数据
     cost_list = [x.item() for x in cost_list]
     acc_val_list = [x.item() for x in acc_val_list]
-    # distribution_map = compute_distribution_map(circuit, weights, features, Y, snapshot="flag3")  # FIXME: use flag3 or flag4?
+    # distribution_map = compute_distribution_map(circuit, weights, features, Y, snapshot="flag3")
     distribution_map = compute_distribution_map(
-        circuit, weights, features, Y, snapshot=flag_list[-2]
-    )  # FIXME: use flag3 or flag4?
+        circuit, weights, features, Y, snapshot=flag_list[-1]
+    )
 
     # 创建dict for encoder, 来给前端返回, 画circuit的数据
     circuit_implementation = {

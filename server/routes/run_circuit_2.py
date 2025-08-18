@@ -140,7 +140,7 @@ def run_circuit_2(
     cost_list = [x.item() for x in cost_list]
     acc_val_list = [x.item() for x in acc_val_list]
     distribution_map = compute_distribution_map(
-        circuit, weights, features, Y, snapshot=flag_list[-2]
+        circuit, weights, features, Y, snapshot=flag_list[-1]
     )
 
     # 创建dict for encoder, 来给前端返回, 画circuit的数据

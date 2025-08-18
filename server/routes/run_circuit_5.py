@@ -99,7 +99,7 @@ def run_circuit_5(
     acc_val_list = [float(x) for x in acc_val_list]
     trained_label = [float(x) for x in circuit(weights, features.T)]
     distribution_map = compute_distribution_map(
-        circuit, weights, features, label, snapshot=flag_list[-2]
+        circuit, weights, features, label, snapshot=flag_list[-1]
     )
 
     original_feature = feature.tolist()
@@ -114,7 +114,7 @@ def run_circuit_5(
             "ansatz": ansatz_steps,
             "measure": [["Measure(Z)", ""]],
         },
-        "encoded_data": {"feature": original_feature, "label": result[flag_list[-2]][0]},
+        "encoded_data": {"feature": original_feature, "label": result[flag_list[-1]][0]},
         "performance": {"epoch_number": epoch_number, "loss": cost_list, "accuracy": acc_val_list},
         "trained_data": {"feature": original_feature, "label": trained_label},
         "encoded_steps": [
