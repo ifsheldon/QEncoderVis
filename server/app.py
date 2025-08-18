@@ -3,7 +3,6 @@ from flask_cors import CORS
 from pydantic import BaseModel, Field, ValidationError, field_validator
 from functions.feature_mapping import (
     ALLOWED_FEATURE_MAP_NAMES,
-    get_feature_map_by_name,
     DEFAULT_FEATURE_MAP_BY_CIRCUIT,
 )
 
@@ -15,6 +14,7 @@ from routes.run_circuit_4 import run_circuit_4
 from routes.run_circuit_5 import run_circuit_5
 from pennylane import numpy as np
 from routes.hyperparameters import SEED
+from typing import Literal
 
 
 app = Flask(__name__)
@@ -25,27 +25,14 @@ app.config["ENV"] = "development"  # 'production
 app.config["DEBUG"] = True
 
 
-# Allowed circuit ids
-ALLOWED_CIRCUITS = {0, 1, 2, 3, 4, 5}
-
-
 class CircuitRequest(BaseModel):
     """Pydantic model for /api/run_circuit request body."""
 
-    circuit: int = Field(..., description="Circuit id (one of 0,1,2,3,4,5)")
+    circuit: Literal[0, 1, 2, 3, 4, 5] = Field(..., description="Circuit id")
     feature_map: str | None = Field(
         None,
         description="Feature map class name, e.g., 'FMArcsin'. Optional; defaults per circuit.",
     )
-
-    @field_validator("circuit")
-    @classmethod
-    def circuit_must_be_allowed(cls, value: int) -> int:
-        if value not in ALLOWED_CIRCUITS:
-            raise ValueError(
-                f"Invalid circuit id {value}. Allowed: {sorted(list(ALLOWED_CIRCUITS))}"
-            )
-        return value
 
     @field_validator("feature_map")
     @classmethod
@@ -62,12 +49,7 @@ class CircuitRequest(BaseModel):
 @app.route("/")
 # @cross_origin(origin='*')
 def index():
-    try:
-        return "success"
-
-    except Exception as e:
-        print(e)
-        return "error"
+    return "success"
 
 
 @app.route("/api/run_circuit", methods=["POST"])
