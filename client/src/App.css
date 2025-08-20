@@ -196,6 +196,16 @@ footer {
 	position: absolute;
 }
 
+/* Ensure card previews do not get their text overlapped by absolutely-positioned components */
+.ant-card-body .comp3 {
+	position: relative;
+}
+
+/* Make Drawer content scroll if it overflows and add comfortable spacing */
+.ant-drawer-body {
+	overflow: auto;
+}
+
 .data-option {
 	margin: 20px;
 }

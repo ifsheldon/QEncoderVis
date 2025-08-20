@@ -12,6 +12,12 @@ function QuantumCircuitView(props) {
 	const comp3_left = props.comp3_left;
 	const comp3_top = props.comp3_top;
 
+	// allow multiple instances by providing unique svg id
+	const svgId = props.svgId || "comp3";
+
+	// whether this instance is used in small cards; avoid leaking global selectors
+	const forCards = props.forCards || false;
+
 	// 定义新的measure
 	const svg_width = comp3_width * 0.9;
 	const svg_height = comp3_height * 0.8;
@@ -23,7 +29,7 @@ function QuantumCircuitView(props) {
 
 	// Redraw when dataset changes
 	useEffect(() => {
-		const svg = d3.select("#comp3");
+		const svg = d3.select(`#${svgId}`);
 		// remove previous circuit drawing if any
 		svg.select(".quantum_circuit").remove();
 		const margin = { top: 15, left: 20, bottom: 15, right: 30 };
@@ -129,7 +135,7 @@ function QuantumCircuitView(props) {
 						)
 						.attr("fill", gate_symbol_fill)
 						.attr("stroke", gate_symbol_stroke)
-						.attr("class", "symbol_position");
+						.attr("class", forCards ? "symbol_position-card" : "symbol_position");
 					// .attr('stroke', '#000000')
 				}
 			});
@@ -189,34 +195,37 @@ function QuantumCircuitView(props) {
 			});
 		});
 
-		// CNOT的连接线
-		// group.append("line")
-		//     .attr('class', 'comp3_wire')
-		//     .attr("x1", X_dot)
-		//     .attr("y1", Y_dotControl)
-		//     .attr("x2", X_dot)
-		//     .attr("y2", Y_dotTarget-9)
-		//     .attr("stroke", wire_color)
-		//     .attr('stroke-width', wire_stroke_width)
-	}, [dataset]);
+		// Notify parent (e.g., comp6) that comp3 finished rendering
+		if (typeof props.onRendered === "function") {
+			requestAnimationFrame(() => props.onRendered());
+		}
+	}, [dataset, svgId, forCards]);
 
 	return (
 		<div
-			className={"component comp3"}
-			style={{
-				width: comp3_width,
-				height: comp3_height,
-				left: comp3_left,
-				top: comp3_top,
-			}}
+			className={forCards ? "comp3" : "component comp3"}
+			style={
+				forCards
+					? {
+						width: comp3_width,
+						height: comp3_height,
+						position: "relative",
+					}
+					: {
+						width: comp3_width,
+						height: comp3_height,
+						left: comp3_left,
+						top: comp3_top,
+					}
+			}
 		>
-			<span className="comp_title">Quantum encoder</span>
+			{!forCards && <span className="comp_title">Quantum encoder</span>}
 			{/*svg for one 2dplot*/}
 			<svg
-				id={"comp3"}
+				id={svgId}
 				width={svg_width}
 				height={svg_height}
-				style={{ marginTop: "10px" }}
+				style={{ marginTop: forCards ? 0 : "10px" }}
 			>
 				<rect
 					x={0}

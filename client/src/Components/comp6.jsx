@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import * as d3 from "d3";
 
 import Module_draw_2dplot from "../Functions/module_draw_2dplot";
@@ -28,6 +28,7 @@ function EncoderStepMappingView(props) {
 	const border_r = 39;
 
 	const [symbol_positions, set_symbol_positions] = useState(null);
+	const lastStablePositionsRef = useRef(null);
 
 	const [_isFinished, _set_isFinished] = useState(false);
 
@@ -43,6 +44,12 @@ function EncoderStepMappingView(props) {
 
 	//////////////////////////////////////////////
 
+	// Prevent flicker: clear previous positions immediately when inputs change
+	useEffect(() => {
+		set_symbol_positions(null);
+		lastStablePositionsRef.current = null;
+	}, [encoded_data, encoded_sub_data]);
+
 	// Recompute symbol positions when dataset (encoder) changes
 	useEffect(() => {
 		const container = d3.select("#comp6");
@@ -51,18 +58,26 @@ function EncoderStepMappingView(props) {
 		container.selectAll(".band").remove();
 		container.selectAll(".comp6-symbol").remove();
 
+		const expectedCount = Array.isArray(encoded_data) ? encoded_data.length : 0;
+
 		const collectPositions = () => {
 			const positions = [];
-			d3.selectAll(".symbol_position").each(function () {
+			d3.select("#comp3").selectAll(".symbol_position").each(function () {
 				const cx = d3.select(this).attr("cx");
 				positions.push(cx);
 			});
-			if (positions.length > 0) {
-				set_symbol_positions(
-					[...new Set(positions.map(Number))].sort((a, b) => a - b),
-				);
+			const uniqueSorted = [...new Set(positions.map(Number))].sort((a, b) => a - b);
+			// Wait until the number of positions matches the number of encoder steps
+			if (uniqueSorted.length === expectedCount && expectedCount > 0) {
+				// ensure stability across two frames to avoid reading stale markers
+				const prev = lastStablePositionsRef.current;
+				if (prev && prev.length === uniqueSorted.length && prev.every((v, i) => v === uniqueSorted[i])) {
+					set_symbol_positions(uniqueSorted);
+				} else {
+					lastStablePositionsRef.current = uniqueSorted;
+					requestAnimationFrame(collectPositions);
+				}
 			} else {
-				// comp3 may not have rendered yet; try next frame
 				requestAnimationFrame(collectPositions);
 			}
 		};

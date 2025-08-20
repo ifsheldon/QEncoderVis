@@ -15,6 +15,22 @@ from pennylane import numpy as np
 from routes.hyperparameters import SEED
 from typing import Literal
 
+encoders = {
+    "RxRyCnot": EncoderRxRyCnot(),
+    "RxyCnot": EncoderRxyCnot(),
+    "RyRz": EncoderRyRz(),
+    "RyRx": EncoderRyRx(),
+    "RzRyCnot": EncoderRzRyCnot(),
+}
+
+default_encoders = {
+    0: "RxRyCnot",
+    1: "RxyCnot",
+    2: "RyRz",
+    3: "RyRx",
+    4: "RzRyCnot",
+    5: "RzRyCnot",
+}
 
 app = Flask(__name__)
 CORS(app)
@@ -35,6 +51,12 @@ class CircuitRequest(BaseModel):
 def index():
     return "success"
 
+@app.route("/api/get_encoders", methods=["GET"])
+def get_encoders():
+    return jsonify({
+        "encoders": {name: encoder.steps() for name, encoder in encoders.items()},
+        "defaults": default_encoders
+    })
 
 @app.route("/api/run_circuit", methods=["POST"])
 def run_circuit():
@@ -49,37 +71,31 @@ def run_circuit():
 
     default_params = {
         0: {
-            "encoder": EncoderRxRyCnot(),
             "epoch_number": DEFAULT_EPOCH_NUMBER,
             "lr": DEFAULT_LR,
             "dataset_source": "Data/dataset_0.csv",
         },
         1: {
-            "encoder": EncoderRxyCnot(),
             "epoch_number": DEFAULT_EPOCH_NUMBER,
             "lr": DEFAULT_LR,
             "dataset_source": "Data/dataset_1.csv",
         },
         2: {
-            "encoder": EncoderRxRyCnot(),
             "epoch_number": DEFAULT_EPOCH_NUMBER,
             "lr": DEFAULT_LR,
             "dataset_source": "Data/dataset_2.csv",
         },
         3: {
-            "encoder": EncoderRyRz(),
             "epoch_number": DEFAULT_EPOCH_NUMBER,
             "lr": DEFAULT_LR,
             "dataset_source": "Data/dataset_3.csv",
         },
         4: {
-            "encoder": EncoderRyRx(),
             "epoch_number": DEFAULT_EPOCH_NUMBER,
             "lr": DEFAULT_LR,
             "dataset_source": "Data/dataset_4.csv",
         },
         5: {
-            "encoder": EncoderRzRyCnot(),
             "epoch_number": DEFAULT_EPOCH_NUMBER,
             "lr": 0.2,
             "dataset_source": "Data/dataset_5.csv",
@@ -87,19 +103,13 @@ def run_circuit():
     }
 
     params = default_params[circuit_id]
-    if encoder_name is not None:
-        if encoder_name == "RxRyCnot":
-            params["encoder"] = EncoderRxRyCnot()
-        elif encoder_name == "RxyCnot":
-            params["encoder"] = EncoderRxyCnot()
-        elif encoder_name == "RyRz":
-            params["encoder"] = EncoderRyRz()
-        elif encoder_name == "RyRx":
-            params["encoder"] = EncoderRyRx()
-        elif encoder_name == "RzRyCnot":
-            params["encoder"] = EncoderRzRyCnot()
-        else:
+    if encoder_name is None:
+        encoder = encoders[default_encoders[circuit_id]]
+    else:
+        encoder = encoders.get(encoder_name, None)
+        if encoder is None:
             raise ValueError(f"Unknown encoder name: {encoder_name}")
+    params["encoder"] = encoder
 
     # Call the selected circuit runner and return its result (already plain types)
     np.random.seed(SEED)

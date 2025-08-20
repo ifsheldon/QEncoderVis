@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "./App.css";
 import {
@@ -8,13 +8,11 @@ import {
 	InputNumber,
 	Slider,
 	Spin,
-	Select,
 	Row,
 	Col,
 	Progress,
 	Drawer,
-	Avatar,
-	List,
+	Card,
 } from "antd";
 import { RightOutlined, PlayCircleFilled } from "@ant-design/icons";
 
@@ -148,9 +146,14 @@ function App() {
 	const default_circuit = "circuit_5";
 	const [data_name, set_dataName] = useState(default_circuit);
 	const [dataset, setDataset] = useState(null);
+	const [encoders, setEncoders] = useState({});
+	const [defaults, setDefaults] = useState({});
+	const [selectedEncoder, setSelectedEncoder] = useState(null);
 
 	const [drawer_open, set_drawer_open] = useState(false);
 	const [_comp6Loading, _setComp6Loading] = useState(true);
+	const prevDataNameRef = useRef(data_name);
+	const [encStepsKey, setEncStepsKey] = useState(0);
 
 	const handleDatasetClick = (datasetName) => {
 		set_dataName(datasetName);
@@ -167,17 +170,56 @@ function App() {
 
 	//////////////////////////////////////////////
 
-	// mount 的时候渲染一次
+	// Load encoders once
+	useEffect(() => {
+		const fetchEncoders = async () => {
+			try {
+				const res = await axios.get(`http://127.0.0.1:3030/api/get_encoders`);
+				setEncoders(res.data.encoders || {});
+				setDefaults(res.data.defaults || {});
+			} catch (err) {
+				console.error("Failed to fetch encoders", err);
+			}
+		};
+		fetchEncoders();
+	}, []);
+
+	// Sync selected encoder with dataset defaults when circuit changes
+	useEffect(() => {
+		const circuit_id = data_port_map[data_name];
+		if (defaults && Object.prototype.hasOwnProperty.call(defaults, circuit_id)) {
+			setSelectedEncoder(defaults[circuit_id]);
+		}
+	}, [data_name, defaults]);
+
+	// Fetch data when circuit or encoder changes
 	useEffect(() => {
 		const circuit_id = data_port_map[data_name];
 		const request_url = `http://127.0.0.1:3030/api/run_circuit`;
+		const defaultsReady = defaults && Object.keys(defaults).length > 0;
+		const defaultEnc = defaultsReady ? defaults[circuit_id] : null;
+		const prevCircuitId = data_port_map[prevDataNameRef.current];
+		const dataNameChanged = prevCircuitId !== circuit_id;
+
+		// Avoid double fetch: when dataset changes, wait for selectedEncoder to sync to default
+		if (dataNameChanged && defaultEnc && selectedEncoder !== defaultEnc) {
+			return;
+		}
+		// Also wait until defaults are available (initial mount)
+		if (!defaultsReady) {
+			return;
+		}
 
 		const fetchData = async () => {
 			try {
-				const result = await axios.post(request_url, {
-					circuit: circuit_id,
-				});
-				console.log(`'App.js' - Dataset (${data_name}) loaded. `, result.data);
+				prevDataNameRef.current = data_name; // mark fetch for this dataset
+				const payload = { circuit: circuit_id };
+				if (selectedEncoder) payload.encoder_name = selectedEncoder;
+				const result = await axios.post(request_url, payload);
+				console.log(
+					`'App.js' - Dataset (${data_name}) loaded with encoder ${selectedEncoder}. `,
+					result.data,
+				);
 				setDataset(result.data);
 			} catch (err) {
 				console.error("Failed to load dataset", err);
@@ -186,7 +228,7 @@ function App() {
 		};
 
 		fetchData();
-	}, [data_name]);
+	}, [data_name, selectedEncoder, defaults]);
 
 	// useEffect(() => {
 	//
@@ -225,21 +267,14 @@ function App() {
 				>
 					<div style={{ marginTop: "10px", marginLeft: "1.4em" }}>
 						<span className={"control_font"}>Specify encoder</span>
-						<Row style={{ width: "180px", marginTop: "5px" }}>
-							<Col span={16}>
-								<Select
-									// showArrow={'false'}
-									mode="multiple"
-									style={{
-										width: "100%",
-										height: "32px",
-									}}
-									size={"small"}
-									placeholder="Select an encoder"
-									defaultValue={["(RX+RX)-(RY+RY)-(RY+RY)-(CNOT)"]}
-									// onChange={handleChange}
-									// options={options}
-								/>
+						<Row style={{ width: "260px", marginTop: "5px", alignItems: "center" }}>
+							<Col span={18}>
+								<span
+									onClick={showDrawer}
+									style={{ cursor: "pointer", color: "#1677ff" }}
+								>
+									{selectedEncoder || "(default)"}
+								</span>
 							</Col>
 							<Col>
 								<Button
@@ -250,62 +285,57 @@ function App() {
 									<RightOutlined />
 								</Button>
 								<Drawer
-									title="Basic Drawer"
+									title={null}
 									placement="right"
-									closable={false}
+									closable={true}
 									onClose={onClose}
 									open={drawer_open}
+									width={640}
+									bodyStyle={{ padding: 16 }}
 								>
-									{/*抽屉里面的内容*/}
-									<List
-										dataSource={[
-											{
-												id: 1,
-												name: "Lily",
-											},
-											{
-												id: 2,
-												name: "Lily",
-											},
-										]}
-										bordered
-										renderItem={(item) => (
-											<List.Item
-												key={item.id}
-												actions={[
-													<a onClick={showDrawer} key={`a-${item.id}`}>
-														View Profile
-													</a>,
-												]}
-											>
-												<List.Item.Meta
-													avatar={
-														<Avatar src="https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png" />
-													}
-													title={
-														<a href="https://ant.design/index-cn">
-															{item.name}
-														</a>
-													}
-													description="Progresser XTech"
-												/>
-											</List.Item>
-										)}
-									/>
-									<div className={"drawer_button_group"}>
-										<Button
-											style={{ marginRight: 8, display: "inline" }}
-											// onClick={this.onClose}
-										>
-											Cancel
-										</Button>
-										<Button
-											type="primary"
-											// onClick={this.onClose}
-										>
-											Submit
-										</Button>
+									<div style={{ fontSize: 18, fontWeight: 600, marginBottom: 12 }}>
+										Select an encoder
 									</div>
+									<Row gutter={[12, 12]}>
+										{Object.entries(encoders).map(([name, steps]) => {
+											const stepsCount = Array.isArray(steps) ? steps.length : 0;
+											const isSelected = selectedEncoder === name;
+											const previewCircuit = {
+												qubit_number:
+													(dataset && dataset.circuit && dataset.circuit.qubit_number) || 2,
+												encoder_step: stepsCount,
+												encoder: steps,
+												ansatz: (dataset && dataset.circuit && dataset.circuit.ansatz) || [],
+												measure: (dataset && dataset.circuit && dataset.circuit.measure) || [],
+											};
+											return (
+												<Col xs={24} sm={12} key={name}>
+													<Card
+														hoverable
+														onClick={() => {
+															setSelectedEncoder(name);
+															set_drawer_open(false);
+														}}
+														style={{ width: "100%", border: isSelected ? "2px solid #1677ff" : undefined }}
+													>
+														<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+															<div style={{ fontWeight: 600 }}>{name}</div>
+														</div>
+														<QuantumCircuitView
+															dataset={previewCircuit}
+															comp3_width={280}
+															comp3_height={90}
+															comp3_left={0}
+															comp3_top={0}
+															color_comp3_bg={color_comp3_bg}
+															svgId={`enc-card-${name}`}
+															forCards={true}
+														/>
+													</Card>
+												</Col>
+											);
+										})}
+									</Row>
 								</Drawer>
 							</Col>
 						</Row>
@@ -459,12 +489,14 @@ function App() {
 					{/* Component-3: quantum circuit show*/}
 					{dataset && (
 						<QuantumCircuitView
+							key={`${data_name}-${selectedEncoder || 'default'}`}
 							dataset={dataset["circuit"]}
 							comp3_width={comp3_width}
 							comp3_height={comp3_height}
 							comp3_left={comp3_left}
 							comp3_top={comp3_top}
 							color_comp3_bg={color_comp3_bg}
+							onRendered={() => setEncStepsKey((k) => k + 1)}
 						></QuantumCircuitView>
 					)}
 
@@ -510,6 +542,7 @@ function App() {
 					{/* Component-6: encoder step map*/}
 					{dataset && (
 						<EncoderStepMappingView
+							key={encStepsKey}
 							dataset={[dataset["encoded_steps"], dataset["encoded_steps_sub"]]}
 							comp6_width={comp6_width}
 							comp6_height={comp6_height}
