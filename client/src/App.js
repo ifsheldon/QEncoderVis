@@ -144,49 +144,16 @@ const data_port_map = {
 	circuit_5: 5,
 };
 
-// feature map options and defaults by circuit
-const featureMapOptions = [
-	{ label: "Arcsin", value: "FMArcsin" },
-	{ label: "ArcLogTrig", value: "FMArcLogTrig" },
-	{ label: "ArctanTrig", value: "FMArctanTrig" },
-	{ label: "ExpTrig", value: "FMExpTrig" },
-];
-
-const defaultFeatureMapByCircuit = {
-	0: "FMArcsin",
-	1: "FMArcsin",
-	2: "FMArcsin",
-	3: "FMArcLogTrig",
-	4: "FMArctanTrig",
-	5: "FMExpTrig",
-};
-
 function App() {
 	const default_circuit = "circuit_5";
 	const [data_name, set_dataName] = useState(default_circuit);
 	const [dataset, setDataset] = useState(null);
-	const [featureMap, setFeatureMap] = useState(
-		defaultFeatureMapByCircuit[data_port_map[default_circuit]],
-	);
-
-	// Derive circuit-specific default feature map label for options
-	const currentCircuitId = data_port_map[data_name];
-	const recommendedFeatureMap = defaultFeatureMapByCircuit[currentCircuitId];
-	const featureMapOptionsWithDefault = featureMapOptions.map((opt) => ({
-		label:
-			opt.value === recommendedFeatureMap
-				? `${opt.label} (default)`
-				: opt.label,
-		value: opt.value,
-	}));
 
 	const [drawer_open, set_drawer_open] = useState(false);
 	const [_comp6Loading, _setComp6Loading] = useState(true);
 
 	const handleDatasetClick = (datasetName) => {
 		set_dataName(datasetName);
-		const cid = data_port_map[datasetName];
-		setFeatureMap(defaultFeatureMapByCircuit[cid]);
 	};
 
 	/*设置抽屉的状态的函数*/
@@ -209,7 +176,6 @@ function App() {
 			try {
 				const result = await axios.post(request_url, {
 					circuit: circuit_id,
-					feature_map: featureMap,
 				});
 				console.log(`'App.js' - Dataset (${data_name}) loaded. `, result.data);
 				setDataset(result.data);
@@ -220,7 +186,7 @@ function App() {
 		};
 
 		fetchData();
-	}, [data_name, featureMap]);
+	}, [data_name]);
 
 	// useEffect(() => {
 	//
@@ -341,26 +307,6 @@ function App() {
 										</Button>
 									</div>
 								</Drawer>
-							</Col>
-						</Row>
-					</div>
-
-					{/* Feature map selector */}
-					<div style={{ marginTop: "10px", marginLeft: "1.4em" }}>
-						<span className={"control_font"}>Feature map</span>
-						<Row style={{ width: "220px", marginTop: "5px" }}>
-							<Col span={16}>
-								<Select
-									style={{
-										width: "100%",
-										height: "32px",
-									}}
-									size={"small"}
-									placeholder="Select feature map"
-									value={featureMap}
-									onChange={(val) => setFeatureMap(val)}
-									options={featureMapOptionsWithDefault}
-								/>
 							</Col>
 						</Row>
 					</div>
