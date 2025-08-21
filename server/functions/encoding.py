@@ -7,6 +7,7 @@ from functions.feature_mapping import (
     FMArcLogTrig,
     FMArctanTrig,
     FMExpTrig,
+    FMArcsinSqrt,
 )
 
 
@@ -223,7 +224,7 @@ class EncoderRyRz(Encoder):
 
     @staticmethod
     def get_feature_mapping() -> FeatureMap:
-        return FMExpTrig()  # TODO, use the one in the experiment
+        return FMArcsinSqrt()
 
     def encode(self, x):
         flags = self.flags()
@@ -299,5 +300,27 @@ class EncoderRzyRzy(Encoder):
         qml.RY(x[1], wires=1)
         qml.Snapshot(flags[1])
         qml.RZ(x[1], wires=0)
+        qml.RY(x[0], wires=1)
+        qml.Snapshot(flags[2])
+
+class EncoderRzzRyy(Encoder):
+    @staticmethod
+    def steps() -> List[List[str]]:
+        return [
+            ["RZ(x)", "RZ(x)"],  # encoder step 1
+            ["RY(x)", "RY(x)"],  # encoder step 2
+        ]
+
+    @staticmethod
+    def get_feature_mapping() -> FeatureMap:
+        return FMExpTrig()
+
+    def encode(self, x):
+        flags = self.flags()
+        qml.Snapshot(flags[0])
+        qml.RZ(x[0], wires=0)
+        qml.RZ(x[1], wires=1)
+        qml.Snapshot(flags[1])
+        qml.RY(x[1], wires=0)
         qml.RY(x[0], wires=1)
         qml.Snapshot(flags[2])

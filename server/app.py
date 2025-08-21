@@ -12,6 +12,7 @@ from functions.encoding import (
     EncoderRyzRyz,
     EncoderRyxRyx,
     EncoderRzyRzy,
+    EncoderRzzRyy,
 )
 from routes.hyperparameters import DEFAULT_EPOCH_NUMBER, DEFAULT_LR
 from routes.run_circuit import run_circuit as run_circuit_train
@@ -29,6 +30,7 @@ encoders = {
     "RyzRyz": EncoderRyzRyz(),
     "RyxRyx": EncoderRyxRyx(),
     "RzyRzy": EncoderRzyRzy(),
+    "RzzRyy": EncoderRzzRyy(),
 }
 
 default_encoders = {
