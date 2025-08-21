@@ -92,6 +92,33 @@ function QuantumCircuitView(props) {
 
 		const data = dataset["encoder"];
 
+		// Helper to determine whether a gate is effectively empty
+		const isEmptyGate = (gate) => {
+			if (gate === null || gate === undefined) return true;
+			if (typeof gate !== "string") return false;
+			const trimmed = gate.trim();
+			if (trimmed.length === 0) return true;
+			return trimmed.toLowerCase() === "none";
+		};
+
+		// Precompute max occlusion half-width per step to repair empty-wire gaps
+		const stepMaxOcclusion = data.map(() => 0);
+		data.forEach((step, step_i) => {
+			step.forEach((gate, gate_i) => {
+				if (isEmptyGate(gate)) return;
+				// non-controlled gate: use text-circle radius; controlled target gate: use base radius
+				let occlusion = gate_symbol_r;
+				if (!(gate.includes("-") && !gate.includes("("))) {
+					occlusion =
+						dataset["encoder"][step_i][gate_i].length * 4 + gate_symbol_r * 0.2;
+				}
+				stepMaxOcclusion[step_i] = Math.max(
+					stepMaxOcclusion[step_i],
+					occlusion,
+				);
+			});
+		});
+
 		data.forEach((step, step_i) => {
 			const gateX = wire_gap_left + step_i * gate_width;
 			step.forEach((gate, gate_i) => {
@@ -121,7 +148,7 @@ function QuantumCircuitView(props) {
 							.attr("stroke-width", 1)
 							.attr("class", "symbol_position");
 					}
-				} else {
+				} else if (!isEmptyGate(gate)) {
 					const gateY = gate_i * wire_height + wire_height / 2;
 
 					group
@@ -135,7 +162,10 @@ function QuantumCircuitView(props) {
 						)
 						.attr("fill", gate_symbol_fill)
 						.attr("stroke", gate_symbol_stroke)
-						.attr("class", forCards ? "symbol_position-card" : "symbol_position");
+						.attr(
+							"class",
+							forCards ? "symbol_position-card" : "symbol_position",
+						);
 					// .attr('stroke', '#000000')
 				}
 			});
@@ -178,7 +208,7 @@ function QuantumCircuitView(props) {
 
 						Y_dotTarget = gateY;
 					}
-				} else {
+				} else if (!isEmptyGate(gate)) {
 					const gateY = gate_i * wire_height + wire_height / 2;
 
 					const _gateText = group
@@ -195,6 +225,25 @@ function QuantumCircuitView(props) {
 			});
 		});
 
+		// Repair: redraw thin wire segments where this wire has no gate, to keep continuity
+		data.forEach((step, step_i) => {
+			const gateX = wire_gap_left + step_i * gate_width;
+			const halfW = stepMaxOcclusion[step_i];
+			if (halfW <= 0) return;
+			step.forEach((gate, gate_i) => {
+				if (!isEmptyGate(gate)) return;
+				const y = gate_i * wire_height + wire_height / 2;
+				group
+					.append("line")
+					.attr("x1", gateX - halfW - 1)
+					.attr("y1", y)
+					.attr("x2", gateX + halfW + 1)
+					.attr("y2", y)
+					.attr("stroke", wire_color)
+					.attr("stroke-width", wire_stroke_width);
+			});
+		});
+
 		// Notify parent (e.g., comp6) that comp3 finished rendering
 		if (typeof props.onRendered === "function") {
 			requestAnimationFrame(() => props.onRendered());
@@ -207,16 +256,16 @@ function QuantumCircuitView(props) {
 			style={
 				forCards
 					? {
-						width: comp3_width,
-						height: comp3_height,
-						position: "relative",
-					}
+							width: comp3_width,
+							height: comp3_height,
+							position: "relative",
+						}
 					: {
-						width: comp3_width,
-						height: comp3_height,
-						left: comp3_left,
-						top: comp3_top,
-					}
+							width: comp3_width,
+							height: comp3_height,
+							left: comp3_left,
+							top: comp3_top,
+						}
 			}
 		>
 			{!forCards && <span className="comp_title">Quantum encoder</span>}

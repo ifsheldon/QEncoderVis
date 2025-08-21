@@ -62,16 +62,24 @@ function EncoderStepMappingView(props) {
 
 		const collectPositions = () => {
 			const positions = [];
-			d3.select("#comp3").selectAll(".symbol_position").each(function () {
-				const cx = d3.select(this).attr("cx");
-				positions.push(cx);
-			});
-			const uniqueSorted = [...new Set(positions.map(Number))].sort((a, b) => a - b);
+			d3.select("#comp3")
+				.selectAll(".symbol_position")
+				.each(function () {
+					const cx = d3.select(this).attr("cx");
+					positions.push(cx);
+				});
+			const uniqueSorted = [...new Set(positions.map(Number))].sort(
+				(a, b) => a - b,
+			);
 			// Wait until the number of positions matches the number of encoder steps
 			if (uniqueSorted.length === expectedCount && expectedCount > 0) {
 				// ensure stability across two frames to avoid reading stale markers
 				const prev = lastStablePositionsRef.current;
-				if (prev && prev.length === uniqueSorted.length && prev.every((v, i) => v === uniqueSorted[i])) {
+				if (
+					prev &&
+					prev.length === uniqueSorted.length &&
+					prev.every((v, i) => v === uniqueSorted[i])
+				) {
 					set_symbol_positions(uniqueSorted);
 				} else {
 					lastStablePositionsRef.current = uniqueSorted;

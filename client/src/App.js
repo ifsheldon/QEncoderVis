@@ -187,7 +187,10 @@ function App() {
 	// Sync selected encoder with dataset defaults when circuit changes
 	useEffect(() => {
 		const circuit_id = data_port_map[data_name];
-		if (defaults && Object.prototype.hasOwnProperty.call(defaults, circuit_id)) {
+		if (
+			defaults &&
+			Object.prototype.hasOwnProperty.call(defaults, circuit_id)
+		) {
 			setSelectedEncoder(defaults[circuit_id]);
 		}
 	}, [data_name, defaults]);
@@ -267,7 +270,9 @@ function App() {
 				>
 					<div style={{ marginTop: "10px", marginLeft: "1.4em" }}>
 						<span className={"control_font"}>Specify encoder</span>
-						<Row style={{ width: "260px", marginTop: "5px", alignItems: "center" }}>
+						<Row
+							style={{ width: "260px", marginTop: "5px", alignItems: "center" }}
+						>
 							<Col span={18}>
 								<span
 									onClick={showDrawer}
@@ -293,20 +298,35 @@ function App() {
 									width={640}
 									bodyStyle={{ padding: 16 }}
 								>
-									<div style={{ fontSize: 18, fontWeight: 600, marginBottom: 12 }}>
+									<div
+										style={{ fontSize: 18, fontWeight: 600, marginBottom: 12 }}
+									>
 										Select an encoder
 									</div>
 									<Row gutter={[12, 12]}>
 										{Object.entries(encoders).map(([name, steps]) => {
-											const stepsCount = Array.isArray(steps) ? steps.length : 0;
+											const stepsCount = Array.isArray(steps)
+												? steps.length
+												: 0;
 											const isSelected = selectedEncoder === name;
 											const previewCircuit = {
 												qubit_number:
-													(dataset && dataset.circuit && dataset.circuit.qubit_number) || 2,
+													(dataset &&
+														dataset.circuit &&
+														dataset.circuit.qubit_number) ||
+													2,
 												encoder_step: stepsCount,
 												encoder: steps,
-												ansatz: (dataset && dataset.circuit && dataset.circuit.ansatz) || [],
-												measure: (dataset && dataset.circuit && dataset.circuit.measure) || [],
+												ansatz:
+													(dataset &&
+														dataset.circuit &&
+														dataset.circuit.ansatz) ||
+													[],
+												measure:
+													(dataset &&
+														dataset.circuit &&
+														dataset.circuit.measure) ||
+													[],
 											};
 											return (
 												<Col xs={24} sm={12} key={name}>
@@ -316,9 +336,20 @@ function App() {
 															setSelectedEncoder(name);
 															set_drawer_open(false);
 														}}
-														style={{ width: "100%", border: isSelected ? "2px solid #1677ff" : undefined }}
+														style={{
+															width: "100%",
+															border: isSelected
+																? "2px solid #1677ff"
+																: undefined,
+														}}
 													>
-														<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+														<div
+															style={{
+																display: "flex",
+																justifyContent: "space-between",
+																alignItems: "center",
+															}}
+														>
 															<div style={{ fontWeight: 600 }}>{name}</div>
 														</div>
 														<QuantumCircuitView
@@ -489,7 +520,7 @@ function App() {
 					{/* Component-3: quantum circuit show*/}
 					{dataset && (
 						<QuantumCircuitView
-							key={`${data_name}-${selectedEncoder || 'default'}`}
+							key={`${data_name}-${selectedEncoder || "default"}`}
 							dataset={dataset["circuit"]}
 							comp3_width={comp3_width}
 							comp3_height={comp3_height}

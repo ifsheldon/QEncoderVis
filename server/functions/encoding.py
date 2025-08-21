@@ -32,7 +32,7 @@ class Encoder(ABC):
         pass
 
 
-class EncoderRxRyCnot(Encoder):
+class EncoderRxxRyyCnot(Encoder):
     @staticmethod
     def steps() -> List[List[str]]:
         return [
@@ -104,7 +104,7 @@ class EncoderRxyCnot(Encoder):
 #     qml.Snapshot("flag4")
 
 
-class EncoderRyRz(Encoder):
+class EncoderRyyRzz(Encoder):
     @staticmethod
     def steps() -> List[List[str]]:
         return [
@@ -139,7 +139,7 @@ class EncoderRyRz(Encoder):
 #     qml.Snapshot("flag4")
 
 
-class EncoderRzRyCnot(Encoder):
+class EncoderRzzRyyCnot(Encoder):
     @staticmethod
     def steps() -> List[List[str]]:
         return [
@@ -178,7 +178,7 @@ class EncoderRzRyCnot(Encoder):
 #     qml.Snapshot("flag4")
 
 
-class EncoderRyRx(Encoder):
+class EncoderRyyRxx(Encoder):
     @staticmethod
     def steps() -> List[List[str]]:
         return [
@@ -211,3 +211,93 @@ class EncoderRyRx(Encoder):
 #     qml.RX(x[0], wires=1)
 #     qml.Snapshot("flag3")
 #     qml.Snapshot("flag4")
+
+
+class EncoderRyRz(Encoder):
+    @staticmethod
+    def steps() -> List[List[str]]:
+        return [
+            ["RY(x)", ""],  # encoder step 1
+            ["RZ(x)", ""],  # encoder step 2
+        ]
+
+    @staticmethod
+    def get_feature_mapping() -> FeatureMap:
+        return FMExpTrig()  # TODO, use the one in the experiment
+
+    def encode(self, x):
+        flags = self.flags()
+        qml.Snapshot(flags[0])
+        qml.RY(x[0], wires=0)
+        qml.Snapshot(flags[1])
+        qml.RZ(x[1], wires=1)
+        qml.Snapshot(flags[2])
+
+
+class EncoderRyzRyz(Encoder):
+    @staticmethod
+    def steps() -> List[List[str]]:
+        return [
+            ["RY(x)", "RZ(x)"],  # encoder step 1
+            ["RY(x)", "RZ(x)"],  # encoder step 2
+        ]
+
+    @staticmethod
+    def get_feature_mapping() -> FeatureMap:
+        return FMArcLogTrig()
+
+    def encode(self, x):
+        flags = self.flags()
+        qml.Snapshot(flags[0])
+        qml.RY(x[0], wires=0)
+        qml.RZ(x[1], wires=1)
+        qml.Snapshot(flags[1])
+        qml.RY(x[1], wires=0)
+        qml.RZ(x[0], wires=1)
+        qml.Snapshot(flags[2])
+
+
+class EncoderRyxRyx(Encoder):
+    @staticmethod
+    def steps() -> List[List[str]]:
+        return [
+            ["RY(x)", "RX(x)"],  # encoder step 1
+            ["RY(x)", "RX(x)"],  # encoder step 2
+        ]
+
+    @staticmethod
+    def get_feature_mapping() -> FeatureMap:
+        return FMArctanTrig()
+
+    def encode(self, x):
+        flags = self.flags()
+        qml.Snapshot(flags[0])
+        qml.RY(x[0], wires=0)
+        qml.RX(x[1], wires=1)
+        qml.Snapshot(flags[1])
+        qml.RY(x[1], wires=0)
+        qml.RX(x[0], wires=1)
+        qml.Snapshot(flags[2])
+
+
+class EncoderRzyRzy(Encoder):
+    @staticmethod
+    def steps() -> List[List[str]]:
+        return [
+            ["RZ(x)", "RY(x)"],  # encoder step 1
+            ["RZ(x)", "RY(x)"],  # encoder step 2
+        ]
+
+    @staticmethod
+    def get_feature_mapping() -> FeatureMap:
+        return FMExpTrig()
+
+    def encode(self, x):
+        flags = self.flags()
+        qml.Snapshot(flags[0])
+        qml.RZ(x[0], wires=0)
+        qml.RY(x[1], wires=1)
+        qml.Snapshot(flags[1])
+        qml.RZ(x[1], wires=0)
+        qml.RY(x[0], wires=1)
+        qml.Snapshot(flags[2])

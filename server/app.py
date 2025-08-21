@@ -3,11 +3,15 @@ from flask_cors import CORS
 from pydantic import BaseModel, ValidationError
 
 from functions.encoding import (
-    EncoderRxRyCnot,
+    EncoderRxxRyyCnot,
     EncoderRxyCnot,
+    EncoderRyyRzz,
+    EncoderRyyRxx,
+    EncoderRzzRyyCnot,
     EncoderRyRz,
-    EncoderRyRx,
-    EncoderRzRyCnot,
+    EncoderRyzRyz,
+    EncoderRyxRyx,
+    EncoderRzyRzy,
 )
 from routes.hyperparameters import DEFAULT_EPOCH_NUMBER, DEFAULT_LR
 from routes.run_circuit import run_circuit as run_circuit_train
@@ -16,20 +20,24 @@ from routes.hyperparameters import SEED
 from typing import Literal
 
 encoders = {
-    "RxRyCnot": EncoderRxRyCnot(),
+    "RxxRyyCnot": EncoderRxxRyyCnot(),
     "RxyCnot": EncoderRxyCnot(),
+    "RyyRzz": EncoderRyyRzz(),
+    "RyyRxx": EncoderRyyRxx(),
+    "RzzRyyCnot": EncoderRzzRyyCnot(),
     "RyRz": EncoderRyRz(),
-    "RyRx": EncoderRyRx(),
-    "RzRyCnot": EncoderRzRyCnot(),
+    "RyzRyz": EncoderRyzRyz(),
+    "RyxRyx": EncoderRyxRyx(),
+    "RzyRzy": EncoderRzyRzy(),
 }
 
 default_encoders = {
-    0: "RxRyCnot",
+    0: "RxxRyyCnot",
     1: "RxyCnot",
-    2: "RyRz",
-    3: "RyRx",
-    4: "RzRyCnot",
-    5: "RzRyCnot",
+    2: "RyyRzz",
+    3: "RyyRxx",
+    4: "RzzRyyCnot",
+    5: "RzzRyyCnot",
 }
 
 app = Flask(__name__)
@@ -44,19 +52,23 @@ class CircuitRequest(BaseModel):
     """Pydantic model for /api/run_circuit request body."""
 
     circuit: Literal[0, 1, 2, 3, 4, 5]
-    encoder_name: Literal["RxRyCnot", "RxyCnot", "RyRz", "RyRx", "RzRyCnot"] | None = None
+    encoder_name: str | None = None
 
 
 @app.route("/")
 def index():
     return "success"
 
+
 @app.route("/api/get_encoders", methods=["GET"])
 def get_encoders():
-    return jsonify({
-        "encoders": {name: encoder.steps() for name, encoder in encoders.items()},
-        "defaults": default_encoders
-    })
+    return jsonify(
+        {
+            "encoders": {name: encoder.steps() for name, encoder in encoders.items()},
+            "defaults": default_encoders,
+        }
+    )
+
 
 @app.route("/api/run_circuit", methods=["POST"])
 def run_circuit():
