@@ -42,4 +42,4 @@ curl -X POST http://127.0.0.1:3030/api/run_circuit \
 1. Dataset 4 + RyRz -> Acc = 1.0
 2. Dataset 3 + RyyRzz -> Acc = 0.84
 3. Dataset 4 + RyyRxx -> Acc = 0.91
-4. Dataset 5 + RzzRyy -> Acc = 0.76 with high variation
+4. Dataset 5 + RzzRyy -> Acc = 0.92

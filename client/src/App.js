@@ -144,16 +144,21 @@ const data_port_map = {
 
 function App() {
 	const default_circuit = "circuit_5";
+	const DEFAULT_EPOCH = 100;
+	const DEFAULT_LR = 0.02;
 	const [data_name, set_dataName] = useState(default_circuit);
 	const [dataset, setDataset] = useState(null);
 	const [encoders, setEncoders] = useState({});
 	const [defaults, setDefaults] = useState({});
 	const [selectedEncoder, setSelectedEncoder] = useState(null);
+	const [epochNumber, setEpochNumber] = useState(DEFAULT_EPOCH);
+	const [learningRate, setLearningRate] = useState(DEFAULT_LR);
 
 	const [drawer_open, set_drawer_open] = useState(false);
 	const [_comp6Loading, _setComp6Loading] = useState(true);
 	const prevDataNameRef = useRef(data_name);
 	const [encStepsKey, setEncStepsKey] = useState(0);
+	const initialFetchDoneRef = useRef(false);
 
 	const handleDatasetClick = (datasetName) => {
 		set_dataName(datasetName);
@@ -195,43 +200,35 @@ function App() {
 		}
 	}, [data_name, defaults]);
 
-	// Fetch data when circuit or encoder changes
+	// One-time initial fetch on first mount after defaults/encoder are ready
 	useEffect(() => {
+		const defaultsReady = defaults && Object.keys(defaults).length > 0;
+		if (!defaultsReady) return;
+		if (!selectedEncoder) return;
+		if (initialFetchDoneRef.current) return;
 		const circuit_id = data_port_map[data_name];
 		const request_url = `http://127.0.0.1:3030/api/run_circuit`;
-		const defaultsReady = defaults && Object.keys(defaults).length > 0;
-		const defaultEnc = defaultsReady ? defaults[circuit_id] : null;
-		const prevCircuitId = data_port_map[prevDataNameRef.current];
-		const dataNameChanged = prevCircuitId !== circuit_id;
-
-		// Avoid double fetch: when dataset changes, wait for selectedEncoder to sync to default
-		if (dataNameChanged && defaultEnc && selectedEncoder !== defaultEnc) {
-			return;
-		}
-		// Also wait until defaults are available (initial mount)
-		if (!defaultsReady) {
-			return;
-		}
-
+		const payload = {
+			circuit: circuit_id,
+			encoder_name: selectedEncoder,
+			epoch_number: epochNumber,
+			lr: learningRate,
+		};
 		const fetchData = async () => {
 			try {
-				prevDataNameRef.current = data_name; // mark fetch for this dataset
-				const payload = { circuit: circuit_id };
-				if (selectedEncoder) payload.encoder_name = selectedEncoder;
+				setDataset(null);
+				prevDataNameRef.current = data_name;
 				const result = await axios.post(request_url, payload);
-				console.log(
-					`'App.js' - Dataset (${data_name}) loaded with encoder ${selectedEncoder}. `,
-					result.data,
-				);
+				initialFetchDoneRef.current = true;
 				setDataset(result.data);
 			} catch (err) {
-				console.error("Failed to load dataset", err);
+				console.error("Failed to load initial dataset", err);
+				initialFetchDoneRef.current = true;
 				setDataset(null);
 			}
 		};
-
 		fetchData();
-	}, [data_name, selectedEncoder, defaults]);
+	}, [defaults, selectedEncoder]);
 
 	// useEffect(() => {
 	//
@@ -403,6 +400,26 @@ function App() {
 							}}
 							icon={<PlayCircleFilled style={{ fontSize: "4.5em" }} />}
 							type="text"
+							onClick={async () => {
+								const circuit_id = data_port_map[data_name];
+								const request_url = `http://127.0.0.1:3030/api/run_circuit`;
+								const payload = {
+									circuit: circuit_id,
+									epoch_number: epochNumber,
+									lr: learningRate,
+								};
+								if (selectedEncoder) payload.encoder_name = selectedEncoder;
+								try {
+									setDataset(null);
+									prevDataNameRef.current = data_name;
+									const result = await axios.post(request_url, payload);
+									console.log("Start training", payload, result.data);
+									setDataset(result.data);
+								} catch (err) {
+									console.error("Failed to load dataset on start", err);
+									setDataset(null);
+								}
+							}}
 						/>
 						<Button
 							icon={
@@ -411,6 +428,10 @@ function App() {
 								</span>
 							}
 							type="text"
+							onClick={() => {
+								setEpochNumber(DEFAULT_EPOCH);
+								setLearningRate(DEFAULT_LR);
+							}}
 						/>
 					</div>
 
@@ -422,20 +443,23 @@ function App() {
 							<Row>
 								<Col span={14}>
 									<Slider
-										min={0}
+										min={1}
 										max={1000}
-										step={100}
-										value={100}
-										// onAfterChange={this.view2_gate_qual_filter}
-										// disabled={check1()}
+										step={1}
+										value={epochNumber}
+										onChange={setEpochNumber}
 									/>
 								</Col>
 								<Col>
 									<InputNumber
-										style={{ width: "40px" }}
+										style={{ width: "60px" }}
 										size={"small"}
-										value={100}
-										controls={false}
+										min={1}
+										max={1000}
+										value={epochNumber}
+										onChange={(v) => {
+											if (typeof v === "number") setEpochNumber(v);
+										}}
 									/>
 								</Col>
 							</Row>
@@ -453,17 +477,21 @@ function App() {
 										min={0}
 										max={0.1}
 										step={0.01}
-										value={0.02}
-										// onAfterChange={this.view2_gate_qual_filter}
-										// disabled={check1()}
+										value={learningRate}
+										onChange={setLearningRate}
 									/>
 								</Col>
 								<Col>
 									<InputNumber
-										style={{ width: "40px" }}
+										style={{ width: "60px" }}
 										size={"small"}
-										value={0.02}
-										controls={false}
+										min={0}
+										max={0.1}
+										step={0.01}
+										value={learningRate}
+										onChange={(v) => {
+											if (typeof v === "number") setLearningRate(v);
+										}}
 									/>
 								</Col>
 							</Row>
@@ -506,7 +534,7 @@ function App() {
 					{dataset && (
 						<DataSelectorPanel
 							dataset={dataset["original_data"]}
-							default_circuit={default_circuit}
+							default_circuit={data_name}
 							onDatasetClick={handleDatasetClick}
 							colors={[[color_class1, color_class2], color_comp2_bg]}
 							comp2_width={comp2_width}

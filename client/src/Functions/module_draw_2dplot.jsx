@@ -21,7 +21,12 @@ function Module_draw_2dplot(props) {
 	// mount 的时候渲染一次
 	useEffect(() => {
 		draw_func();
-	}, [dataset]);
+		return () => {
+			// cleanup appended elements and tooltips to avoid stacking between rerenders
+			d3.select(divRef.current).selectAll("*").remove();
+			d3.selectAll(`.${module_name}-tooltip`).remove();
+		};
+	}, [dataset, boundary, module_name]);
 
 	function draw_func() {
 		// 先给组件的根结点div给className + 移位
@@ -29,11 +34,14 @@ function Module_draw_2dplot(props) {
 			.attr("class", `${module_name}`)
 			.attr("transform", `translate(${translate[0]}, ${translate[1]})`);
 
-		// Tooltip setup
+		// Clear previous contents to ensure fresh render
+		d3.select(divRef.current).selectAll("*").remove();
+
+		// Tooltip setup (scoped with module name)
 		const tooltip = d3
 			.select("body")
 			.append("div")
-			.attr("class", "view1_tooltip")
+			.attr("class", `view1_tooltip ${module_name}-tooltip`)
 			.style("position", "absolute")
 			.style("background-color", "#212121")
 			.style("color", "white")

@@ -303,6 +303,7 @@ class EncoderRzyRzy(Encoder):
         qml.RY(x[0], wires=1)
         qml.Snapshot(flags[2])
 
+
 class EncoderRzzRyy(Encoder):
     @staticmethod
     def steps() -> List[List[str]]:

@@ -55,6 +55,8 @@ class CircuitRequest(BaseModel):
 
     circuit: Literal[0, 1, 2, 3, 4, 5]
     encoder_name: str | None = None
+    epoch_number: int
+    lr: float
 
 
 @app.route("/")
@@ -124,6 +126,12 @@ def run_circuit():
         if encoder is None:
             raise ValueError(f"Unknown encoder name: {encoder_name}")
     params["encoder"] = encoder
+
+    # Allow client to override epoch_number and lr if provided
+    if req.epoch_number is not None:
+        params["epoch_number"] = req.epoch_number
+    if req.lr is not None:
+        params["lr"] = req.lr
 
     # Call the selected circuit runner and return its result (already plain types)
     np.random.seed(SEED)
