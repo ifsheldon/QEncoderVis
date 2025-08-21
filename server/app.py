@@ -19,6 +19,7 @@ from routes.run_circuit import run_circuit as run_circuit_train
 from pennylane import numpy as np
 from routes.hyperparameters import SEED
 from typing import Literal
+from routes.get_original_data import get_original_data
 
 encoders = {
     "RxxRyyCnot": EncoderRxxRyyCnot(),
@@ -59,6 +60,10 @@ class CircuitRequest(BaseModel):
     lr: float
 
 
+def get_dataset_source(circuit_id: int):
+    return f"Data/dataset_{circuit_id}.csv"
+
+
 @app.route("/")
 def index():
     return "success"
@@ -74,6 +79,12 @@ def get_encoders():
     )
 
 
+@app.route("/api/get_original_data", methods=["GET"])
+def get_original_data_route():
+    circuit_id = request.args.get("circuit_id")
+    return jsonify(get_original_data(get_dataset_source(circuit_id)))
+
+
 @app.route("/api/run_circuit", methods=["POST"])
 def run_circuit():
     payload = request.get_json(silent=True) or {}
@@ -85,40 +96,7 @@ def run_circuit():
     circuit_id = req.circuit
     encoder_name = req.encoder_name
 
-    default_params = {
-        0: {
-            "epoch_number": DEFAULT_EPOCH_NUMBER,
-            "lr": DEFAULT_LR,
-            "dataset_source": "Data/dataset_0.csv",
-        },
-        1: {
-            "epoch_number": DEFAULT_EPOCH_NUMBER,
-            "lr": DEFAULT_LR,
-            "dataset_source": "Data/dataset_1.csv",
-        },
-        2: {
-            "epoch_number": DEFAULT_EPOCH_NUMBER,
-            "lr": DEFAULT_LR,
-            "dataset_source": "Data/dataset_2.csv",
-        },
-        3: {
-            "epoch_number": DEFAULT_EPOCH_NUMBER,
-            "lr": DEFAULT_LR,
-            "dataset_source": "Data/dataset_3.csv",
-        },
-        4: {
-            "epoch_number": DEFAULT_EPOCH_NUMBER,
-            "lr": DEFAULT_LR,
-            "dataset_source": "Data/dataset_4.csv",
-        },
-        5: {
-            "epoch_number": DEFAULT_EPOCH_NUMBER,
-            "lr": 0.2,
-            "dataset_source": "Data/dataset_5.csv",
-        },
-    }
-
-    params = default_params[circuit_id]
+    params = {}
     if encoder_name is None:
         encoder = encoders[default_encoders[circuit_id]]
     else:
@@ -126,12 +104,9 @@ def run_circuit():
         if encoder is None:
             raise ValueError(f"Unknown encoder name: {encoder_name}")
     params["encoder"] = encoder
-
-    # Allow client to override epoch_number and lr if provided
-    if req.epoch_number is not None:
-        params["epoch_number"] = req.epoch_number
-    if req.lr is not None:
-        params["lr"] = req.lr
+    params["dataset_source"] = get_dataset_source(circuit_id)
+    params["epoch_number"] = req.epoch_number
+    params["lr"] = req.lr
 
     # Call the selected circuit runner and return its result (already plain types)
     np.random.seed(SEED)

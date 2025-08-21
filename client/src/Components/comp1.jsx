@@ -1,9 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 import Module_draw_2dplot from "../Functions/module_draw_2dplot";
 
 function OriginalDataView(props) {
-	const dataset = props.dataset;
+	const circuitId = props.circuitId;
 
 	const comp1_width = props.comp1_width;
 	const comp1_height = props.comp1_height;
@@ -11,15 +12,36 @@ function OriginalDataView(props) {
 	const comp1_top = props.comp1_top;
 	const { class_color } = props;
 
+	const [originalData, setOriginalData] = useState(null);
+	const [loading, setLoading] = useState(false);
+
 	// 定义新的measure
 	const svg_width = comp1_width * 0.9;
 	const svg_height = comp1_height * 0.9;
 
-	// mount 的时候渲染一次
+	// Fetch original data when dataset (circuitId) changes
 	useEffect(() => {
-		// console.log('comp1 mount')
-		// console
-	}, []);
+		const fetchOriginal = async () => {
+			try {
+				setLoading(true);
+				const res = await axios.get(
+					"http://127.0.0.1:3030/api/get_original_data",
+					{
+						params: { circuit_id: circuitId },
+					},
+				);
+				setOriginalData(res.data);
+			} catch (err) {
+				console.error("Failed to fetch original data", err);
+				setOriginalData(null);
+			} finally {
+				setLoading(false);
+			}
+		};
+		if (circuitId !== undefined && circuitId !== null) {
+			fetchOriginal();
+		}
+	}, [circuitId]);
 
 	return (
 		<div
@@ -40,16 +62,20 @@ function OriginalDataView(props) {
 				width={svg_width}
 				height={svg_height}
 			>
-				{/* g for scatter plot*/}
-				<Module_draw_2dplot
-					dataset={dataset}
-					class_color={class_color}
-					boundary={null}
-					mode={"medium"}
-					translate={[5, 0]} /*module这个g在svg元素里的位置*/
-					module_name={"comp1_2dplot"} /*module这个g的名字*/
-					isLegend={true}
-				></Module_draw_2dplot>
+				{loading || !originalData ? (
+					// simple fallback while loading
+					<text>Loading original data...</text>
+				) : (
+					<Module_draw_2dplot
+						dataset={originalData}
+						class_color={class_color}
+						boundary={null}
+						mode={"medium"}
+						translate={[5, 0]} /*module这个g在svg元素里的位置*/
+						module_name={"comp1_2dplot"} /*module这个g的名字*/
+						isLegend={true}
+					></Module_draw_2dplot>
+				)}
 			</svg>
 		</div>
 	);

@@ -514,21 +514,14 @@ function App() {
 					}}
 				>
 					{/* Component-1: original data view*/}
-					{dataset
-						? <OriginalDataView
-								dataset={dataset["original_data"]}
-								class_color={[color_class1, color_class2]}
-								comp1_width={comp1_width}
-								comp1_height={comp1_height}
-								comp1_left={comp1_left}
-								comp1_top={comp1_top}
-							></OriginalDataView>
-						: <Spin
-								fullscreen={true}
-								tip="Loading"
-								className={"spin-comp1"}
-								size="large"
-							/>}
+					<OriginalDataView
+						circuitId={data_port_map[data_name]}
+						class_color={[color_class1, color_class2]}
+						comp1_width={comp1_width}
+						comp1_height={comp1_height}
+						comp1_left={comp1_left}
+						comp1_top={comp1_top}
+					></OriginalDataView>
 
 					{/* Component-2: data selector panel*/}
 					{dataset && (

@@ -118,12 +118,10 @@ def run_circuit(encoder: Encoder, epoch_number: int, lr: float, dataset_source: 
     }
 
     original_feature = X.tolist()
-    original_label = Y.tolist()
     # 创建trained map的数据
     trained_label = [float(x) for x in circuit(weights, features.T)]
 
     result_to_return = {
-        "original_data": {"feature": original_feature, "label": original_label},
         "circuit": circuit_implementation,
         "encoded_data": {"feature": original_feature, "label": result[flag_list[-1]][0]},
         "performance": {"epoch_number": epoch_number, "loss": cost_list, "accuracy": acc_val_list},
