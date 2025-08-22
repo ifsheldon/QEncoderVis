@@ -231,7 +231,7 @@ class EncoderRyRz(Encoder):
         qml.Snapshot(flags[0])
         qml.RY(x[0], wires=0)
         qml.Snapshot(flags[1])
-        qml.RZ(x[1], wires=1)
+        qml.RZ(x[0], wires=0)
         qml.Snapshot(flags[2])
 
 

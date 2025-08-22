@@ -80,9 +80,13 @@ class FMExpTrig(FeatureMap):
 class FMArcsinSqrt(FeatureMap):
     def feature_map(self, x):
         if np.isclose(x[0] ** 2 + x[1] ** 2, 0.0):
-            return [0.0, 0.0]
+            return [
+                0.0,
+            ]
         beta0 = 2 * np.arcsin(np.sqrt(x[0] ** 2) / np.sqrt(x[0] ** 2 + x[1] ** 2))
-        return [beta0, x[1]]
+        return [
+            beta0,
+        ]
 
     def get_formula(self):
         return r"\beta_0 = 2 \cdot \arcsin(\sqrt{x_0^2} / \sqrt{x_0^2 + x_1^2})"
