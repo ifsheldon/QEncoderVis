@@ -1,7 +1,6 @@
 import pennylane as qml
 from pennylane import numpy as np
 from pennylane.optimize import NesterovMomentumOptimizer
-from numpy import genfromtxt
 
 from functions.dim_reduction import compute_distribution_map
 from functions.encoding import Encoder
@@ -12,7 +11,7 @@ from routes.hyperparameters import (
     BATCH_SIZE,
 )
 
-from routes.ansatz import ansatz, ansatz_steps
+from routes.ansatz import ansatz
 from routes.cost import cost as cost_fn
 from functools import partial
 from routes.accuracy import accuracy
@@ -110,26 +109,12 @@ def run_circuit(encoder: Encoder, epoch_number: int, lr: float, dataset_source: 
     distribution_map = compute_distribution_map(
         circuit, weights, features, Y, snapshot=flag_list[-1]
     )
-    features_for_encoding, expvalues, probs_measure_q0_1, probs_measure_q0_0 = get_encoded_data(
-        dataset_source, encoder
-    )
-    features_for_encoding = features_for_encoding.tolist()
-
-    # 创建dict for encoder, 来给前端返回, 画circuit的数据
-    circuit_implementation = {
-        "qubit_number": NUM_QUBITS,
-        "encoder_step": encoder.num_steps(),
-        "encoder": encoder.steps(),
-        "ansatz": ansatz_steps,
-        "measure": [["Measure(Z)", ""]],
-    }
 
     original_feature = X.tolist()
     # 创建trained map的数据
     trained_label = [float(x) for x in circuit(weights, features.T)]
 
     result_to_return = {
-        "circuit": circuit_implementation,
         "performance": {
             "epoch_number": epoch_number,
             "loss": costs.tolist(),
@@ -138,18 +123,6 @@ def run_circuit(encoder: Encoder, epoch_number: int, lr: float, dataset_source: 
         "trained_data": {"feature": original_feature, "label": trained_label},
         "distribution_map": distribution_map,
         "feature_map_formula": fm.get_formula(),
-        # Encoded data at each encoding step
-        "encoded_data": {"feature": features_for_encoding, "label": expvalues[flag_list[-1]]},
-        "encoded_steps": [
-            {"feature": features_for_encoding, "label": expvalues[f]} for f in flag_list[:-1]
-        ],
-        "encoded_steps_sub": [
-            [
-                {"feature": features_for_encoding, "label": probs_measure_q0_1[f]},
-                {"feature": features_for_encoding, "label": probs_measure_q0_0[f]},
-            ]
-            for f in flag_list[:-1]
-        ],
     }
 
     plain_result = recursive_convert(result_to_return)

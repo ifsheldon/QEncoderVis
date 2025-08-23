@@ -14,8 +14,7 @@ from functions.encoding import (
     EncoderRzyRzy,
     EncoderRzzRyy,
 )
-from routes.hyperparameters import DEFAULT_EPOCH_NUMBER, DEFAULT_LR
-from routes.run_circuit import run_circuit as run_circuit_train
+from routes.run_circuit import run_circuit as run_circuit_train, get_encoded_data
 from pennylane import numpy as np
 from routes.hyperparameters import SEED
 from typing import Literal
@@ -83,6 +82,32 @@ def get_encoders():
 def get_original_data_route():
     circuit_id = request.args.get("circuit_id")
     return jsonify(get_original_data(get_dataset_source(circuit_id)))
+
+
+@app.route("/api/get_encoded_data", methods=["GET"])
+def get_encoded_data_route():
+    circuit_id = request.args.get("circuit_id")
+    encoder_name = request.args.get("encoder_name")
+    encoder = encoders[encoder_name]
+    features_for_encoding, expvalues, probs_measure_q0_1, probs_measure_q0_0 = get_encoded_data(
+        get_dataset_source(circuit_id), encoder
+    )
+    features_for_encoding = features_for_encoding.tolist()
+    flag_list = encoder.flags()
+    result = {
+        "encoded_data": {"feature": features_for_encoding, "label": expvalues[flag_list[-1]]},
+        "encoded_steps": [
+            {"feature": features_for_encoding, "label": expvalues[f]} for f in flag_list[:-1]
+        ],
+        "encoded_steps_sub": [
+            [
+                {"feature": features_for_encoding, "label": probs_measure_q0_1[f]},
+                {"feature": features_for_encoding, "label": probs_measure_q0_0[f]},
+            ]
+            for f in flag_list[:-1]
+        ],
+    }
+    return jsonify(result)
 
 
 @app.route("/api/run_circuit", methods=["POST"])

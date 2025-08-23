@@ -153,9 +153,10 @@ function App() {
 	const [selectedEncoder, setSelectedEncoder] = useState(null);
 	const [epochNumber, setEpochNumber] = useState(DEFAULT_EPOCH);
 	const [learningRate, setLearningRate] = useState(DEFAULT_LR);
+	const [circuitPreview, setCircuitPreview] = useState(null);
+	const [encodedData, setEncodedData] = useState(null);
 
 	const [drawer_open, set_drawer_open] = useState(false);
-	const [_comp6Loading, _setComp6Loading] = useState(true);
 	const prevDataNameRef = useRef(data_name);
 	const [encStepsKey, setEncStepsKey] = useState(0);
 	const initialFetchDoneRef = useRef(false);
@@ -229,6 +230,55 @@ function App() {
 		};
 		fetchData();
 	}, [defaults, selectedEncoder]);
+
+	// Fast updates for circuit preview and encoded data when dataset or encoder changes
+	useEffect(() => {
+		// Build circuit preview from encoders list and current dataset (for qubit/ansatz if available)
+		if (
+			selectedEncoder &&
+			encoders &&
+			Object.prototype.hasOwnProperty.call(encoders, selectedEncoder)
+		) {
+			const steps = encoders[selectedEncoder] || [];
+			const stepsCount = Array.isArray(steps) ? steps.length : 0;
+			const preview = {
+				qubit_number:
+					(dataset && dataset.circuit && dataset.circuit.qubit_number) || 2,
+				encoder_step: stepsCount,
+				encoder: steps,
+				ansatz: (dataset && dataset.circuit && dataset.circuit.ansatz) || [],
+				measure: (dataset && dataset.circuit && dataset.circuit.measure) || [],
+			};
+			setCircuitPreview(preview);
+		} else {
+			setCircuitPreview(null);
+		}
+
+		// Fetch encoded data quickly for the selected dataset and encoder
+		const circuit_id = data_port_map[data_name];
+		if (!selectedEncoder) {
+			setEncodedData(null);
+			return;
+		}
+		const source = axios.CancelToken.source();
+		axios
+			.get(`http://127.0.0.1:3030/api/get_encoded_data`, {
+				params: { circuit_id, encoder_name: selectedEncoder },
+				cancelToken: source.token,
+			})
+			.then((res) => {
+				setEncodedData(res.data || null);
+			})
+			.catch((err) => {
+				if (!axios.isCancel(err)) {
+					console.error("Failed to fetch encoded data quickly", err);
+				}
+				setEncodedData(null);
+			});
+		return () => {
+			source.cancel("Route changed");
+		};
+	}, [data_name, selectedEncoder, encoders, dataset]);
 
 	// useEffect(() => {
 	//
@@ -539,10 +589,10 @@ function App() {
 					)}
 
 					{/* Component-3: quantum circuit show*/}
-					{dataset && (
+					{circuitPreview && (
 						<QuantumCircuitView
 							key={`${data_name}-${selectedEncoder || "default"}`}
-							dataset={dataset["circuit"]}
+							dataset={circuitPreview}
 							comp3_width={comp3_width}
 							comp3_height={comp3_height}
 							comp3_left={comp3_left}
@@ -553,10 +603,10 @@ function App() {
 					)}
 
 					{/* Component-4: encoded map*/}
-					{dataset && (
+					{encodedData?.encoded_data && (
 						<EncodedMapView
-							dataset={dataset["encoded_data"]}
-							boundary={dataset["boundary"]}
+							dataset={encodedData.encoded_data}
+							boundary={null}
 							colors={[[color_class1, color_class2], color_comp4_bg]}
 							comp4_width={comp4_width}
 							comp4_height={comp4_height}
@@ -592,10 +642,13 @@ function App() {
 					)}
 
 					{/* Component-6: encoder step map*/}
-					{dataset && (
+					{encodedData?.encoded_steps && encodedData?.encoded_steps_sub && (
 						<EncoderStepMappingView
 							key={encStepsKey}
-							dataset={[dataset["encoded_steps"], dataset["encoded_steps_sub"]]}
+							dataset={[
+								encodedData.encoded_steps,
+								encodedData.encoded_steps_sub,
+							]}
 							comp6_width={comp6_width}
 							comp6_height={comp6_height}
 							comp6_left={comp6_left}
