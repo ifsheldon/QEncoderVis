@@ -104,16 +104,7 @@ const comp5_top_adjusted = Math.max(
 const article_width = 650;
 const centered_footer_bgColor = 650;
 
-// All color setting here
-// define colors here
-// const color_class1 = "#ffe682";
-// const color_class2 = "#006962";
-// const color_class1 = "#eebc6f";
-// const color_class2 = "#6fc6be";
-// const color_class1 = "#114057";
-// const color_class2 = "#fde625";
-// const color_class1 = "#f65262";
-// const color_class2 = "#4f7cff";
+// All color setting here`
 const color_class1 = "#80ee02";
 const color_class2 = "#750d0d";
 const top_bg_color = "#183D4E";
