@@ -34,8 +34,6 @@ curl -X POST http://127.0.0.1:3030/api/run_circuit \
 ```
 
 ## TODOs
-* Implement training progress
-* Fix all buttons
 * Implement edge detection
 
 ## Records:

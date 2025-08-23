@@ -44,15 +44,29 @@ function Module_draw_performance(props) {
 			.attr("class", `${module_name}`)
 			.attr("transform", `translate(${translate[0]}, ${translate[1]})`);
 
+		// Prepare safe data
+		const epochNumber =
+			(dataset && typeof dataset["epoch_number"] === "number"
+				? dataset["epoch_number"]
+				: 0) || 0;
+		const lossArray = Array.isArray(dataset && dataset["loss"])
+			? dataset["loss"]
+			: [];
+		const accArray = Array.isArray(dataset && dataset["accuracy"])
+			? dataset["accuracy"]
+			: [];
+
 		// Setup scales and axes
 		const xScale = d3
 			.scaleLinear()
-			.domain([0, dataset["epoch_number"] - 1]) // Assuming dataset.epoch is an array of epoch numbers
+			.domain([0, Math.max(0, epochNumber - 1)])
 			.range([0, axis_width]);
 
+		const lossMin = lossArray.length ? d3.min(lossArray) : 0;
+		const lossMax = lossArray.length ? d3.max(lossArray) : 1;
 		const yScaleLoss = d3
 			.scaleLinear()
-			.domain([d3.min(dataset["loss"]), d3.max(dataset["loss"])])
+			.domain([lossMin, lossMax])
 			.range([axis_height, 0]);
 
 		const yScaleAccuracy = d3
@@ -60,14 +74,8 @@ function Module_draw_performance(props) {
 			.domain([0, 1])
 			.range([axis_height, 0]);
 
-		const dataLoss = d3
-			.range(dataset["epoch_number"])
-			.map((d, _i) => [d, dataset["loss"][d]]);
-		const dataAcc = d3
-			.range(dataset["epoch_number"])
-			.map((d, _i) => [d, dataset["accuracy"][d]]);
-
-		// console.log(dataLoss)
+		const dataLoss = d3.range(lossArray.length).map((d) => [d, lossArray[d]]);
+		const dataAcc = d3.range(accArray.length).map((d) => [d, accArray[d]]);
 
 		const makeLossLine = d3
 			.line()
@@ -94,28 +102,32 @@ function Module_draw_performance(props) {
 			.attr("class", "gAcc")
 			.attr("transform", `translate(0,${axis_height + gap_length})`);
 
-		gLoss
-			.append("path")
-			.attr("d", makeLossLine(dataLoss))
-			.attr("class", "loss_line")
-			.attr("stroke", loss_line_color)
-			.attr("stroke-width", line_stroke_width);
+		if (dataLoss.length) {
+			gLoss
+				.append("path")
+				.attr("d", makeLossLine(dataLoss))
+				.attr("class", "loss_line")
+				.attr("stroke", loss_line_color)
+				.attr("stroke-width", line_stroke_width);
+		}
 
 		gLoss
 			.append("g")
 			.call(
 				d3
 					.axisLeft(yScaleLoss)
-					.tickValues([d3.min(dataset["loss"]), d3.max(dataset["loss"])]),
+					.tickValues(lossArray.length ? [lossMin, lossMax] : [0, 1]),
 			)
 			.attr("transform", `translate(${-3}, 0)`);
 
-		gAcc
-			.append("path")
-			.attr("d", makeAccLine(dataAcc))
-			.attr("class", "acc_line")
-			.attr("stroke", acc_line_color)
-			.attr("stroke-width", line_stroke_width);
+		if (dataAcc.length) {
+			gAcc
+				.append("path")
+				.attr("d", makeAccLine(dataAcc))
+				.attr("class", "acc_line")
+				.attr("stroke", acc_line_color)
+				.attr("stroke-width", line_stroke_width);
+		}
 
 		gAcc
 			.append("g")
@@ -132,52 +144,52 @@ function Module_draw_performance(props) {
 
 		gAcc
 			.append("text")
-			.attr("x", axis_width * 1.05) // Small gap after the circle
+			.attr("x", axis_width * 1.05)
 			.attr("y", -gap_length / 2)
 			.attr("dy", "0.35em")
 			.text("Epoch")
 			.style("font-size", "0.9em");
 
-		// add text: Loss: 0.805
+		// add text: Loss
+		const lastLossText = lossArray.length
+			? `${lossArray[lossArray.length - 1].toFixed(3)}`
+			: "-";
 		gLoss
 			.append("text")
-			.attr("x", 0) // Position of the text
-			.attr("y", 0) // Vertical alignment of the first line
+			.attr("x", 0)
+			.attr("y", 0)
 			.style("font-size", "1em")
 			.each(function () {
 				const text = d3.select(this);
-				const lines = [
-					"Loss:",
-					`${dataset["loss"][dataset["loss"].length - 1].toFixed(3)}`,
-				]; // Each item represents a line
+				const lines = ["Loss:", lastLossText];
 				lines.forEach((line, i) => {
 					text
-						.append("tspan") // Adding a tspan for each line
-						.attr("x", 0) // Align with the starting x position
-						.attr("dy", i ? "1.2em" : 0) // Move subsequent lines down
+						.append("tspan")
+						.attr("x", 0)
+						.attr("dy", i ? "1.2em" : 0)
 						.text(line);
 				});
 			})
 			.attr("transform", `translate(${axis_width * 1.1}, ${axis_height * 0.2})`)
 			.attr("class", "light-text");
 
-		// add text: Acc: 0.805
+		// add text: Acc
+		const lastAccText = accArray.length
+			? `${accArray[accArray.length - 1].toFixed(3)}`
+			: "-";
 		gAcc
 			.append("text")
-			.attr("x", 0) // Position of the text
-			.attr("y", 0) // Vertical alignment of the first line
+			.attr("x", 0)
+			.attr("y", 0)
 			.style("font-size", "1em")
 			.each(function () {
 				const text = d3.select(this);
-				const lines = [
-					"Acc:",
-					`${dataset["accuracy"][dataset["accuracy"].length - 1].toFixed(3)}`,
-				]; // Each item represents a line
+				const lines = ["Acc:", lastAccText];
 				lines.forEach((line, i) => {
 					text
-						.append("tspan") // Adding a tspan for each line
-						.attr("x", 0) // Align with the starting x position
-						.attr("dy", i ? "1.2em" : 0) // Move subsequent lines down
+						.append("tspan")
+						.attr("x", 0)
+						.attr("dy", i ? "1.2em" : 0)
 						.text(line);
 				});
 			})

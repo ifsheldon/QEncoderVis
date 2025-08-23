@@ -13,7 +13,11 @@ import {
 	Drawer,
 	Card,
 } from "antd";
-import { RightOutlined, PlayCircleFilled } from "@ant-design/icons";
+import {
+	RightOutlined,
+	PlayCircleFilled,
+	PauseCircleFilled,
+} from "@ant-design/icons";
 
 import P1 from "./Articles/p1";
 import Footer from "./Articles/footer";
@@ -152,9 +156,15 @@ function App() {
 		learningRate: null,
 	});
 
+	// Streaming training session state
+	const [sessionId, setSessionId] = useState(null);
+	const eventSourceRef = useRef(null);
+	const [trainingActive, setTrainingActive] = useState(false);
+	const [paused, setPaused] = useState(false);
+	const [currentEpoch, setCurrentEpoch] = useState(0);
+
 	const [drawer_open, set_drawer_open] = useState(false);
 	const prevDataNameRef = useRef(data_name);
-	const [encStepsKey, setEncStepsKey] = useState(0);
 	const initialFetchDoneRef = useRef(false);
 
 	const handleDatasetClick = (datasetName) => {
@@ -168,6 +178,27 @@ function App() {
 
 	const onClose = () => {
 		set_drawer_open(false);
+	};
+
+	// Helper: cleanup current EventSource
+	const cleanupStream = async (doStop = false) => {
+		try {
+			if (doStop && sessionId) {
+				await axios.post(`http://127.0.0.1:3030/api/train/stop`, {
+					session_id: sessionId,
+				});
+			}
+		} catch (e) {}
+		if (eventSourceRef.current) {
+			try {
+				eventSourceRef.current.close();
+			} catch (e) {}
+			eventSourceRef.current = null;
+		}
+		setSessionId(null);
+		setTrainingActive(false);
+		setPaused(false);
+		setCurrentEpoch(0);
 	};
 
 	// Helper: whether current selection matches last trained configuration
@@ -242,6 +273,141 @@ function App() {
 		};
 		fetchData();
 	}, [defaults, selectedEncoder]);
+
+	// Unmount cleanup
+	useEffect(() => {
+		return () => {
+			cleanupStream(false);
+		};
+	}, []);
+
+	// Start streaming training
+	const startStreamingTraining = async () => {
+		const circuit_id = data_port_map[data_name];
+		const start_url = `http://127.0.0.1:3030/api/train/start`;
+		const payload = {
+			circuit: circuit_id,
+			epoch_number: epochNumber,
+			lr: learningRate,
+		};
+		if (selectedEncoder) payload.encoder_name = selectedEncoder;
+		try {
+			await cleanupStream(true);
+			setDataset(null);
+			prevDataNameRef.current = data_name;
+			const res = await axios.post(start_url, payload);
+			const newSessionId = res.data.session_id;
+			setSessionId(newSessionId);
+			setTrainingActive(true);
+			setPaused(false);
+			setCurrentEpoch(0);
+			// Initialize dataset holder for progressive updates
+			setDataset({
+				performance: { epoch_number: epochNumber, loss: [], accuracy: [] },
+				trained_data: { feature: [], label: [] },
+				distribution_map: [],
+				feature_map_formula: encoders[selectedEncoder]?.feature_map_formula,
+				circuit: circuitPreview || null,
+			});
+			setLastTrained({
+				circuitId: circuit_id,
+				encoderName: selectedEncoder,
+				epochNumber: epochNumber,
+				learningRate: learningRate,
+			});
+
+			// Open SSE stream
+			const streamUrl = `http://127.0.0.1:3030/api/train/stream?session_id=${newSessionId}`;
+			const es = new EventSource(streamUrl);
+			eventSourceRef.current = es;
+			es.onmessage = (ev) => {
+				try {
+					const msg = JSON.parse(ev.data);
+					if (msg.type === "session") {
+						return;
+					}
+					if (msg.type === "epoch") {
+						setCurrentEpoch(msg.epoch || 0);
+						setDataset((prev) => {
+							const perf = prev?.performance || {
+								epoch_number: msg.epoch_number,
+								loss: [],
+								accuracy: [],
+							};
+							const nextLoss = Array.isArray(perf.loss)
+								? [...perf.loss, msg.loss]
+								: [msg.loss];
+							const nextAcc = Array.isArray(perf.accuracy)
+								? [...perf.accuracy, msg.accuracy]
+								: [msg.accuracy];
+							return {
+								...prev,
+								performance: {
+									epoch_number: msg.epoch_number,
+									loss: nextLoss,
+									accuracy: nextAcc,
+								},
+								trained_data: msg.trained_data,
+								distribution_map: msg.distribution_map,
+								feature_map_formula:
+									msg.feature_map_formula || prev?.feature_map_formula,
+							};
+						});
+						return;
+					}
+					if (msg.type === "done") {
+						setTrainingActive(false);
+						setPaused(false);
+						if (eventSourceRef.current) {
+							eventSourceRef.current.close();
+							eventSourceRef.current = null;
+						}
+						setSessionId(null);
+						return;
+					}
+				} catch (e) {
+					console.error("Failed to parse SSE message", e);
+				}
+			};
+			es.onerror = () => {
+				if (eventSourceRef.current) {
+					eventSourceRef.current.close();
+					eventSourceRef.current = null;
+				}
+				setTrainingActive(false);
+				setPaused(false);
+				setSessionId(null);
+			};
+		} catch (err) {
+			console.error("Failed to start streaming training", err);
+			setTrainingActive(false);
+			setPaused(false);
+			setSessionId(null);
+		}
+	};
+
+	const togglePauseResume = async () => {
+		if (!sessionId) return;
+		try {
+			if (!paused) {
+				await axios.post(`http://127.0.0.1:3030/api/train/pause`, {
+					session_id: sessionId,
+				});
+				setPaused(true);
+			} else {
+				await axios.post(`http://127.0.0.1:3030/api/train/resume`, {
+					session_id: sessionId,
+				});
+				setPaused(false);
+			}
+		} catch (e) {
+			console.error("Failed to toggle pause/resume", e);
+		}
+	};
+
+	const stopTraining = async () => {
+		await cleanupStream(true);
+	};
 
 	// Fast updates for circuit preview and encoded data when dataset or encoder changes
 	useEffect(() => {
@@ -326,8 +492,12 @@ function App() {
 						>
 							<Col span={18}>
 								<span
-									onClick={showDrawer}
-									style={{ cursor: "pointer", color: "#1677ff" }}
+									onClick={!trainingActive ? showDrawer : undefined}
+									style={{
+										cursor: trainingActive ? "not-allowed" : "pointer",
+										color: "#1677ff",
+										opacity: trainingActive ? 0.6 : 1,
+									}}
 								>
 									{selectedEncoder || "(default)"}
 								</span>
@@ -337,6 +507,7 @@ function App() {
 									style={{ width: "100%", marginLeft: "0.2em", height: "32px" }}
 									onClick={showDrawer}
 									size={"small"}
+									disabled={trainingActive}
 								>
 									<RightOutlined />
 								</Button>
@@ -350,7 +521,12 @@ function App() {
 									bodyStyle={{ padding: 16 }}
 								>
 									<div
-										style={{ fontSize: 18, fontWeight: 600, marginBottom: 12 }}
+										style={{
+											fontSize: 18,
+											fontWeight: 600,
+											marginBottom: 12,
+											opacity: trainingActive ? 0.6 : 1,
+										}}
 									>
 										Select an encoder
 									</div>
@@ -385,6 +561,7 @@ function App() {
 													<Card
 														hoverable
 														onClick={() => {
+															if (trainingActive) return;
 															setSelectedEncoder(name);
 															set_drawer_open(false);
 														}}
@@ -393,6 +570,10 @@ function App() {
 															border: isSelected
 																? "2px solid #1677ff"
 																: undefined,
+															opacity: trainingActive ? 0.6 : 1,
+															cursor: trainingActive
+																? "not-allowed"
+																: "pointer",
 														}}
 													>
 														<div
@@ -405,6 +586,8 @@ function App() {
 															<div style={{ fontWeight: 600 }}>{name}</div>
 														</div>
 														<QuantumCircuitView
+															id={"enc-preview"}
+															style={{ opacity: trainingActive ? 0.6 : 1 }}
 															dataset={previewCircuit}
 															comp3_width={280}
 															comp3_height={90}
@@ -427,7 +610,16 @@ function App() {
 					<div style={{ marginTop: "10px", marginRight: "1.5em" }}>
 						<span className={"control_font"}>Training epoch</span>
 						<Progress
-							percent={100}
+							percent={
+								trainingActive
+									? Math.min(
+											100,
+											Math.round(
+												(currentEpoch / Math.max(1, epochNumber)) * 100,
+											),
+										)
+									: 0
+							}
 							status="active"
 							strokeColor={progress_color}
 							style={{ width: "150px", marginRight: "-30px", marginTop: "5px" }}
@@ -436,51 +628,23 @@ function App() {
 
 					<div className="button-group">
 						<Button
-							icon={
-								<span
-									className="material-symbols-outlined"
-									style={{ fontSize: "2em" }}
-								>
-									timer_pause
-								</span>
-							}
-							type="text"
-						/>
-						<Button
 							className={"play-button"}
 							style={{
 								color: play_btn_color,
 								marginLeft: "2em",
 								marginRight: "2em",
 							}}
-							icon={<PlayCircleFilled style={{ fontSize: "4.5em" }} />}
+							icon={
+								trainingActive
+									? paused
+										? <PlayCircleFilled style={{ fontSize: "4.5em" }} />
+										: <PauseCircleFilled style={{ fontSize: "4.5em" }} />
+									: <PlayCircleFilled style={{ fontSize: "4.5em" }} />
+							}
 							type="text"
-							onClick={async () => {
-								const circuit_id = data_port_map[data_name];
-								const request_url = `http://127.0.0.1:3030/api/run_circuit`;
-								const payload = {
-									circuit: circuit_id,
-									epoch_number: epochNumber,
-									lr: learningRate,
-								};
-								if (selectedEncoder) payload.encoder_name = selectedEncoder;
-								try {
-									setDataset(null);
-									prevDataNameRef.current = data_name;
-									const result = await axios.post(request_url, payload);
-									console.log("Start training", payload, result.data);
-									setDataset(result.data);
-									setLastTrained({
-										circuitId: circuit_id,
-										encoderName: selectedEncoder,
-										epochNumber: epochNumber,
-										learningRate: learningRate,
-									});
-								} catch (err) {
-									console.error("Failed to load dataset on start", err);
-									setDataset(null);
-								}
-							}}
+							onClick={
+								trainingActive ? togglePauseResume : startStreamingTraining
+							}
 						/>
 						<Button
 							icon={
@@ -489,9 +653,13 @@ function App() {
 								</span>
 							}
 							type="text"
-							onClick={() => {
-								setEpochNumber(DEFAULT_EPOCH);
-								setLearningRate(DEFAULT_LR);
+							onClick={async () => {
+								if (trainingActive) {
+									await stopTraining();
+								} else {
+									setEpochNumber(DEFAULT_EPOCH);
+									setLearningRate(DEFAULT_LR);
+								}
 							}}
 						/>
 					</div>
@@ -509,6 +677,7 @@ function App() {
 										step={1}
 										value={epochNumber}
 										onChange={setEpochNumber}
+										disabled={trainingActive}
 									/>
 								</Col>
 								<Col>
@@ -521,6 +690,7 @@ function App() {
 										onChange={(v) => {
 											if (typeof v === "number") setEpochNumber(v);
 										}}
+										disabled={trainingActive}
 									/>
 								</Col>
 							</Row>
@@ -540,6 +710,7 @@ function App() {
 										step={0.01}
 										value={learningRate}
 										onChange={setLearningRate}
+										disabled={trainingActive}
 									/>
 								</Col>
 								<Col>
@@ -553,6 +724,7 @@ function App() {
 										onChange={(v) => {
 											if (typeof v === "number") setLearningRate(v);
 										}}
+										disabled={trainingActive}
 									/>
 								</Col>
 							</Row>
@@ -594,6 +766,7 @@ function App() {
 						comp2_left={comp2_left}
 						comp2_top={comp2_top_adjusted}
 						vis_width={vis_width}
+						disabled={trainingActive}
 					></DataSelectorPanel>
 
 					{/* Component-3: quantum circuit show*/}
@@ -606,7 +779,6 @@ function App() {
 							comp3_left={comp3_left}
 							comp3_top={comp3_top}
 							color_comp3_bg={color_comp3_bg}
-							onRendered={() => setEncStepsKey((k) => k + 1)}
 						></QuantumCircuitView>
 					)}
 
@@ -638,6 +810,7 @@ function App() {
 					{/* Component-5: Model performance view*/}
 					{dataset && isCurrentSelectionTrained() && (
 						<ModelPerformanceView
+							key={`mp-${currentEpoch}`}
 							dataset1={dataset["performance"]}
 							dataset2={dataset["trained_data"]}
 							colors={[[color_class1, color_class2], color_comp5_bg]}
@@ -651,7 +824,7 @@ function App() {
 					{/* Component-6: encoder step map*/}
 					{encodedData?.encoded_steps && encodedData?.encoded_steps_sub && (
 						<EncoderStepMappingView
-							key={encStepsKey}
+							key={`${data_name}-${selectedEncoder || "default"}-steps`}
 							dataset={[
 								encodedData.encoded_steps,
 								encodedData.encoded_steps_sub,
@@ -665,9 +838,9 @@ function App() {
 					)}
 
 					{/* Component-7: Quantum state distribution*/}
-					{dataset && isCurrentSelectionTrained() && (
+					{encodedData?.distribution_map && (
 						<QuantumStateDistributionView
-							dataset={dataset["distribution_map"]}
+							dataset={encodedData.distribution_map}
 							comp7_width={comp7_width}
 							comp7_height={comp7_height}
 							comp7_left={comp7_left}

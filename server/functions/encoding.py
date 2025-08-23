@@ -32,6 +32,14 @@ class Encoder(ABC):
     def get_feature_mapping(self) -> FeatureMap:
         pass
 
+    def __hash__(self) -> int:
+        return hash(str(self.steps()))
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Encoder):
+            return False
+        return str(self.steps()) == str(other.steps())
+
 
 class EncoderRxxRyyCnot(Encoder):
     @staticmethod

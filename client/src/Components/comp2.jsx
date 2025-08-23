@@ -7,7 +7,9 @@ function DataSelectorPanel(props) {
 	const _boundary = props.boundary;
 
 	const onDatasetClick = props.onDatasetClick;
+	const disabled = !!props.disabled;
 	const handleDatasetClick = (e) => {
+		if (disabled) return;
 		onDatasetClick(e);
 	};
 
@@ -54,6 +56,8 @@ function DataSelectorPanel(props) {
 				height: comp2_height,
 				left: comp2_left,
 				top: comp2_top,
+				opacity: disabled ? 0.6 : 1,
+				cursor: disabled ? "not-allowed" : "default",
 			}}
 		>
 			<span className="comp_title">Data Selector</span>
@@ -90,6 +94,7 @@ function DataSelectorPanel(props) {
 								key={i}
 								id={`circuit_${i}`}
 								onClick={(e) => {
+									if (disabled) return;
 									setSelectedDataOption(e.currentTarget.id);
 									handleDatasetClick(e.currentTarget.id);
 								}} // Set the selected module on click
