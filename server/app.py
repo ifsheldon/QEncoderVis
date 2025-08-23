@@ -72,7 +72,13 @@ def index():
 def get_encoders():
     return jsonify(
         {
-            "encoders": {name: encoder.steps() for name, encoder in encoders.items()},
+            "encoders": {
+                name: {
+                    "steps": encoder.steps(),
+                    "feature_map_formula": encoder.get_feature_mapping().get_formula(),
+                }
+                for name, encoder in encoders.items()
+            },
             "defaults": default_encoders,
         }
     )

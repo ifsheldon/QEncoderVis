@@ -239,7 +239,7 @@ function App() {
 			encoders &&
 			Object.prototype.hasOwnProperty.call(encoders, selectedEncoder)
 		) {
-			const steps = encoders[selectedEncoder] || [];
+			const steps = encoders[selectedEncoder].steps || [];
 			const stepsCount = Array.isArray(steps) ? steps.length : 0;
 			const preview = {
 				qubit_number:
@@ -667,9 +667,9 @@ function App() {
 					)}
 
 					{/* Component-descriptionComp: some description*/}
-					{dataset && (
+					{encoders && encoders[selectedEncoder] && (
 						<DescriptionComp
-							formula={dataset["feature_map_formula"]}
+							formula={encoders[selectedEncoder].feature_map_formula}
 							left={descriptionComp_left}
 							top={descriptionComp_top}
 							width={descriptionComp_width}
