@@ -23,14 +23,14 @@ import P1 from "./Articles/p1";
 import Footer from "./Articles/footer";
 import Top from "./Articles/top";
 
-import OriginalDataView from "./Components/comp1";
-import DataSelectorPanel from "./Components/comp2";
-import QuantumCircuitView from "./Components/comp3";
-import EncodedMapView from "./Components/comp4";
-import ModelPerformanceView from "./Components/comp5";
-import EncoderStepMappingView from "./Components/comp6";
-import QuantumStateDistributionView from "./Components/comp7";
-import Link from "./Components/link";
+import OriginalDataView from "./Components/original_data_view";
+import DataSelectorPanel from "./Components/data_selector_panel";
+import QuantumCircuitView from "./Components/quantum_circuit_view";
+import EncodedMapView from "./Components/encoded_map_view";
+import ModelPerformanceView from "./Components/model_performance_view";
+import EncoderStepMappingView from "./Components/encoder_step_mapping_view";
+import QuantumStateDistributionView from "./Components/quantum_state_distribution_view";
+import DataFlowLink from "./Components/data_flow_link";
 import DescriptionComp from "./Components/description";
 
 // 布局参数
@@ -40,68 +40,72 @@ const vis_height = vis_width * 0.525;
 const control_width = vis_width;
 const control_height = vis_width * 0.1;
 
-const comp1_width = vis_width * 0.23;
-const comp1_height = vis_width * 0.26;
-const comp1_left = vis_width * 0.04,
-	comp1_top = vis_width * 0.023;
+const original_data_view_width = vis_width * 0.23;
+const original_data_view_height = vis_width * 0.26;
+const original_data_view_left = vis_width * 0.04,
+	original_data_view_top = vis_width * 0.023;
 
-const comp2_width = vis_width * 0.19;
-const comp2_height = vis_width * 0.133;
-const comp2_left = vis_width * 0.038,
-	comp2_top = vis_width * 0.34;
+const data_selector_panel_width = vis_width * 0.19;
+const data_selector_panel_height = vis_width * 0.133;
+const data_selector_panel_left = vis_width * 0.038,
+	data_selector_panel_top = vis_width * 0.34;
 
-const comp3_width = vis_width * 0.45;
-const comp3_height = vis_width * 0.07;
-const comp3_left = vis_width * 0.29,
-	comp3_top = vis_width * 0.023;
+const quantum_circuit_width = vis_width * 0.45;
+const quantum_circuit_height = vis_width * 0.07;
+const quantum_circuit_left = vis_width * 0.29,
+	quantum_circuit_top = vis_width * 0.023;
 
-const comp4_width = vis_width * 0.4;
-const comp4_height = vis_width * 0.295;
-const comp4_left = vis_width * 0.72,
-	comp4_top = vis_width * 0.023;
+const encoded_map_width = vis_width * 0.4;
+const encoded_map_height = vis_width * 0.295;
+const encoded_map_left = vis_width * 0.72,
+	encoded_map_top = vis_width * 0.023;
 
-const linkComp_width =
-	comp3_left - (comp1_left + comp1_width) + comp3_width + 40;
-const linkComp_height = vis_width * 0.07;
-const linkComp_left = comp1_width - 20,
-	linkComp_top = comp3_top + comp3_height + 10;
+const data_flow_link_width =
+	quantum_circuit_left -
+	(original_data_view_left + original_data_view_width) +
+	quantum_circuit_width +
+	40;
+const data_flow_link_height = vis_width * 0.07;
+const data_flow_link_left = original_data_view_width - 20,
+	data_flow_link_top = quantum_circuit_top + quantum_circuit_height + 10;
 
-const comp5_width = vis_width * 0.54;
-const comp5_height = vis_width * 0.2;
-const comp5_left = vis_width * 0.565,
-	comp5_top = vis_width * 0.34;
+const model_performance_view_width = vis_width * 0.54;
+const model_performance_view_height = vis_width * 0.2;
+const model_performance_view_left = vis_width * 0.565,
+	model_performance_view_top = vis_width * 0.34;
 
-const comp6_width = vis_width * 0.45;
-const comp6_height = vis_width * 0.25;
-const comp6_left = comp3_left,
-	comp6_top = comp3_top + comp3_height + 10;
+const encoder_step_mapping_width = vis_width * 0.45;
+const encoder_step_mapping_height = vis_width * 0.25;
+const encoder_step_mapping_left = quantum_circuit_left,
+	encoder_step_mapping_top = quantum_circuit_top + quantum_circuit_height + 10;
 
-const comp7_width = vis_width * 0.28;
-const comp7_height = vis_width * 0.145;
-const comp7_left = vis_width * 0.26,
-	comp7_top = vis_width * 0.34;
+const quantum_state_distribution_view_width = vis_width * 0.28;
+const quantum_state_distribution_view_height = vis_width * 0.145;
+const quantum_state_distribution_view_left = vis_width * 0.26,
+	quantum_state_distribution_view_top = vis_width * 0.34;
 
 // Description: position it below the Original Data view
-const descriptionComp_width = comp1_width;
-const descriptionComp_height = comp1_height * 0.22;
-const descriptionComp_left = comp1_left;
-const descriptionComp_top = comp1_top + comp1_height + 6;
+const description_panel_width = original_data_view_width;
+const description_panel_height = original_data_view_height * 0.22;
+const description_panel_left = original_data_view_left;
+const description_panel_top =
+	original_data_view_top + original_data_view_height + 6;
 
 // Ensure components below description have enough padding
 const below_desc_padding = 20;
-const comp2_top_adjusted = Math.max(
-	comp2_top,
-	descriptionComp_top + descriptionComp_height + below_desc_padding,
+const data_selector_panel_top_adjusted = Math.max(
+	data_selector_panel_top,
+	description_panel_top + description_panel_height + below_desc_padding,
 );
 
-const comp7_top_adjusted = Math.max(
-	comp7_top,
-	descriptionComp_top + descriptionComp_height + below_desc_padding,
+const quantum_state_distribution_view_top_adjusted = Math.max(
+	quantum_state_distribution_view_top,
+	description_panel_top + description_panel_height + below_desc_padding,
 );
 
-const comp5_top_adjusted = Math.max(
-	comp5_top,
-	descriptionComp_top + descriptionComp_height + below_desc_padding,
+const model_performance_view_top_adjusted = Math.max(
+	model_performance_view_top,
+	description_panel_top + description_panel_height + below_desc_padding,
 );
 
 const article_width = 650;
@@ -118,13 +122,13 @@ const container_vis_color = "#fafafa";
 const play_btn_color = "#2c2c2c";
 const progress_color = "#545454";
 const centered_article_bgColor = "#ffeeff";
-const color_comp2_bg = "#ececec";
-const color_comp3_bg = "#ececec";
-const color_comp4_bg = "#f1f1f1";
-const color_comp5_bg = "#f9f9f9";
-const color_comp6_bg = "#f9f9f9";
-const color_comp7_bg = "#ececec";
-const color_linkComp_bg = "#fafafa";
+const color_data_selector_panel_bg = "#ececec";
+const color_circuit_bg = "#ececec";
+const color_encoded_map_bg = "#f1f1f1";
+const color_model_performance_bg = "#f9f9f9";
+const color_encoder_step_map_bg = "#f9f9f9";
+const color_quantum_distribution_bg = "#ececec";
+const color_link_bg = "#fafafa";
 
 // dataset and backend circuit ids
 const data_port_map = {
@@ -589,11 +593,11 @@ function App() {
 															id={"enc-preview"}
 															style={{ opacity: trainingActive ? 0.6 : 1 }}
 															dataset={previewCircuit}
-															comp3_width={280}
-															comp3_height={90}
-															comp3_left={0}
-															comp3_top={0}
-															color_comp3_bg={color_comp3_bg}
+															width={280}
+															height={90}
+															left={0}
+															top={0}
+															color_circuit_bg={color_circuit_bg}
 															svgId={`enc-card-${name}`}
 															forCards={true}
 														/>
@@ -744,21 +748,24 @@ function App() {
 					<OriginalDataView
 						circuitId={data_port_map[data_name]}
 						class_color={[color_class1, color_class2]}
-						comp1_width={comp1_width}
-						comp1_height={comp1_height}
-						comp1_left={comp1_left}
-						comp1_top={comp1_top}
+						width={original_data_view_width}
+						height={original_data_view_height}
+						left={original_data_view_left}
+						top={original_data_view_top}
 					></OriginalDataView>
 
 					{/* Component-2: data selector panel (always rendered) */}
 					<DataSelectorPanel
 						default_circuit={data_name}
 						onDatasetClick={handleDatasetClick}
-						colors={[[color_class1, color_class2], color_comp2_bg]}
-						comp2_width={comp2_width}
-						comp2_height={comp2_height}
-						comp2_left={comp2_left}
-						comp2_top={comp2_top_adjusted}
+						colors={[
+							[color_class1, color_class2],
+							color_data_selector_panel_bg,
+						]}
+						width={data_selector_panel_width}
+						height={data_selector_panel_height}
+						left={data_selector_panel_left}
+						top={data_selector_panel_top_adjusted}
 						vis_width={vis_width}
 						disabled={trainingActive}
 					></DataSelectorPanel>
@@ -768,11 +775,11 @@ function App() {
 						<QuantumCircuitView
 							key={`${data_name}-${selectedEncoder || "default"}`}
 							dataset={circuitPreview}
-							comp3_width={comp3_width}
-							comp3_height={comp3_height}
-							comp3_left={comp3_left}
-							comp3_top={comp3_top}
-							color_comp3_bg={color_comp3_bg}
+							width={quantum_circuit_width}
+							height={quantum_circuit_height}
+							left={quantum_circuit_left}
+							top={quantum_circuit_top}
+							color_circuit_bg={color_circuit_bg}
 						></QuantumCircuitView>
 					)}
 
@@ -781,24 +788,24 @@ function App() {
 						<EncodedMapView
 							dataset={encodedData.encoded_data}
 							boundary={null}
-							colors={[[color_class1, color_class2], color_comp4_bg]}
-							comp4_width={comp4_width}
-							comp4_height={comp4_height}
-							comp4_left={comp4_left}
-							comp4_top={comp4_top}
+							colors={[[color_class1, color_class2], color_encoded_map_bg]}
+							width={encoded_map_width}
+							height={encoded_map_height}
+							left={encoded_map_left}
+							top={encoded_map_top}
 						></EncodedMapView>
 					)}
 
 					{/* Link: animated line from Comp1 to Comp4*/}
 					{encodedData?.encoded_data && (
-						<Link
+						<DataFlowLink
 							boundary={null}
-							colors={[[color_class1, color_class2], color_linkComp_bg]}
-							linkComp_width={linkComp_width}
-							linkComp_height={linkComp_height}
-							linkComp_left={linkComp_left}
-							linkComp_top={linkComp_top}
-						></Link>
+							colors={[[color_class1, color_class2], color_link_bg]}
+							linkComp_width={data_flow_link_width}
+							linkComp_height={data_flow_link_height}
+							linkComp_left={data_flow_link_left}
+							linkComp_top={data_flow_link_top}
+						></DataFlowLink>
 					)}
 
 					{/* Component-5: Model performance view*/}
@@ -807,11 +814,14 @@ function App() {
 							key={`mp-${currentEpoch}`}
 							dataset1={dataset["performance"]}
 							dataset2={dataset["trained_data"]}
-							colors={[[color_class1, color_class2], color_comp5_bg]}
-							comp5_width={comp5_width}
-							comp5_height={comp5_height}
-							comp5_left={comp5_left}
-							comp5_top={comp5_top_adjusted}
+							colors={[
+								[color_class1, color_class2],
+								color_model_performance_bg,
+							]}
+							width={model_performance_view_width}
+							height={model_performance_view_height}
+							left={model_performance_view_left}
+							top={model_performance_view_top_adjusted}
 						></ModelPerformanceView>
 					)}
 
@@ -823,11 +833,11 @@ function App() {
 								encodedData.encoded_steps,
 								encodedData.encoded_steps_sub,
 							]}
-							comp6_width={comp6_width}
-							comp6_height={comp6_height}
-							comp6_left={comp6_left}
-							comp6_top={comp6_top}
-							colors={[[color_class1, color_class2], color_comp6_bg]}
+							width={encoder_step_mapping_width}
+							height={encoder_step_mapping_height}
+							left={encoder_step_mapping_left}
+							top={encoder_step_mapping_top}
+							colors={[[color_class1, color_class2], color_encoder_step_map_bg]}
 						></EncoderStepMappingView>
 					)}
 
@@ -835,11 +845,14 @@ function App() {
 					{encodedData?.distribution_map && (
 						<QuantumStateDistributionView
 							dataset={encodedData.distribution_map}
-							comp7_width={comp7_width}
-							comp7_height={comp7_height}
-							comp7_left={comp7_left}
-							comp7_top={comp7_top_adjusted}
-							colors={[[color_class1, color_class2], color_comp7_bg]}
+							width={quantum_state_distribution_view_width}
+							height={quantum_state_distribution_view_height}
+							left={quantum_state_distribution_view_left}
+							top={quantum_state_distribution_view_top_adjusted}
+							colors={[
+								[color_class1, color_class2],
+								color_quantum_distribution_bg,
+							]}
 						></QuantumStateDistributionView>
 					)}
 
@@ -847,10 +860,10 @@ function App() {
 					{encoders && encoders[selectedEncoder] && (
 						<DescriptionComp
 							formula={encoders[selectedEncoder].feature_map_formula}
-							left={descriptionComp_left}
-							top={descriptionComp_top}
-							width={descriptionComp_width}
-							height={descriptionComp_height}
+							left={description_panel_left}
+							top={description_panel_top}
+							width={description_panel_width}
+							height={description_panel_height}
 						/>
 					)}
 				</div>

@@ -1,29 +1,29 @@
 import { useEffect } from "react";
 import * as d3 from "d3";
 
-function Link(props) {
+function DataFlowLink(props) {
 	// dataset
-	const linkComp_width = props.linkComp_width;
-	const linkComp_height = props.linkComp_height;
-	const linkComp_left = props.linkComp_left;
-	const linkComp_top = props.linkComp_top;
+	const data_flow_link_width = props.linkComp_width;
+	const data_flow_link_height = props.linkComp_height;
+	const data_flow_link_left = props.linkComp_left;
+	const data_flow_link_top = props.linkComp_top;
 
 	// Define new measure
-	const svg_width = linkComp_width;
-	const svg_height = linkComp_height;
+	const svg_width = data_flow_link_width;
+	const svg_height = data_flow_link_height;
 
 	// Colors
-	const [_class_color, color_linkComp_bg] = props.colors;
+	const [_class_color, color_link_bg] = props.colors;
 
 	//////////////////////////////////////////////
 	// Mount the component once
 	useEffect(() => {
-		const svg = d3.select("#linkComp");
+		const svg = d3.select("#data_flow_link");
 		const lineY = svg_height / 2;
 		const segmentWidth = 20; // Width of the white segment
 
 		// Add a line
-		const group = svg.append("g").attr("class", "linkComp");
+		const group = svg.append("g").attr("class", "data_flow_link_group");
 
 		group
 			.append("line")
@@ -41,12 +41,13 @@ function Link(props) {
 			.attr(
 				"d",
 				`
-                M ${0} ${lineY - arrowSize} 
-                L ${0} ${lineY + arrowSize} 
-                L ${arrowSize - 3} ${lineY} 
-                Z
-            `,
-			) // Draw the arrow shape
+					M ${0} ${lineY - arrowSize} 
+					L ${0} ${lineY + arrowSize} 
+					L ${arrowSize - 3} ${lineY} 
+					Z
+				`,
+			)
+			// Draw the arrow shape
 			.attr("fill", "#343434");
 
 		const segment = group
@@ -81,27 +82,27 @@ function Link(props) {
 
 	return (
 		<div
-			className={"component linkComp"}
+			className={"component data-flow-link"}
 			style={{
-				width: linkComp_width,
-				height: linkComp_height,
-				left: linkComp_left,
-				top: linkComp_top,
+				width: data_flow_link_width,
+				height: data_flow_link_height,
+				left: data_flow_link_left,
+				top: data_flow_link_top,
 			}}
 		>
 			<svg
-				title={"linkComp"}
-				id={"linkComp"}
-				width={linkComp_width}
-				height={linkComp_height}
+				title={"data_flow_link"}
+				id={"data_flow_link"}
+				width={data_flow_link_width}
+				height={data_flow_link_height}
 				style={{ marginTop: "10px" }}
 			>
 				<rect
 					x={0}
 					y={0}
-					width={linkComp_width}
-					height={linkComp_height}
-					fill={color_linkComp_bg}
+					width={data_flow_link_width}
+					height={data_flow_link_height}
+					fill={color_link_bg}
 					rx="10"
 					ry="10"
 				/>
@@ -110,4 +111,4 @@ function Link(props) {
 	);
 }
 
-export default Link;
+export default DataFlowLink;

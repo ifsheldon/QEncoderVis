@@ -1,31 +1,27 @@
 import { useEffect } from "react";
 import * as d3 from "d3";
 
-// import Module_draw_2dplot from "../Functions/module_draw_2dplot";
-
 function QuantumCircuitView(props) {
 	// dataset
 	const dataset = props.dataset;
 
-	const comp3_width = props.comp3_width;
-	const comp3_height = props.comp3_height;
-	const comp3_left = props.comp3_left;
-	const comp3_top = props.comp3_top;
+	const width = props.width;
+	const height = props.height;
+	const left = props.left;
+	const top = props.top;
 
 	// allow multiple instances by providing unique svg id
-	const svgId = props.svgId || "comp3";
+	const svgId = props.svgId || "quantum_circuit";
 
 	// whether this instance is used in small cards; avoid leaking global selectors
 	const forCards = props.forCards || false;
 
 	// 定义新的measure
-	const svg_width = comp3_width * 0.9;
-	const svg_height = comp3_height * 0.8;
+	const svg_width = width * 0.9;
+	const svg_height = height * 0.8;
 
 	// color
-	const { color_comp3_bg } = props;
-
-	//////////////////////////////////////////////
+	const { color_circuit_bg } = props;
 
 	// Redraw when dataset changes
 	useEffect(() => {
@@ -33,29 +29,27 @@ function QuantumCircuitView(props) {
 		// remove previous circuit drawing if any
 		svg.select(".quantum_circuit").remove();
 		const margin = { top: 15, left: 20, bottom: 15, right: 30 };
-		const width = +svg.attr("width") - margin.left - margin.right;
-		const height = +svg.attr("height") - margin.top - margin.bottom;
+		const widthInner = +svg.attr("width") - margin.left - margin.right;
+		const heightInner = +svg.attr("height") - margin.top - margin.bottom;
 		const qubit_number = dataset["qubit_number"];
 		const step_number = dataset["encoder_step"];
 
-		const wire_length = width * 1;
+		const wire_length = widthInner * 1;
 		const wire_gap_left = wire_length * 0.2;
 		const wire_gap_right = wire_length * 0.25;
-		const wire_height = height / qubit_number;
+		const wire_height = heightInner / qubit_number;
 		const gate_width =
 			(wire_length - wire_gap_left - wire_gap_right) / (step_number - 1);
 		const wire_stroke_width = 1;
-		const gate_symbol_fill = color_comp3_bg;
-		const gate_symbol_stroke = color_comp3_bg;
+		const gate_symbol_fill = color_circuit_bg;
+		const gate_symbol_stroke = color_circuit_bg;
 		const gate_symbol_text_fill = "#1a1a1a";
 		const gate_symbol_r = 25;
-		const _gate_symbol_r_control = 3;
 		const gate_symbol_text_fontSize = "1.1em";
 		const gate_symbol_text_fontWeight = 400;
-		const qubitDot_fill = color_comp3_bg;
+		const qubitDot_fill = color_circuit_bg;
 		const qubitDot_radius = 3;
 		const qubitDot_stroke = "#000000";
-		const _qubitDot_strokeWidth = 1.5;
 
 		// color
 		const wire_color = "#414141";
@@ -69,7 +63,7 @@ function QuantumCircuitView(props) {
 		for (let i = 0; i < qubit_number; i++) {
 			group
 				.append("line")
-				.attr("class", "comp3_wire")
+				.attr("class", "circuit-wire")
 				.attr("x1", 0)
 				.attr("y1", i * wire_height + wire_height / 2)
 				.attr("x2", wire_length)
@@ -244,31 +238,31 @@ function QuantumCircuitView(props) {
 			});
 		});
 
-		// Notify parent (e.g., comp6) that comp3 finished rendering
+		// Notify parent (e.g., encoder-step-mapping-view) that circuit finished rendering
 		if (typeof props.onRendered === "function") {
 			requestAnimationFrame(() => props.onRendered());
 		}
-	}, [dataset, svgId, forCards]);
+	}, [dataset, svgId, forCards, color_circuit_bg]);
 
 	return (
 		<div
-			className={forCards ? "comp3" : "component comp3"}
+			className={forCards ? "quantum-circuit" : "component quantum-circuit"}
 			style={
 				forCards
 					? {
-							width: comp3_width,
-							height: comp3_height,
+							width: width,
+							height: height,
 							position: "relative",
 						}
 					: {
-							width: comp3_width,
-							height: comp3_height,
-							left: comp3_left,
-							top: comp3_top,
+							width: width,
+							height: height,
+							left: left,
+							top: top,
 						}
 			}
 		>
-			{!forCards && <span className="comp_title">Quantum encoder</span>}
+			{!forCards && <span className="component-title">Quantum encoder</span>}
 			{/*svg for one 2dplot*/}
 			<svg
 				id={svgId}
@@ -281,7 +275,7 @@ function QuantumCircuitView(props) {
 					y={0}
 					width={svg_width}
 					height={svg_height}
-					fill={color_comp3_bg}
+					fill={color_circuit_bg}
 					rx="10"
 					ry="10"
 				/>

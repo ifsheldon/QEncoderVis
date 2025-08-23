@@ -8,14 +8,14 @@ function EncodedMapView(props) {
 	const dataset = props.dataset;
 	const boundary = props.boundary;
 
-	const { comp4_width, comp4_height, comp4_left, comp4_top, colors } = props;
-	const [class_color, _color_comp4_bg] = colors;
+	const { width, height, left, top, colors } = props;
+	const [class_color, _] = colors;
 
 	const [showBoundary, setShowBoundary] = useState(false);
 
 	const margin = { top: 15, left: 40, bottom: 15, right: 40 };
-	const svg_width = comp4_width - margin.left - margin.right;
-	const svg_height = comp4_height - margin.top - margin.bottom;
+	const svg_width = width - margin.left - margin.right;
+	const svg_height = height - margin.top - margin.bottom;
 
 	function onChange(e) {
 		setShowBoundary(e.target.checked);
@@ -31,22 +31,27 @@ function EncodedMapView(props) {
 
 	return (
 		<div
-			className={"component comp4"}
+			className={"component encoded-map-view"}
 			style={{
-				width: comp4_width,
-				height: comp4_height,
-				left: comp4_left,
-				top: comp4_top,
+				width: width,
+				height: height,
+				left: left,
+				top: top,
 			}}
 		>
-			<span className="comp_title">Encoder Map</span>
-			<svg title={"comp4"} id={"comp4"} width={svg_width} height={svg_height}>
+			<span className="component-title">Encoder Map</span>
+			<svg
+				title={"encoded_map_view"}
+				id={"encoded_map_view"}
+				width={svg_width}
+				height={svg_height}
+			>
 				<Module_draw_2dplot
 					dataset={dataset}
 					boundary={boundary}
 					mode={"large"}
 					translate={[0, 0]} // Position of the module
-					module_name={"comp4_2dplot"}
+					module_name={"encoded_map_view_2dplot"}
 					class_color={class_color}
 					isLegend={true}
 				/>

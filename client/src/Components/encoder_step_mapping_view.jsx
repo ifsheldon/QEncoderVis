@@ -7,42 +7,25 @@ function EncoderStepMappingView(props) {
 	// dataset
 	const [encoded_data, encoded_sub_data] = props.dataset;
 
-	// console.log(encoded_data)
-	// console.log(encoded_sub_data)
-
-	const comp6_width = props.comp6_width;
-	const comp6_height = props.comp6_height;
-	const comp6_left = props.comp6_left;
-	const comp6_top = props.comp6_top;
+	const width = props.width;
+	const height = props.height;
+	const left = props.left;
+	const top = props.top;
 
 	const g1_top = 65;
 	const g2_top = 115;
 
-	const [class_color, color_comp6_bg] = props.colors;
+	const [class_color, color_encoder_step_map_bg] = props.colors;
 
 	// 定义新的measure
-	const svg_width = comp6_width * 0.9;
-	const svg_height = comp6_height * 0.8;
+	const svg_width = width * 0.9;
+	const svg_height = height * 0.8;
 	const margin = { top: 15, left: 40, bottom: 15, right: 40 };
 	const dx = 40;
 	const border_r = 39;
 
 	const [symbol_positions, set_symbol_positions] = useState(null);
 	const lastStablePositionsRef = useRef(null);
-
-	const [_isFinished, _set_isFinished] = useState(false);
-
-	// function func_loading(step_number){
-	//     if (step_number*2 == d3.selectAll('.loading_count').size()){
-	//         set_isFinished(true)
-	//     }
-	// }
-
-	const _svg = d3.select("#comp6");
-
-	// console.log(dataset)
-
-	//////////////////////////////////////////////
 
 	// Prevent flicker: clear previous positions immediately when inputs change
 	useEffect(() => {
@@ -52,17 +35,17 @@ function EncoderStepMappingView(props) {
 
 	// Recompute symbol positions when dataset (encoder) changes
 	useEffect(() => {
-		const container = d3.select("#comp6");
+		const container = d3.select("#encoder_step_mapping_view");
 		// clear previously drawn helper groups
 		container.selectAll('[class^="half-circle-group-"]').remove();
 		container.selectAll(".band").remove();
-		container.selectAll(".comp6-symbol").remove();
+		container.selectAll(".encoder-step-symbol").remove();
 
 		const expectedCount = Array.isArray(encoded_data) ? encoded_data.length : 0;
 
 		const collectPositions = () => {
 			const positions = [];
-			d3.select("#comp3")
+			d3.select("#quantum_circuit")
 				.selectAll(".symbol_position")
 				.each(function () {
 					const cx = d3.select(this).attr("cx");
@@ -104,11 +87,11 @@ function EncoderStepMappingView(props) {
 			encoded_sub_data.every((e) => Array.isArray(e) && e.length >= 2);
 		if (!ready) return;
 
-		const container = d3.select("#comp6");
+		const container = d3.select("#encoder_step_mapping_view");
 		// clear any stale drawings
 		container.selectAll('[class^="half-circle-group-"]').remove();
 		container.selectAll(".band").remove();
-		container.selectAll(".comp6-symbol").remove();
+		container.selectAll(".encoder-step-symbol").remove();
 
 		const borderElements_1 = d3.selectAll(".encoder-step-sub-border").nodes();
 		const borderElements_2 = d3
@@ -151,7 +134,9 @@ function EncoderStepMappingView(props) {
 			const x = group.node().getBBox().x;
 			const y = group.node().getBBox().y + group.node().getBBox().height / 2;
 
-			const symbol_g = container.append("g").attr("class", "comp6-symbol");
+			const symbol_g = container
+				.append("g")
+				.attr("class", "encoder-step-symbol");
 			const r = 10;
 
 			symbol_g
@@ -159,7 +144,7 @@ function EncoderStepMappingView(props) {
 				.attr("cx", x)
 				.attr("cy", y)
 				.attr("r", r)
-				.attr("fill", color_comp6_bg)
+				.attr("fill", color_encoder_step_map_bg)
 				.attr("stroke", "none");
 
 			symbol_g
@@ -197,7 +182,12 @@ function EncoderStepMappingView(props) {
 				.attr("stroke", "#d9d9d9")
 				.attr("stroke-width", "15px");
 		}
-	}, [symbol_positions, encoded_data, encoded_sub_data]);
+	}, [
+		symbol_positions,
+		encoded_data,
+		encoded_sub_data,
+		color_encoder_step_map_bg,
+	]);
 
 	const ready =
 		symbol_positions &&
@@ -209,18 +199,17 @@ function EncoderStepMappingView(props) {
 
 	return (
 		<div
-			className={"component comp6"}
+			className={"component encoder-step-mapping-view"}
 			style={{
-				width: comp6_width,
-				height: comp6_height,
-				left: comp6_left,
-				top: comp6_top,
+				width: width,
+				height: height,
+				left: left,
+				top: top,
 			}}
 		>
-			{/*<span className="comp_title"></span>*/}
 			{/*svg for one 2dplot*/}
 			<svg
-				id={"comp6"}
+				id={"encoder_step_mapping_view"}
 				width={svg_width}
 				height={svg_height}
 				style={{ marginTop: "10px" }}
@@ -231,15 +220,13 @@ function EncoderStepMappingView(props) {
 					width={svg_width}
 					height={svg_height}
 					fill={"none"}
-					style={{ stroke: "color_comp6_bg" }}
+					style={{ stroke: "color_encoder_step_map_bg" }}
 					rx="10"
 					ry="10"
 				/>
 
 				{ready ? (
 					symbol_positions.map((symbol_position, i) => {
-						// console.log(symbol_position)
-
 						return (
 							<g key={i}>
 								<Module_draw_2dplot
@@ -247,7 +234,7 @@ function EncoderStepMappingView(props) {
 									boundary={null}
 									mode={"smaller"}
 									translate={[margin.left + symbol_position - dx, margin.top]} // Position of the module
-									module_name={`comp6_encoder_step_${i}`}
+									module_name={`encoder_step_view_${i}`}
 									class_color={class_color}
 									isLegend={false}
 								></Module_draw_2dplot>
@@ -270,8 +257,6 @@ function EncoderStepMappingView(props) {
 
 				{ready ? (
 					symbol_positions.map((symbol_position, i) => {
-						// console.log(symbol_position)
-
 						return (
 							<g key={i}>
 								<Module_draw_2dplot
@@ -282,7 +267,7 @@ function EncoderStepMappingView(props) {
 										margin.left + symbol_position - dx,
 										margin.top + g1_top,
 									]} // Position of the module
-									module_name={`comp6_encoder_step_sub_${i}`}
+									module_name={`encoder_step_view_sub_${i}`}
 									class_color={class_color}
 									isLegend={false}
 								></Module_draw_2dplot>
@@ -305,8 +290,6 @@ function EncoderStepMappingView(props) {
 
 				{ready ? (
 					symbol_positions.map((symbol_position, i) => {
-						// console.log(symbol_position)
-
 						return (
 							<g key={i}>
 								<Module_draw_2dplot
@@ -317,7 +300,7 @@ function EncoderStepMappingView(props) {
 										margin.left + symbol_position - dx,
 										margin.top + g2_top,
 									]} // Position of the module
-									module_name={`comp6_encoder_step_sub_sub_${i}`}
+									module_name={`encoder_step_view_sub_sub_${i}`}
 									class_color={class_color}
 									isLegend={false}
 								></Module_draw_2dplot>

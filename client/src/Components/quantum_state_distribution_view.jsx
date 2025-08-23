@@ -5,26 +5,25 @@ function QuantumStateDistributionView(props) {
 	// dataset
 	const dataset = props.dataset;
 
-	const comp7_width = props.comp7_width;
-	const comp7_height = props.comp7_height;
-	const comp7_left = props.comp7_left;
-	const comp7_top = props.comp7_top;
+	const width = props.width;
+	const height = props.height;
+	const left = props.left;
+	const top = props.top;
 
 	// Colors
-	const [class_color, color_comp7_bg] = props.colors;
+	const [class_color, color_quantum_distribution_bg] = props.colors;
 
-	//////////////////////////////////////////////
 	// Re-render whenever dataset changes
 	useEffect(() => {
 		if (!dataset || dataset.length === 0) return;
-		const svg = d3.select("#comp7");
+		const svg = d3.select("#quantum_state_distribution_view");
 		// clear previous points
 		svg.selectAll("circle.data-point").remove();
 
 		// Define margins and inner dimensions
 		const margin = { top: 20, right: 25, bottom: 20, left: 25 };
-		const innerWidth = comp7_width - margin.left - margin.right;
-		const innerHeight = comp7_height - margin.top - margin.bottom;
+		const innerWidth = width - margin.left - margin.right;
+		const innerHeight = height - margin.top - margin.bottom;
 
 		// Compute x and y extents from the distribution_data
 		const xExtent = d3.extent(dataset, (d) => d.x);
@@ -42,12 +41,12 @@ function QuantumStateDistributionView(props) {
 			.range([innerHeight + margin.top, margin.top]); // inverted y-axis
 
 		// Create or select a tooltip div
-		let tooltip = d3.select("body").select(".comp7-tooltip");
+		let tooltip = d3.select("body").select(".quantum-state-tooltip");
 		if (tooltip.empty()) {
 			tooltip = d3
 				.select("body")
 				.append("div")
-				.attr("class", "comp7-tooltip")
+				.attr("class", "quantum-state-tooltip")
 				.style("position", "absolute")
 				.style("padding", "6px")
 				.style("background", "rgba(0,0,0,0.6)")
@@ -82,34 +81,34 @@ function QuantumStateDistributionView(props) {
 			.on("mouseout", () => {
 				tooltip.transition().duration(500).style("opacity", 0);
 			});
-	}, [dataset]);
+	}, [dataset, width, height]);
 
 	//////////////////////////////////////////////
 
 	return (
 		<div
-			className={"component comp7"}
+			className={"component quantum-state-distribution-view"}
 			style={{
-				width: comp7_width,
-				height: comp7_height,
-				left: comp7_left,
-				top: comp7_top,
+				width: width,
+				height: height,
+				left: left,
+				top: top,
 			}}
 		>
-			<span className="comp_title">Quantum Distribution Map</span>
+			<span className="component-title">Quantum Distribution Map</span>
 			<svg
-				title={"comp7"}
-				id={"comp7"}
-				width={comp7_width}
-				height={comp7_height}
+				title={"quantum_state_distribution_view"}
+				id={"quantum_state_distribution_view"}
+				width={width}
+				height={height}
 				style={{ marginTop: "10px" }}
 			>
 				<rect
 					x={0}
 					y={0}
-					width={comp7_width}
-					height={comp7_height}
-					fill={color_comp7_bg}
+					width={width}
+					height={height}
+					fill={color_quantum_distribution_bg}
 					rx="10"
 					ry="10"
 				/>

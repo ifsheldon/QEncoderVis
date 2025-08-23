@@ -183,12 +183,12 @@ footer {
 	line-height: 1.3em;
 }
 
-.comp1_vis .axis path {
+.original-data-view .axis path {
 	fill: none;
 	stroke: none;
 }
 
-.comp1_vis .axis .tick line {
+.original-data-view .axis .tick line {
 	display: none;
 }
 
@@ -197,7 +197,7 @@ footer {
 }
 
 /* Ensure card previews do not get their text overlapped by absolutely-positioned components */
-.ant-card-body .comp3 {
+.ant-card-body .quantum-circuit {
 	position: relative;
 }
 
@@ -245,7 +245,7 @@ footer {
 	stroke: #1c1c1c;
 }
 
-.spin-comp1 {
+.spin-original-data-view {
 	position: absolute;
 	margin-left: auto;
 	margin-right: auto;
@@ -265,7 +265,7 @@ footer {
 	z-index: 1;
 }
 
-.comp3_wire {
+.circuit-wire {
 	/*stroke-dasharray: 5;*/
 }
 
