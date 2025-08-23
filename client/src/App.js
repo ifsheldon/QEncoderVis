@@ -145,6 +145,7 @@ function App() {
 	const [learningRate, setLearningRate] = useState(DEFAULT_LR);
 	const [circuitPreview, setCircuitPreview] = useState(null);
 	const [encodedData, setEncodedData] = useState(null);
+	const [lastTrained, setLastTrained] = useState({ circuitId: null, encoderName: null });
 
 	const [drawer_open, set_drawer_open] = useState(false);
 	const prevDataNameRef = useRef(data_name);
@@ -210,6 +211,7 @@ function App() {
 				const result = await axios.post(request_url, payload);
 				initialFetchDoneRef.current = true;
 				setDataset(result.data);
+				setLastTrained({ circuitId: circuit_id, encoderName: selectedEncoder });
 			} catch (err) {
 				console.error("Failed to load initial dataset", err);
 				initialFetchDoneRef.current = true;
@@ -331,7 +333,8 @@ function App() {
 										Select an encoder
 									</div>
 									<Row gutter={[12, 12]}>
-										{Object.entries(encoders).map(([name, steps]) => {
+										{Object.entries(encoders).map(([name, encoder]) => {
+											const steps = encoder.steps;
 											const stepsCount = Array.isArray(steps)
 												? steps.length
 												: 0;
@@ -445,6 +448,7 @@ function App() {
 									const result = await axios.post(request_url, payload);
 									console.log("Start training", payload, result.data);
 									setDataset(result.data);
+									setLastTrained({ circuitId: circuit_id, encoderName: selectedEncoder });
 								} catch (err) {
 									console.error("Failed to load dataset on start", err);
 									setDataset(null);
@@ -605,7 +609,14 @@ function App() {
 					)}
 
 					{/* Component-5: Model performance view*/}
-					{dataset && (
+					{(() => {
+						const currentCircuitId = data_port_map[data_name];
+						const isCurrentTrained =
+							lastTrained &&
+							lastTrained.circuitId === currentCircuitId &&
+							lastTrained.encoderName === selectedEncoder;
+						return dataset && isCurrentTrained;
+					})() && (
 						<ModelPerformanceView
 							dataset1={dataset["performance"]}
 							dataset2={dataset["trained_data"]}
@@ -634,7 +645,14 @@ function App() {
 					)}
 
 					{/* Component-7: Quantum state distribution*/}
-					{dataset && (
+					{(() => {
+						const currentCircuitId = data_port_map[data_name];
+						const isCurrentTrained =
+							lastTrained &&
+							lastTrained.circuitId === currentCircuitId &&
+							lastTrained.encoderName === selectedEncoder;
+						return dataset && isCurrentTrained;
+					})() && (
 						<QuantumStateDistributionView
 							dataset={dataset["distribution_map"]}
 							comp7_width={comp7_width}
