@@ -4,17 +4,17 @@ from pennylane.optimize import NesterovMomentumOptimizer
 
 from functions.encoding import Encoder
 from functions.utils import recursive_convert
-from routes.hyperparameters import (
+from functions.hyperparameters import (
     TRAIN_SPLIT,
     NUM_QUBITS,
     BATCH_SIZE,
 )
 
-from routes.ansatz import ansatz
-from routes.cost import cost as cost_fn
+from functions.ansatz import ansatz
+from functions.cost import cost as cost_fn
 from functools import partial
-from routes.accuracy import accuracy
-from routes.get_original_data import get_dataset
+from functions.accuracy import accuracy
+from functions.get_original_data import get_dataset
 
 from sklearn.decomposition import PCA
 from functools import lru_cache

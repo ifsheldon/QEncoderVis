@@ -18,9 +18,9 @@ from functions.encoding import (
 from routes.run_circuit import run_circuit as run_circuit_train, get_encoded_data
 from routes.run_circuit import run_circuit_stream
 from pennylane import numpy as np
-from routes.hyperparameters import SEED
+from functions.hyperparameters import SEED
 from typing import Literal
-from routes.get_original_data import get_original_data
+from functions.get_original_data import get_original_data
 import uuid
 import json
 import threading
