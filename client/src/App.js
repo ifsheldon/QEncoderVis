@@ -573,20 +573,17 @@ function App() {
 						comp1_top={comp1_top}
 					></OriginalDataView>
 
-					{/* Component-2: data selector panel*/}
-					{dataset && (
-						<DataSelectorPanel
-							dataset={dataset["original_data"]}
-							default_circuit={data_name}
-							onDatasetClick={handleDatasetClick}
-							colors={[[color_class1, color_class2], color_comp2_bg]}
-							comp2_width={comp2_width}
-							comp2_height={comp2_height}
-							comp2_left={comp2_left}
-							comp2_top={comp2_top_adjusted}
-							vis_width={vis_width}
-						></DataSelectorPanel>
-					)}
+					{/* Component-2: data selector panel (always rendered) */}
+					<DataSelectorPanel
+						default_circuit={data_name}
+						onDatasetClick={handleDatasetClick}
+						colors={[[color_class1, color_class2], color_comp2_bg]}
+						comp2_width={comp2_width}
+						comp2_height={comp2_height}
+						comp2_left={comp2_left}
+						comp2_top={comp2_top_adjusted}
+						vis_width={vis_width}
+					></DataSelectorPanel>
 
 					{/* Component-3: quantum circuit show*/}
 					{circuitPreview && (
