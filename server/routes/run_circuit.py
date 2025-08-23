@@ -16,18 +16,19 @@ from routes.ansatz import ansatz, ansatz_steps
 from routes.cost import cost as cost_fn
 from functools import partial
 from routes.accuracy import accuracy
+from routes.get_original_data import get_dataset
 
 
 def run_circuit(encoder: Encoder, epoch_number: int, lr: float, dataset_source: str):
-    dev = qml.device("default.qubit", wires=NUM_QUBITS)
-    optimizer = NesterovMomentumOptimizer(lr)
-    data = genfromtxt(dataset_source, delimiter=",", skip_header=1)
-    np.random.shuffle(data)
-    X = np.array(data[:, :2])
-    Y = np.array(data[:, 2])
+    X, Y = get_dataset(dataset_source)
+    permutation = np.random.permutation(len(X))
+    X = X[permutation]
+    Y = Y[permutation]
 
     fm = encoder.get_feature_mapping()
     features = np.array([fm.feature_map(x) for x in X], requires_grad=False)
+
+    dev = qml.device("default.qubit", wires=NUM_QUBITS)
 
     @qml.qnode(dev)
     def circuit(weights, x):
@@ -52,6 +53,7 @@ def run_circuit(encoder: Encoder, epoch_number: int, lr: float, dataset_source: 
     weights = weights_init
     cost_list = []
     acc_val_list = []
+    optimizer = NesterovMomentumOptimizer(lr)
 
     for iter in range(epoch_number):
         batch_index = np.random.randint(0, num_train, (BATCH_SIZE,))
@@ -68,38 +70,27 @@ def run_circuit(encoder: Encoder, epoch_number: int, lr: float, dataset_source: 
         acc_val_list.append(acc_val)
 
     flag_list = encoder.flags()
+    # record all encoded data for each flag
     all_encoded_data = {flag: [] for flag in flag_list}
-    result = {flag: [] for flag in flag_list}
-
     for data_point in features:
         encoded = qml.snapshots(circuit)(weights, data_point)
         for flag in flag_list:
             state_for_single_datapoint = encoded[flag]
-            target_probs = [
-                format((ele.real**2 + ele.imag**2).item(), ".2f")
-                for ele in state_for_single_datapoint
-            ]
+            target_probs = np.abs(state_for_single_datapoint) ** 2
             all_encoded_data[flag].append(target_probs)
 
     # test qubit 0 measured expectancy
+    expvalues = {}
+    probs_measure_q0_1 = {}
+    probs_measure_q0_0 = {}
     for flag in flag_list:
-        target_probs_list = all_encoded_data[flag]
-        target_probs_list = np.array(target_probs_list)
-
-        prob_measure_q0_0 = np.array(
-            [
-                float(a.item()) + float(b.item())
-                for a, b in zip(target_probs_list[:, 0], target_probs_list[:, 1])
-            ]
-        )
-        prob_measure_q0_1 = np.array(
-            [
-                float(a.item()) + float(b.item())
-                for a, b in zip(target_probs_list[:, 2], target_probs_list[:, 3])
-            ]
-        )
+        target_probs = np.stack(all_encoded_data[flag])
+        prob_measure_q0_0 = np.sum(target_probs[:, :2], axis=-1)
+        prob_measure_q0_1 = np.sum(target_probs[:, 2:], axis=-1)
         expval = prob_measure_q0_1 - prob_measure_q0_0
-        result[flag] = [expval.tolist(), prob_measure_q0_1.tolist(), prob_measure_q0_0.tolist()]
+        expvalues[flag] = expval.tolist()
+        probs_measure_q0_1[flag] = prob_measure_q0_1.tolist()
+        probs_measure_q0_0[flag] = prob_measure_q0_0.tolist()
 
     #  画acc和loss的数据
     cost_list = [float(x) for x in cost_list]
@@ -123,16 +114,16 @@ def run_circuit(encoder: Encoder, epoch_number: int, lr: float, dataset_source: 
 
     result_to_return = {
         "circuit": circuit_implementation,
-        "encoded_data": {"feature": original_feature, "label": result[flag_list[-1]][0]},
+        "encoded_data": {"feature": original_feature, "label": expvalues[flag_list[-1]]},
         "performance": {"epoch_number": epoch_number, "loss": cost_list, "accuracy": acc_val_list},
         "trained_data": {"feature": original_feature, "label": trained_label},
         "encoded_steps": [
-            {"feature": original_feature, "label": result[f][0]} for f in flag_list[:-1]
+            {"feature": original_feature, "label": expvalues[f]} for f in flag_list[:-1]
         ],
         "encoded_steps_sub": [
             [
-                {"feature": original_feature, "label": result[f][1]},
-                {"feature": original_feature, "label": result[f][2]},
+                {"feature": original_feature, "label": probs_measure_q0_1[f]},
+                {"feature": original_feature, "label": probs_measure_q0_0[f]},
             ]
             for f in flag_list[:-1]
         ],
