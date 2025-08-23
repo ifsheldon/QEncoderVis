@@ -19,6 +19,43 @@ from routes.accuracy import accuracy
 from routes.get_original_data import get_dataset
 
 
+def get_encoded_data(dataset_source: str, encoder: Encoder):
+    features_for_encoding, _ = get_dataset(dataset_source)
+    fm = encoder.get_feature_mapping()
+    features = np.array([fm.feature_map(x) for x in features_for_encoding], requires_grad=False)
+
+    dev = qml.device("default.qubit", wires=NUM_QUBITS)
+
+    @qml.qnode(dev)
+    def circuit(x):
+        encoder.encode(x)
+        return qml.expval(qml.PauliZ(0))
+
+    flag_list = encoder.flags()
+    all_encoded_data = {flag: [] for flag in flag_list}
+    for data_point in features:
+        encoded = qml.snapshots(circuit)(data_point)
+        for flag in flag_list:
+            state_for_single_datapoint = encoded[flag]
+            target_probs = np.abs(state_for_single_datapoint) ** 2
+            all_encoded_data[flag].append(target_probs)
+
+    # test qubit 0 measured expectancy
+    expvalues = {}
+    probs_measure_q0_1 = {}
+    probs_measure_q0_0 = {}
+    for flag in flag_list:
+        target_probs = np.stack(all_encoded_data[flag])
+        prob_measure_q0_0 = np.sum(target_probs[:, :2], axis=-1)
+        prob_measure_q0_1 = np.sum(target_probs[:, 2:], axis=-1)
+        expval = prob_measure_q0_1 - prob_measure_q0_0
+        expvalues[flag] = expval.tolist()
+        probs_measure_q0_1[flag] = prob_measure_q0_1.tolist()
+        probs_measure_q0_0[flag] = prob_measure_q0_0.tolist()
+
+    return features_for_encoding, expvalues, probs_measure_q0_1, probs_measure_q0_0
+
+
 def run_circuit(encoder: Encoder, epoch_number: int, lr: float, dataset_source: str):
     X, Y = get_dataset(dataset_source)
     permutation = np.random.permutation(len(X))
@@ -70,31 +107,13 @@ def run_circuit(encoder: Encoder, epoch_number: int, lr: float, dataset_source: 
         acc_values[iter] = acc_val
 
     flag_list = encoder.flags()
-    # record all encoded data for each flag
-    all_encoded_data = {flag: [] for flag in flag_list}
-    for data_point in features:
-        encoded = qml.snapshots(circuit)(weights, data_point)
-        for flag in flag_list:
-            state_for_single_datapoint = encoded[flag]
-            target_probs = np.abs(state_for_single_datapoint) ** 2
-            all_encoded_data[flag].append(target_probs)
-
-    # test qubit 0 measured expectancy
-    expvalues = {}
-    probs_measure_q0_1 = {}
-    probs_measure_q0_0 = {}
-    for flag in flag_list:
-        target_probs = np.stack(all_encoded_data[flag])
-        prob_measure_q0_0 = np.sum(target_probs[:, :2], axis=-1)
-        prob_measure_q0_1 = np.sum(target_probs[:, 2:], axis=-1)
-        expval = prob_measure_q0_1 - prob_measure_q0_0
-        expvalues[flag] = expval.tolist()
-        probs_measure_q0_1[flag] = prob_measure_q0_1.tolist()
-        probs_measure_q0_0[flag] = prob_measure_q0_0.tolist()
-
     distribution_map = compute_distribution_map(
         circuit, weights, features, Y, snapshot=flag_list[-1]
     )
+    features_for_encoding, expvalues, probs_measure_q0_1, probs_measure_q0_0 = get_encoded_data(
+        dataset_source, encoder
+    )
+    features_for_encoding = features_for_encoding.tolist()
 
     # 创建dict for encoder, 来给前端返回, 画circuit的数据
     circuit_implementation = {
@@ -111,25 +130,26 @@ def run_circuit(encoder: Encoder, epoch_number: int, lr: float, dataset_source: 
 
     result_to_return = {
         "circuit": circuit_implementation,
-        "encoded_data": {"feature": original_feature, "label": expvalues[flag_list[-1]]},
         "performance": {
             "epoch_number": epoch_number,
             "loss": costs.tolist(),
             "accuracy": acc_values.tolist(),
         },
         "trained_data": {"feature": original_feature, "label": trained_label},
+        "distribution_map": distribution_map,
+        "feature_map_formula": fm.get_formula(),
+        # Encoded data at each encoding step
+        "encoded_data": {"feature": features_for_encoding, "label": expvalues[flag_list[-1]]},
         "encoded_steps": [
-            {"feature": original_feature, "label": expvalues[f]} for f in flag_list[:-1]
+            {"feature": features_for_encoding, "label": expvalues[f]} for f in flag_list[:-1]
         ],
         "encoded_steps_sub": [
             [
-                {"feature": original_feature, "label": probs_measure_q0_1[f]},
-                {"feature": original_feature, "label": probs_measure_q0_0[f]},
+                {"feature": features_for_encoding, "label": probs_measure_q0_1[f]},
+                {"feature": features_for_encoding, "label": probs_measure_q0_0[f]},
             ]
             for f in flag_list[:-1]
         ],
-        "distribution_map": distribution_map,
-        "feature_map_formula": fm.get_formula(),
     }
 
     plain_result = recursive_convert(result_to_return)
