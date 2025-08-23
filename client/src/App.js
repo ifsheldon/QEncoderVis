@@ -7,7 +7,6 @@ import {
 	Button,
 	InputNumber,
 	Slider,
-	Spin,
 	Row,
 	Col,
 	Progress,
@@ -165,8 +164,6 @@ function App() {
 		set_drawer_open(false);
 	};
 
-	//////////////////////////////////////////////
-
 	// Load encoders once
 	useEffect(() => {
 		const fetchEncoders = async () => {
@@ -270,14 +267,6 @@ function App() {
 			source.cancel("Route changed");
 		};
 	}, [data_name, selectedEncoder, encoders, dataset]);
-
-	// useEffect(() => {
-	//
-	//     setTimeout(() => {
-	//         setComp6Loading(false);
-	//     }, 1500); // Delay for 1.5 seconds
-	//
-	// }, [dataset])
 
 	return (
 		<Layout
@@ -604,9 +593,8 @@ function App() {
 					)}
 
 					{/* Link: animated line from Comp1 to Comp4*/}
-					{dataset && (
+					{encodedData?.encoded_data && (
 						<Link
-							// dataset={dataset['encoded_data']}
 							boundary={null}
 							colors={[[color_class1, color_class2], color_linkComp_bg]}
 							linkComp_width={linkComp_width}
