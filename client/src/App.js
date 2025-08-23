@@ -610,16 +610,10 @@ function App() {
 					<div style={{ marginTop: "10px", marginRight: "1.5em" }}>
 						<span className={"control_font"}>Training epoch</span>
 						<Progress
-							percent={
-								trainingActive
-									? Math.min(
-											100,
-											Math.round(
-												(currentEpoch / Math.max(1, epochNumber)) * 100,
-											),
-										)
-									: 0
-							}
+							percent={Math.min(
+								100,
+								Math.round((currentEpoch / Math.max(1, epochNumber)) * 100),
+							)}
 							status="active"
 							strokeColor={progress_color}
 							style={{ width: "150px", marginRight: "-30px", marginTop: "5px" }}
