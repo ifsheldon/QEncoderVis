@@ -51,8 +51,8 @@ def run_circuit(encoder: Encoder, epoch_number: int, lr: float, dataset_source: 
 
     # Optimization
     weights = weights_init
-    cost_list = []
-    acc_val_list = []
+    costs = np.zeros(epoch_number)
+    acc_values = np.zeros(epoch_number)
     optimizer = NesterovMomentumOptimizer(lr)
 
     for iter in range(epoch_number):
@@ -66,8 +66,8 @@ def run_circuit(encoder: Encoder, epoch_number: int, lr: float, dataset_source: 
         acc_val = accuracy(Y_val, predictions_val)
         cost_val = cost(weights, features, Y)
         print(f"Iter: {iter + 1:5d} | Cost: {cost_val:0.7f} | Acc validation: {acc_val:0.7f} ")
-        cost_list.append(cost_val)
-        acc_val_list.append(acc_val)
+        costs[iter] = cost_val
+        acc_values[iter] = acc_val
 
     flag_list = encoder.flags()
     # record all encoded data for each flag
@@ -92,9 +92,6 @@ def run_circuit(encoder: Encoder, epoch_number: int, lr: float, dataset_source: 
         probs_measure_q0_1[flag] = prob_measure_q0_1.tolist()
         probs_measure_q0_0[flag] = prob_measure_q0_0.tolist()
 
-    #  画acc和loss的数据
-    cost_list = [float(x) for x in cost_list]
-    acc_val_list = [float(x) for x in acc_val_list]
     distribution_map = compute_distribution_map(
         circuit, weights, features, Y, snapshot=flag_list[-1]
     )
@@ -115,7 +112,11 @@ def run_circuit(encoder: Encoder, epoch_number: int, lr: float, dataset_source: 
     result_to_return = {
         "circuit": circuit_implementation,
         "encoded_data": {"feature": original_feature, "label": expvalues[flag_list[-1]]},
-        "performance": {"epoch_number": epoch_number, "loss": cost_list, "accuracy": acc_val_list},
+        "performance": {
+            "epoch_number": epoch_number,
+            "loss": costs.tolist(),
+            "accuracy": acc_values.tolist(),
+        },
         "trained_data": {"feature": original_feature, "label": trained_label},
         "encoded_steps": [
             {"feature": original_feature, "label": expvalues[f]} for f in flag_list[:-1]
