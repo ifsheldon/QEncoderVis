@@ -18,6 +18,9 @@ from routes.get_original_data import get_dataset
 
 from sklearn.decomposition import PCA
 from functools import lru_cache
+import time
+
+DELAY_BETWEEN_EPOCHS = 0.15
 
 
 @lru_cache(maxsize=12)
@@ -163,7 +166,6 @@ def run_circuit_stream(
     control: a mutable dict with keys like 'paused' (bool) and 'stopped' (bool).
     The caller may mutate these flags to pause/resume/stop the loop.
     """
-    import time
 
     X, Y = get_dataset(dataset_source)
     permutation = np.random.permutation(len(X))
@@ -195,9 +197,6 @@ def run_circuit_stream(
     cost = partial(cost_fn, circuit)
     optimizer = NesterovMomentumOptimizer(lr)
 
-    flag_list = encoder.flags()
-    snapshot_flag = flag_list[-1]
-
     for iter in range(epoch_number):
         # Handle pause
         while control.get("paused") and not control.get("stopped"):
@@ -217,6 +216,8 @@ def run_circuit_stream(
 
         # Current trained labels for all features
         trained_label = [float(x) for x in circuit(weights, features.T)]
+
+        time.sleep(DELAY_BETWEEN_EPOCHS)
 
         # Yield incremental update
         yield recursive_convert(
