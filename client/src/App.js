@@ -161,7 +161,7 @@ function App() {
 	const [epochNumber, setEpochNumber] = useState(DEFAULT_EPOCH);
 	const [learningRate, setLearningRate] = useState(DEFAULT_LR);
 	const [circuitPreview, setCircuitPreview] = useState(null);
-	const [encodedData, setEncodedData] = useState(null);
+	const [allData, setAllData] = useState(null);
 	const [lastTrained, setLastTrained] = useState({
 		circuitId: null,
 		encoderName: null,
@@ -448,18 +448,19 @@ function App() {
 		// Fetch encoded data quickly for the selected dataset and encoder
 		const circuit_id = data_port_map[data_name];
 		if (!selectedEncoder) {
-			setEncodedData(null);
+			setAllData(null);
 			return;
 		}
 		const source = axios.CancelToken.source();
 		axios
-			.get(`http://127.0.0.1:3030/api/get_encoded_data`, {
+			.get(`http://127.0.0.1:3030/api/get_data`, {
 				params: { circuit_id, encoder_name: selectedEncoder },
 				cancelToken: source.token,
 			})
 			.then((res) => {
 				const d = res.data || {};
-				const features = d.features_for_encoding || [];
+				const features = d.original_features || [];
+				const labels = d.original_labels || [];
 				const combine = (labels) => ({ feature: features, label: labels || [] });
 				const encoded = d.encoded_data ? combine(d.encoded_data.label) : null;
 				const steps = Array.isArray(d.encoded_steps)
@@ -471,19 +472,20 @@ function App() {
 						combine(pair && pair[1] ? pair[1].label : []),
 					])
 					: null;
-				setEncodedData({
+				setAllData({
 					encoded_data: encoded,
 					encoded_steps: steps,
 					encoded_steps_sub: stepsSub,
 					distribution_map: d.distribution_map || null,
-					features_for_encoding: features,
+					original_features: features,
+					original_labels: labels,
 				});
 			})
 			.catch((err) => {
 				if (!axios.isCancel(err)) {
 					console.error("Failed to fetch encoded data quickly", err);
 				}
-				setEncodedData(null);
+				setAllData(null);
 			});
 		return () => {
 			source.cancel("Route changed");
@@ -774,7 +776,8 @@ function App() {
 				>
 					{/* Component-1: original data view*/}
 					<OriginalDataView
-						circuitId={data_port_map[data_name]}
+						features={allData?.original_features}
+						labels={allData?.original_labels}
 						class_color={[color_class1, color_class2]}
 						width={original_data_view_width}
 						height={original_data_view_height}
@@ -812,9 +815,9 @@ function App() {
 					)}
 
 					{/* Component-4: encoded map*/}
-					{encodedData?.encoded_data && (
+					{allData?.encoded_data && (
 						<EncodedMapView
-							dataset={encodedData.encoded_data}
+							dataset={allData.encoded_data}
 							boundary={null}
 							colors={[[color_class1, color_class2], color_encoded_map_bg]}
 							width={encoded_map_width}
@@ -825,7 +828,7 @@ function App() {
 					)}
 
 					{/* Link: animated line from Comp1 to Comp4*/}
-					{encodedData?.encoded_data && (
+					{allData?.encoded_data && (
 						<DataFlowLink
 							boundary={null}
 							colors={[[color_class1, color_class2], color_link_bg]}
@@ -854,12 +857,12 @@ function App() {
 					)}
 
 					{/* Component-6: encoder step map*/}
-					{encodedData?.encoded_steps && encodedData?.encoded_steps_sub && (
+					{allData?.encoded_steps && allData?.encoded_steps_sub && (
 						<EncoderStepMappingView
 							key={`${data_name}-${selectedEncoder || "default"}-steps`}
 							dataset={[
-								encodedData.encoded_steps,
-								encodedData.encoded_steps_sub,
+								allData.encoded_steps,
+								allData.encoded_steps_sub,
 							]}
 							width={encoder_step_mapping_width}
 							height={encoder_step_mapping_height}
@@ -870,9 +873,9 @@ function App() {
 					)}
 
 					{/* Component-7: Quantum state distribution*/}
-					{encodedData?.distribution_map && (
+					{allData?.distribution_map && (
 						<QuantumStateDistributionView
-							dataset={encodedData.distribution_map}
+							dataset={allData.distribution_map}
 							width={quantum_state_distribution_view_width}
 							height={quantum_state_distribution_view_height}
 							left={quantum_state_distribution_view_left}

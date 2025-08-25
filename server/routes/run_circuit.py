@@ -24,10 +24,10 @@ DELAY_BETWEEN_EPOCHS = 0.15
 
 
 @lru_cache(maxsize=12)
-def get_encoded_data(dataset_source: str, encoder: Encoder):
-    features_for_encoding, labels = get_dataset(dataset_source)
+def get_data(dataset_source: str, encoder: Encoder):
+    original_features, original_labels = get_dataset(dataset_source)
     fm = encoder.get_feature_mapping()
-    features = np.array([fm.feature_map(x) for x in features_for_encoding], requires_grad=False)
+    features = np.array([fm.feature_map(x) for x in original_features], requires_grad=False)
 
     dev = qml.device("default.qubit", wires=NUM_QUBITS)
 
@@ -64,7 +64,7 @@ def get_encoded_data(dataset_source: str, encoder: Encoder):
     distribution_map = []
     for i, coord in enumerate(coords):
         distribution_map.append(
-            {"x": float(coord[0]), "y": float(coord[1]), "label": float(labels[i])}
+            {"x": float(coord[0]), "y": float(coord[1]), "label": float(original_labels[i])}
         )
 
     # test qubit 0 measured expectancy
@@ -81,7 +81,8 @@ def get_encoded_data(dataset_source: str, encoder: Encoder):
         probs_measure_q0_0[flag] = prob_measure_q0_0.tolist()
 
     return (
-        features_for_encoding,
+        original_features,
+        original_labels,
         expvalues,
         probs_measure_q0_1,
         probs_measure_q0_0,

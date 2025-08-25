@@ -15,12 +15,11 @@ from functions.encoding import (
     EncoderRzyRzy,
     EncoderRzzRyy,
 )
-from routes.run_circuit import run_circuit as run_circuit_train, get_encoded_data
+from routes.run_circuit import run_circuit as run_circuit_train, get_data
 from routes.run_circuit import run_circuit_stream
 from pennylane import numpy as np
 from functions.hyperparameters import SEED
 from typing import Literal
-from functions.get_original_data import get_original_data
 import uuid
 import json
 import threading
@@ -122,24 +121,20 @@ def get_encoders():
     )
 
 
-@app.route("/api/get_original_data", methods=["GET"])
-def get_original_data_route():
-    circuit_id = request.args.get("circuit_id")
-    return jsonify(get_original_data(get_dataset_source(circuit_id)))
-
-
-@app.route("/api/get_encoded_data", methods=["GET"])
-def get_encoded_data_route():
+@app.route("/api/get_data", methods=["GET"])
+def get_all_data_route():
     circuit_id = request.args.get("circuit_id")
     encoder_name = request.args.get("encoder_name")
     encoder = encoders[encoder_name]
-    features_for_encoding, expvalues, probs_measure_q0_1, probs_measure_q0_0, distribution_map = (
-        get_encoded_data(get_dataset_source(circuit_id), encoder)
+    original_features, original_labels, expvalues, probs_measure_q0_1, probs_measure_q0_0, distribution_map = (
+        get_data(get_dataset_source(circuit_id), encoder)
     )
-    features_for_encoding = features_for_encoding.tolist()
+    original_features = original_features.tolist()
+    original_labels = original_labels.tolist()
     flag_list = encoder.flags()
     result = {
-        "features_for_encoding": features_for_encoding,
+        "original_features": original_features,
+        "original_labels": original_labels,
         "distribution_map": distribution_map,
         "encoded_data": {"label": expvalues[flag_list[-1]]},
         "encoded_steps": [

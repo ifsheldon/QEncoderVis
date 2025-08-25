@@ -1,47 +1,23 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-
 import Module_draw_2dplot from "../Functions/module_draw_2dplot";
 
 function OriginalDataView(props) {
-	const circuitId = props.circuitId;
-
 	const width = props.width;
 	const height = props.height;
 	const left = props.left;
 	const top = props.top;
 	const { class_color } = props;
-
-	const [originalData, setOriginalData] = useState(null);
-	const [loading, setLoading] = useState(false);
+	const features = props.features || [];
+	const labels = props.labels || [];
 
 	// 定义新的measure
 	const svg_width = width * 0.9;
 	const svg_height = height * 0.9;
 
-	// Fetch original data when dataset (circuitId) changes
-	useEffect(() => {
-		const fetchOriginal = async () => {
-			try {
-				setLoading(true);
-				const res = await axios.get(
-					"http://127.0.0.1:3030/api/get_original_data",
-					{
-						params: { circuit_id: circuitId },
-					},
-				);
-				setOriginalData(res.data);
-			} catch (err) {
-				console.error("Failed to fetch original data", err);
-				setOriginalData(null);
-			} finally {
-				setLoading(false);
-			}
-		};
-		if (circuitId !== undefined && circuitId !== null) {
-			fetchOriginal();
-		}
-	}, [circuitId]);
+	const hasData =
+		Array.isArray(features) &&
+		Array.isArray(labels) &&
+		features.length === labels.length &&
+		features.length > 0;
 
 	return (
 		<div
@@ -62,12 +38,9 @@ function OriginalDataView(props) {
 				width={svg_width}
 				height={svg_height}
 			>
-				{loading || !originalData ? (
-					// simple fallback while loading
-					<text>Loading original data...</text>
-				) : (
+				{hasData ? (
 					<Module_draw_2dplot
-						dataset={originalData}
+						dataset={{ feature: features, label: labels }}
 						class_color={class_color}
 						boundary={null}
 						mode={"medium"}
@@ -75,6 +48,8 @@ function OriginalDataView(props) {
 						module_name={"original_data_view_2dplot"} /*module这个g的名字*/
 						isLegend={true}
 					></Module_draw_2dplot>
+				) : (
+					<text>No original data</text>
 				)}
 			</svg>
 		</div>
