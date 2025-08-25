@@ -458,7 +458,26 @@ function App() {
 				cancelToken: source.token,
 			})
 			.then((res) => {
-				setEncodedData(res.data || null);
+				const d = res.data || {};
+				const features = d.features_for_encoding || [];
+				const combine = (labels) => ({ feature: features, label: labels || [] });
+				const encoded = d.encoded_data ? combine(d.encoded_data.label) : null;
+				const steps = Array.isArray(d.encoded_steps)
+					? d.encoded_steps.map((s) => combine(s.label))
+					: null;
+				const stepsSub = Array.isArray(d.encoded_steps_sub)
+					? d.encoded_steps_sub.map((pair) => [
+						combine(pair && pair[0] ? pair[0].label : []),
+						combine(pair && pair[1] ? pair[1].label : []),
+					])
+					: null;
+				setEncodedData({
+					encoded_data: encoded,
+					encoded_steps: steps,
+					encoded_steps_sub: stepsSub,
+					distribution_map: d.distribution_map || null,
+					features_for_encoding: features,
+				});
 			})
 			.catch((err) => {
 				if (!axios.isCancel(err)) {

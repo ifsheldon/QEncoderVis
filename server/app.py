@@ -139,15 +139,16 @@ def get_encoded_data_route():
     features_for_encoding = features_for_encoding.tolist()
     flag_list = encoder.flags()
     result = {
+        "features_for_encoding": features_for_encoding,
         "distribution_map": distribution_map,
-        "encoded_data": {"feature": features_for_encoding, "label": expvalues[flag_list[-1]]},
+        "encoded_data": {"label": expvalues[flag_list[-1]]},
         "encoded_steps": [
-            {"feature": features_for_encoding, "label": expvalues[f]} for f in flag_list[:-1]
+            {"label": expvalues[f]} for f in flag_list[:-1]
         ],
         "encoded_steps_sub": [
             [
-                {"feature": features_for_encoding, "label": probs_measure_q0_1[f]},
-                {"feature": features_for_encoding, "label": probs_measure_q0_0[f]},
+                {"label": probs_measure_q0_1[f]},
+                {"label": probs_measure_q0_0[f]},
             ]
             for f in flag_list[:-1]
         ],
