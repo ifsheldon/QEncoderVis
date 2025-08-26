@@ -33,6 +33,8 @@ import QuantumStateDistributionView from "./Components/quantum_state_distributio
 import DataFlowLink from "./Components/data_flow_link";
 import DescriptionComp from "./Components/description";
 
+const server_address = "http://localhost:3030";
+
 // 布局参数
 const vis_width = 1060;
 const vis_height = vis_width * 0.6;
@@ -197,7 +199,7 @@ function App() {
 	const cleanupStream = async (doStop = false) => {
 		try {
 			if (doStop && sessionId) {
-				await axios.post(`http://127.0.0.1:3030/api/train/stop`, {
+				await axios.post(`${server_address}/api/train/stop`, {
 					session_id: sessionId,
 				});
 			}
@@ -230,7 +232,7 @@ function App() {
 	useEffect(() => {
 		const fetchEncoders = async () => {
 			try {
-				const res = await axios.get(`http://127.0.0.1:3030/api/get_encoders`);
+				const res = await axios.get(`${server_address}/api/get_encoders`);
 				setEncoders(res.data.encoders || {});
 				setDefaults(res.data.defaults || {});
 			} catch (err) {
@@ -258,7 +260,7 @@ function App() {
 		if (!selectedEncoder) return;
 		if (initialFetchDoneRef.current) return;
 		const circuit_id = data_port_map[data_name];
-		const request_url = `http://127.0.0.1:3030/api/run_circuit`;
+		const request_url = `${server_address}/api/run_circuit`;
 		const payload = {
 			circuit: circuit_id,
 			encoder_name: selectedEncoder,
@@ -297,7 +299,7 @@ function App() {
 	// Start streaming training
 	const startStreamingTraining = async () => {
 		const circuit_id = data_port_map[data_name];
-		const start_url = `http://127.0.0.1:3030/api/train/start`;
+		const start_url = `${server_address}/api/train/start`;
 		const payload = {
 			circuit: circuit_id,
 			epoch_number: epochNumber,
@@ -330,7 +332,7 @@ function App() {
 			});
 
 			// Open SSE stream
-			const streamUrl = `http://127.0.0.1:3030/api/train/stream?session_id=${newSessionId}`;
+			const streamUrl = `${server_address}/api/train/stream?session_id=${newSessionId}`;
 			const es = new EventSource(streamUrl);
 			eventSourceRef.current = es;
 			es.onmessage = (ev) => {
@@ -403,12 +405,12 @@ function App() {
 		if (!sessionId) return;
 		try {
 			if (!paused) {
-				await axios.post(`http://127.0.0.1:3030/api/train/pause`, {
+				await axios.post(`${server_address}/api/train/pause`, {
 					session_id: sessionId,
 				});
 				setPaused(true);
 			} else {
-				await axios.post(`http://127.0.0.1:3030/api/train/resume`, {
+				await axios.post(`${server_address}/api/train/resume`, {
 					session_id: sessionId,
 				});
 				setPaused(false);
@@ -453,7 +455,7 @@ function App() {
 		}
 		const source = axios.CancelToken.source();
 		axios
-			.get(`http://127.0.0.1:3030/api/get_data`, {
+			.get(`${server_address}/api/get_data`, {
 				params: { circuit_id, encoder_name: selectedEncoder },
 				cancelToken: source.token,
 			})
@@ -461,16 +463,19 @@ function App() {
 				const d = res.data || {};
 				const features = d.original_features || [];
 				const labels = d.original_labels || [];
-				const combine = (labels) => ({ feature: features, label: labels || [] });
+				const combine = (labels) => ({
+					feature: features,
+					label: labels || [],
+				});
 				const encoded = d.encoded_data ? combine(d.encoded_data.label) : null;
 				const steps = Array.isArray(d.encoded_steps)
 					? d.encoded_steps.map((s) => combine(s.label))
 					: null;
 				const stepsSub = Array.isArray(d.encoded_steps_sub)
 					? d.encoded_steps_sub.map((pair) => [
-						combine(pair && pair[0] ? pair[0].label : []),
-						combine(pair && pair[1] ? pair[1].label : []),
-					])
+							combine(pair && pair[0] ? pair[0].label : []),
+							combine(pair && pair[1] ? pair[1].label : []),
+						])
 					: null;
 				setAllData({
 					encoded_data: encoded,
@@ -648,7 +653,9 @@ function App() {
 								trainingActive
 									? Math.min(
 											100,
-											Math.round((currentEpoch / Math.max(1, epochNumber)) * 100)
+											Math.round(
+												(currentEpoch / Math.max(1, epochNumber)) * 100,
+											),
 										)
 									: 0
 							}
@@ -864,10 +871,7 @@ function App() {
 					{allData?.encoded_steps && allData?.encoded_steps_sub && (
 						<EncoderStepMappingView
 							key={`${data_name}-${selectedEncoder || "default"}-steps`}
-							dataset={[
-								allData.encoded_steps,
-								allData.encoded_steps_sub,
-							]}
+							dataset={[allData.encoded_steps, allData.encoded_steps_sub]}
 							width={encoder_step_mapping_width}
 							height={encoder_step_mapping_height}
 							left={encoder_step_mapping_left}
