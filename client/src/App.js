@@ -35,7 +35,7 @@ import DescriptionComp from "./Components/description";
 
 // 布局参数
 const vis_width = 1060;
-const vis_height = vis_width * 0.525;
+const vis_height = vis_width * 0.6;
 
 const control_width = vis_width;
 const control_height = vis_width * 0.1;
@@ -644,10 +644,14 @@ function App() {
 					<div style={{ marginTop: "10px", marginRight: "1.5em" }}>
 						<span className={"control_font"}>Training epoch</span>
 						<Progress
-							percent={Math.min(
-								100,
-								Math.round((currentEpoch / Math.max(1, epochNumber)) * 100),
-							)}
+							percent={
+								trainingActive
+									? Math.min(
+											100,
+											Math.round((currentEpoch / Math.max(1, epochNumber)) * 100)
+										)
+									: 0
+							}
 							status="active"
 							strokeColor={progress_color}
 							style={{ width: "150px", marginRight: "-30px", marginTop: "5px" }}
