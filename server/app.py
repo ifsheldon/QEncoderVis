@@ -50,7 +50,7 @@ default_encoders = {
 }
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:3000", "https://xqai-encoder.reify.ing/"])
+CORS(app, origins=["http://localhost:3000", "https://xqai-encoder.reify.ing"])
 
 
 app.config["ENV"] = "production"  # 'production
