@@ -183,6 +183,8 @@ function App() {
 	const initialFetchDoneRef = useRef(false);
 
 	const handleDatasetClick = (datasetName) => {
+		// Clear encoder first to avoid transient fetch with previous encoder
+		setSelectedEncoder(null);
 		set_dataName(datasetName);
 	};
 
