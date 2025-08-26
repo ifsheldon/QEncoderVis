@@ -50,11 +50,11 @@ default_encoders = {
 }
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["http://localhost:3000", "https://xqai-encoder.reify.ing/"])
 
 
-app.config["ENV"] = "development"  # 'production
-app.config["DEBUG"] = True
+app.config["ENV"] = "production"  # 'production
+app.config["DEBUG"] = False
 
 
 class CircuitRequest(BaseModel):
@@ -126,9 +126,14 @@ def get_all_data_route():
     circuit_id = request.args.get("circuit_id")
     encoder_name = request.args.get("encoder_name")
     encoder = encoders[encoder_name]
-    original_features, original_labels, expvalues, probs_measure_q0_1, probs_measure_q0_0, distribution_map = (
-        get_data(get_dataset_source(circuit_id), encoder)
-    )
+    (
+        original_features,
+        original_labels,
+        expvalues,
+        probs_measure_q0_1,
+        probs_measure_q0_0,
+        distribution_map,
+    ) = get_data(get_dataset_source(circuit_id), encoder)
     original_features = original_features.tolist()
     original_labels = original_labels.tolist()
     flag_list = encoder.flags()
@@ -137,9 +142,7 @@ def get_all_data_route():
         "original_labels": original_labels,
         "distribution_map": distribution_map,
         "encoded_data": {"label": expvalues[flag_list[-1]]},
-        "encoded_steps": [
-            {"label": expvalues[f]} for f in flag_list[:-1]
-        ],
+        "encoded_steps": [{"label": expvalues[f]} for f in flag_list[:-1]],
         "encoded_steps_sub": [
             [
                 {"label": probs_measure_q0_1[f]},
@@ -293,4 +296,4 @@ def train_stop():
 
 
 if __name__ == "__main__":
-    app.run(port=3030)
+    app.run(host="0.0.0.0", port=3030)
