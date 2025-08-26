@@ -33,7 +33,7 @@ import QuantumStateDistributionView from "./Components/quantum_state_distributio
 import DataFlowLink from "./Components/data_flow_link";
 import DescriptionComp from "./Components/description";
 
-const server_address = "http://localhost:3030";
+const server_address = "https://xqai-encoder-server.reify.ing";
 
 // 布局参数
 const vis_width = 1060;
