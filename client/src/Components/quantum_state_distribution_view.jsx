@@ -5,6 +5,8 @@ function QuantumStateDistributionView(props) {
 	// dataset
 	const dataset = props.dataset;
 
+	const onHoverIndex = props.onHoverIndex;
+
 	const width = props.width;
 	const height = props.height;
 	const left = props.left;
@@ -77,9 +79,18 @@ function QuantumStateDistributionView(props) {
 					)
 					.style("left", event.pageX + 10 + "px")
 					.style("top", event.pageY - 28 + "px");
+				// emit hovered index
+				const index = d.index !== undefined ? d.index : dataset.indexOf(d);
+				if (typeof onHoverIndex === "function" && index !== -1) {
+					onHoverIndex(index);
+				}
 			})
 			.on("mouseout", () => {
 				tooltip.transition().duration(500).style("opacity", 0);
+				// clear selection on mouse out
+				if (typeof onHoverIndex === "function") {
+					onHoverIndex(null);
+				}
 			});
 	}, [dataset, width, height]);
 

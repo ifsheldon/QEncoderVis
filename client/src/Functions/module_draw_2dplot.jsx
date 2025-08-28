@@ -6,6 +6,7 @@ function Module_draw_2dplot(props) {
 	const dataset = props.dataset;
 
 	const { mode, module_name, translate, class_color } = props;
+	const selectedIndex = props.selectedIndex;
 
 	const isLegend = props.isLegend || false;
 
@@ -23,7 +24,7 @@ function Module_draw_2dplot(props) {
 			d3.select(divRef.current).selectAll("*").remove();
 			d3.selectAll(`.${module_name}-tooltip`).remove();
 		};
-	}, [dataset, module_name]);
+	}, [dataset, module_name, selectedIndex]);
 
 	function draw_func() {
 		// 先给组件的根结点div给className + 移位
@@ -182,7 +183,8 @@ function Module_draw_2dplot(props) {
 			// .attr("fill", d => d.label === 1 ? color_class1 : color_class2)  // Assuming only two labels 1 and 0
 			.attr("fill", (d) => colorScale(d["label"])) // Assuming only two labels 1 and 0
 			.attr("stroke", "#ffffff")
-			.attr("stroke-width", dot_stroke_width);
+			.attr("stroke-width", dot_stroke_width)
+			.attr("data-index", (d, i) => i);
 
 		// 加legend
 		if (isLegend) {
@@ -338,7 +340,31 @@ function Module_draw_2dplot(props) {
 						.attr("stroke-width", dot_stroke_width);
 
 					d3.selectAll(".boundary-line").raise();
+
+					// re-apply persistent highlight if a selection exists
+					if (selectedIndex !== null && selectedIndex !== undefined) {
+						g.selectAll(`.dot`)
+							.filter((d, i) => i === selectedIndex)
+							.raise()
+							.attr("width", 2 * dot_radius + 5)
+							.attr("height", 2 * dot_radius + 5)
+							.attr("x", (d) => xScale(d.feature[0]) - dot_radius - 2.5)
+							.attr("y", (d) => yScale(d.feature[1]) - dot_radius - 2.5)
+							.attr("stroke-width", dot_stroke_width + 1.5);
+					}
 				});
+		}
+
+		// apply selected highlight similar to hover effect
+		if (selectedIndex !== null && selectedIndex !== undefined) {
+			g.selectAll(`.dot`)
+				.filter((d, i) => i === selectedIndex)
+				.raise()
+				.attr("width", 2 * dot_radius + 5)
+				.attr("height", 2 * dot_radius + 5)
+				.attr("x", (d) => xScale(d.feature[0]) - dot_radius - 2.5)
+				.attr("y", (d) => yScale(d.feature[1]) - dot_radius - 2.5)
+				.attr("stroke-width", dot_stroke_width + 1.5);
 		}
 	}
 

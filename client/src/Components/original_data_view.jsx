@@ -8,6 +8,7 @@ function OriginalDataView(props) {
 	const { class_color } = props;
 	const features = props.features || [];
 	const labels = props.labels || [];
+	const selectedIndex = props.selectedIndex;
 
 	// 定义新的measure
 	const svg_width = width * 0.9;
@@ -47,6 +48,7 @@ function OriginalDataView(props) {
 						translate={[5, 0]} /*module这个g在svg元素里的位置*/
 						module_name={"original_data_view_2dplot"} /*module这个g的名字*/
 						isLegend={true}
+						selectedIndex={selectedIndex}
 					></Module_draw_2dplot>
 				) : (
 					<text>No original data</text>

@@ -171,6 +171,9 @@ function App() {
 		learningRate: null,
 	});
 
+	// Cross-view selection (index in original dataset)
+	const [selectedDataIndex, setSelectedDataIndex] = useState(null);
+
 	// Streaming training session state
 	const [sessionId, setSessionId] = useState(null);
 	const eventSourceRef = useRef(null);
@@ -791,6 +794,7 @@ function App() {
 					<OriginalDataView
 						features={allData?.original_features}
 						labels={allData?.original_labels}
+						selectedIndex={selectedDataIndex}
 						class_color={[color_class1, color_class2]}
 						width={original_data_view_width}
 						height={original_data_view_height}
@@ -894,6 +898,7 @@ function App() {
 								[color_class1, color_class2],
 								color_quantum_distribution_bg,
 							]}
+							onHoverIndex={(idx) => setSelectedDataIndex(idx)}
 						></QuantumStateDistributionView>
 					)}
 
