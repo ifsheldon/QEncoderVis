@@ -831,7 +831,7 @@ function App() {
 					{allData?.encoded_data && (
 						<EncodedMapView
 							dataset={allData.encoded_data}
-							boundary={null}
+							circuit_id={data_port_map[data_name]}
 							colors={[[color_class1, color_class2], color_encoded_map_bg]}
 							width={encoded_map_width}
 							height={encoded_map_height}

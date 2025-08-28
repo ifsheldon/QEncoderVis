@@ -4,7 +4,6 @@ import * as d3 from "d3";
 function Module_draw_2dplot(props) {
 	// data
 	const dataset = props.dataset;
-	const boundary = props.boundary || null;
 
 	const { mode, module_name, translate, class_color } = props;
 
@@ -24,7 +23,7 @@ function Module_draw_2dplot(props) {
 			d3.select(divRef.current).selectAll("*").remove();
 			d3.selectAll(`.${module_name}-tooltip`).remove();
 		};
-	}, [dataset, boundary, module_name]);
+	}, [dataset, module_name]);
 
 	function draw_func() {
 		// 先给组件的根结点div给className + 移位
@@ -184,26 +183,6 @@ function Module_draw_2dplot(props) {
 			.attr("fill", (d) => colorScale(d["label"])) // Assuming only two labels 1 and 0
 			.attr("stroke", "#ffffff")
 			.attr("stroke-width", dot_stroke_width);
-
-		// 如果要画boundary的线
-		if (boundary) {
-			// console.log(boundary);
-
-			boundary.forEach((region, index) => {
-				// Create a line generator
-				const lineGenerator = d3
-					.line()
-					.x((d) => xScale(d[0])) // Assuming d[0] is the x-coordinate
-					.y((d) => yScale(d[1])) // Assuming d[1] is the y-coordinate
-					.curve(d3.curveBasis); // This creates a smooth curve. You can change it to d3.curveLinear for straight lines
-
-				// Add the path for each region
-				g.append("path")
-					.datum(region) // Bind the region data to the path element
-					.attr("d", lineGenerator)
-					.attr("class", `boundary-line region-${index}`); // A class to uniquely identify each region line if needed
-			});
-		}
 
 		// 加legend
 		if (isLegend) {
