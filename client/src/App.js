@@ -679,11 +679,15 @@ function App() {
 								marginRight: "2em",
 							}}
 							icon={
-								trainingActive
-									? paused
-										? <PlayCircleFilled style={{ fontSize: "4.5em" }} />
-										: <PauseCircleFilled style={{ fontSize: "4.5em" }} />
-									: <PlayCircleFilled style={{ fontSize: "4.5em" }} />
+								trainingActive ? (
+									paused ? (
+										<PlayCircleFilled style={{ fontSize: "4.5em" }} />
+									) : (
+										<PauseCircleFilled style={{ fontSize: "4.5em" }} />
+									)
+								) : (
+									<PlayCircleFilled style={{ fontSize: "4.5em" }} />
+								)
 							}
 							type="text"
 							onClick={
