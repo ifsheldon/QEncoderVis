@@ -106,7 +106,7 @@ function QuantumStateDistributionView(props) {
 				top: top,
 			}}
 		>
-			<span className="component-title">Quantum Distribution Map</span>
+			<span className="component-title">State Comparison Map</span>
 			<svg
 				title={"quantum_state_distribution_view"}
 				id={"quantum_state_distribution_view"}
