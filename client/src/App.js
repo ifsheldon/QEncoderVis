@@ -33,58 +33,63 @@ import QuantumStateDistributionView from "./Components/quantum_state_distributio
 import DataFlowLink from "./Components/data_flow_link";
 import DescriptionComp from "./Components/description";
 
-const server_address = "https://xqai-encoder-server-backup.reify.ing";
+import appConfig from "./configs.json";
+
+const server_address =
+	appConfig?.server_address ||
+	process.env.REACT_APP_SERVER_ADDRESS ||
+	"http://localhost:3030";
 
 // 布局参数
-const vis_width = 1060;
-const vis_height = vis_width * 0.6;
+const VIS_WIDTH = 1060;
+const vis_height = VIS_WIDTH * 0.6;
 
-const control_width = vis_width;
-const control_height = vis_width * 0.1;
+const control_width = VIS_WIDTH;
+const control_height = VIS_WIDTH * 0.1;
 
-const original_data_view_width = vis_width * 0.23;
-const original_data_view_height = vis_width * 0.26;
-const original_data_view_left = vis_width * 0.04,
-	original_data_view_top = vis_width * 0.023;
+const original_data_view_width = VIS_WIDTH * 0.23;
+const original_data_view_height = VIS_WIDTH * 0.26;
+const original_data_view_left = VIS_WIDTH * 0.04,
+	original_data_view_top = VIS_WIDTH * 0.023;
 
-const data_selector_panel_width = vis_width * 0.19;
-const data_selector_panel_height = vis_width * 0.133;
-const data_selector_panel_left = vis_width * 0.038,
-	data_selector_panel_top = vis_width * 0.34;
+const data_selector_panel_width = VIS_WIDTH * 0.19;
+const data_selector_panel_height = VIS_WIDTH * 0.133;
+const data_selector_panel_left = VIS_WIDTH * 0.038,
+	data_selector_panel_top = VIS_WIDTH * 0.34;
 
-const quantum_circuit_width = vis_width * 0.45;
-const quantum_circuit_height = vis_width * 0.07;
-const quantum_circuit_left = vis_width * 0.29,
-	quantum_circuit_top = vis_width * 0.023;
+const quantum_circuit_width = VIS_WIDTH * 0.45;
+const quantum_circuit_height = VIS_WIDTH * 0.07;
+const quantum_circuit_left = VIS_WIDTH * 0.29,
+	quantum_circuit_top = VIS_WIDTH * 0.023;
 
-const encoded_map_width = vis_width * 0.4;
-const encoded_map_height = vis_width * 0.295;
-const encoded_map_left = vis_width * 0.72,
-	encoded_map_top = vis_width * 0.023;
+const encoded_map_width = VIS_WIDTH * 0.4;
+const encoded_map_height = VIS_WIDTH * 0.295;
+const encoded_map_left = VIS_WIDTH * 0.72,
+	encoded_map_top = VIS_WIDTH * 0.023;
 
 const data_flow_link_width =
 	quantum_circuit_left -
 	(original_data_view_left + original_data_view_width) +
 	quantum_circuit_width +
 	40;
-const data_flow_link_height = vis_width * 0.07;
+const data_flow_link_height = VIS_WIDTH * 0.07;
 const data_flow_link_left = original_data_view_width - 20,
 	data_flow_link_top = quantum_circuit_top + quantum_circuit_height + 10;
 
-const model_performance_view_width = vis_width * 0.54;
-const model_performance_view_height = vis_width * 0.2;
-const model_performance_view_left = vis_width * 0.565,
-	model_performance_view_top = vis_width * 0.34;
+const model_performance_view_width = VIS_WIDTH * 0.54;
+const model_performance_view_height = VIS_WIDTH * 0.2;
+const model_performance_view_left = VIS_WIDTH * 0.565,
+	model_performance_view_top = VIS_WIDTH * 0.34;
 
-const encoder_step_mapping_width = vis_width * 0.45;
-const encoder_step_mapping_height = vis_width * 0.25;
+const encoder_step_mapping_width = VIS_WIDTH * 0.45;
+const encoder_step_mapping_height = VIS_WIDTH * 0.25;
 const encoder_step_mapping_left = quantum_circuit_left,
 	encoder_step_mapping_top = quantum_circuit_top + quantum_circuit_height + 10;
 
-const quantum_state_distribution_view_width = vis_width * 0.28;
-const quantum_state_distribution_view_height = vis_width * 0.145;
-const quantum_state_distribution_view_left = vis_width * 0.26,
-	quantum_state_distribution_view_top = vis_width * 0.34;
+const quantum_state_distribution_view_width = VIS_WIDTH * 0.28;
+const quantum_state_distribution_view_height = VIS_WIDTH * 0.145;
+const quantum_state_distribution_view_left = VIS_WIDTH * 0.26,
+	quantum_state_distribution_view_top = VIS_WIDTH * 0.34;
 
 // Description: position it below the Original Data view
 const description_panel_width = original_data_view_width;
@@ -110,39 +115,36 @@ const model_performance_view_top_adjusted = Math.max(
 	description_panel_top + description_panel_height + below_desc_padding,
 );
 
-const article_width = 650;
-const centered_footer_bgColor = 650;
+const ARTICLE_WIDTH = 650;
+const CENTERED_FOOTER_BG_COLOR = 650;
 
 // All color setting here`
 // define colors here
-const color_class1 = "#ffe682";
-const color_class2 = "#006962";
-// const color_class1 = "#eebc6f";
-// const color_class2 = "#6fc6be";
-// const color_class1 = "#114057";
-// const color_class2 = "#fde625";
-// const color_class1 = "#f65262";
-// const color_class2 = "#4f7cff";
-// const color_class1 = "#80ee02";
-// const color_class2 = "#750d0d";
-const top_bg_color = "#183D4E";
-const centered_control_color = "#ffffff";
-const container_control_color = "#ffffff";
-const centered_vis_color = "#fafafa";
-const container_vis_color = "#fafafa";
-const play_btn_color = "#2c2c2c";
-const progress_color = "#545454";
-const centered_article_bgColor = "#ffeeff";
-const color_data_selector_panel_bg = "#ececec";
-const color_circuit_bg = "#ececec";
-const color_encoded_map_bg = "#f1f1f1";
-const color_model_performance_bg = "#f9f9f9";
-const color_encoder_step_map_bg = "#f9f9f9";
-const color_quantum_distribution_bg = "#ececec";
-const color_link_bg = "#fafafa";
+const COLOR_CLASS_1 = "#ffe682";
+const COLOR_CLASS_2 = "#006962";
+const TOP_BG_COLOR = "#183D4E";
+const CENTERED_CONTROL_COLOR = "#ffffff";
+const CONTAINER_CONTROL_COLOR = "#ffffff";
+const CENTERED_VIS_COLOR = "#fafafa";
+const CONTAINER_VIS_COLOR = "#fafafa";
+const PLAY_BTN_COLOR = "#2c2c2c";
+const PROGRESS_COLOR = "#545454";
+const CENTERED_ARTICLE_BG_COLOR = "#ffeeff";
+const COLOR_DATA_SELECTOR_PANEL_BG = "#ececec";
+const COLOR_CIRCUIT_BG = "#ececec";
+const COLOR_ENCODED_MAP_BG = "#f1f1f1";
+const COLOR_MODEL_PERFORMANCE_BG = "#f9f9f9";
+const COLOR_ENCODER_STEP_MAP_BG = "#f9f9f9";
+const COLOR_QUANTUM_DISTRIBUTION_BG = "#ececec";
+const COLOR_LINK_BG = "#fafafa";
+
+// default values
+const DAFAULT_CIRCUIT = "circuit_5";
+const DEFAULT_EPOCH = 100;
+const DEFAULT_LR = 0.02;
 
 // dataset and backend circuit ids
-const data_port_map = {
+const DATA_PORT_MAP = {
 	circuit_0: 0,
 	circuit_1: 1,
 	circuit_2: 2,
@@ -152,10 +154,7 @@ const data_port_map = {
 };
 
 function App() {
-	const default_circuit = "circuit_5";
-	const DEFAULT_EPOCH = 100;
-	const DEFAULT_LR = 0.02;
-	const [data_name, set_dataName] = useState(default_circuit);
+	const [data_name, set_dataName] = useState(DAFAULT_CIRCUIT);
 	const [dataset, setDataset] = useState(null);
 	const [encoders, setEncoders] = useState({});
 	const [defaults, setDefaults] = useState({});
@@ -223,7 +222,7 @@ function App() {
 
 	// Helper: whether current selection matches last trained configuration
 	const isCurrentSelectionTrained = () => {
-		const currentCircuitId = data_port_map[data_name];
+		const currentCircuitId = DATA_PORT_MAP[data_name];
 		if (!lastTrained) return false;
 		return (
 			lastTrained.circuitId === currentCircuitId &&
@@ -249,7 +248,7 @@ function App() {
 
 	// Sync selected encoder with dataset defaults when circuit changes
 	useEffect(() => {
-		const circuit_id = data_port_map[data_name];
+		const circuit_id = DATA_PORT_MAP[data_name];
 		if (
 			defaults &&
 			Object.prototype.hasOwnProperty.call(defaults, circuit_id)
@@ -264,7 +263,7 @@ function App() {
 		if (!defaultsReady) return;
 		if (!selectedEncoder) return;
 		if (initialFetchDoneRef.current) return;
-		const circuit_id = data_port_map[data_name];
+		const circuit_id = DATA_PORT_MAP[data_name];
 		const request_url = `${server_address}/api/run_circuit`;
 		const payload = {
 			circuit: circuit_id,
@@ -303,7 +302,7 @@ function App() {
 
 	// Start streaming training
 	const startStreamingTraining = async () => {
-		const circuit_id = data_port_map[data_name];
+		const circuit_id = DATA_PORT_MAP[data_name];
 		const start_url = `${server_address}/api/train/start`;
 		const payload = {
 			circuit: circuit_id,
@@ -453,7 +452,7 @@ function App() {
 		}
 
 		// Fetch encoded data quickly for the selected dataset and encoder
-		const circuit_id = data_port_map[data_name];
+		const circuit_id = DATA_PORT_MAP[data_name];
 		if (!selectedEncoder) {
 			setAllData(null);
 			return;
@@ -512,12 +511,12 @@ function App() {
 			}}
 		>
 			{/* the top board component */}
-			<Top top_bg_color={top_bg_color}></Top>
+			<Top top_bg_color={TOP_BG_COLOR}></Top>
 
 			{/* GUI for vis interface */}
 			<div
 				className={"container-for-centered"}
-				style={{ backgroundColor: container_control_color /* *** */ }}
+				style={{ backgroundColor: CONTAINER_CONTROL_COLOR /* *** */ }}
 			>
 				<div
 					id={"control"}
@@ -525,7 +524,7 @@ function App() {
 					style={{
 						height: control_height,
 						width: control_width,
-						backgroundColor: centered_control_color /* *** */,
+						backgroundColor: CENTERED_CONTROL_COLOR /* *** */,
 						padding: "1.5em",
 					}}
 				>
@@ -637,7 +636,7 @@ function App() {
 															height={90}
 															left={0}
 															top={0}
-															color_circuit_bg={color_circuit_bg}
+															color_circuit_bg={COLOR_CIRCUIT_BG}
 															svgId={`enc-card-${name}`}
 															forCards={true}
 														/>
@@ -665,7 +664,7 @@ function App() {
 									: 0
 							}
 							status="active"
-							strokeColor={progress_color}
+							strokeColor={PROGRESS_COLOR}
 							style={{ width: "150px", marginRight: "-30px", marginTop: "5px" }}
 						/>
 					</div>
@@ -674,7 +673,7 @@ function App() {
 						<Button
 							className={"play-button"}
 							style={{
-								color: play_btn_color,
+								color: PLAY_BTN_COLOR,
 								marginLeft: "2em",
 								marginRight: "2em",
 							}}
@@ -784,14 +783,14 @@ function App() {
 			{/* vis interface*/}
 			<div
 				className={"container-for-centered"}
-				style={{ backgroundColor: container_vis_color /* *** */ }}
+				style={{ backgroundColor: CONTAINER_VIS_COLOR /* *** */ }}
 			>
 				<div
 					id={"vis_system"}
 					style={{
 						height: vis_height,
-						width: vis_width,
-						backgroundColor: centered_vis_color /* *** */,
+						width: VIS_WIDTH,
+						backgroundColor: CENTERED_VIS_COLOR /* *** */,
 					}}
 				>
 					{/* Component-1: original data view*/}
@@ -799,7 +798,7 @@ function App() {
 						features={allData?.original_features}
 						labels={allData?.original_labels}
 						selectedIndex={selectedDataIndex}
-						class_color={[color_class1, color_class2]}
+						class_color={[COLOR_CLASS_1, COLOR_CLASS_2]}
 						width={original_data_view_width}
 						height={original_data_view_height}
 						left={original_data_view_left}
@@ -811,14 +810,14 @@ function App() {
 						default_circuit={data_name}
 						onDatasetClick={handleDatasetClick}
 						colors={[
-							[color_class1, color_class2],
-							color_data_selector_panel_bg,
+							[COLOR_CLASS_1, COLOR_CLASS_2],
+							COLOR_DATA_SELECTOR_PANEL_BG,
 						]}
 						width={data_selector_panel_width}
 						height={data_selector_panel_height}
 						left={data_selector_panel_left}
 						top={data_selector_panel_top_adjusted}
-						vis_width={vis_width}
+						vis_width={VIS_WIDTH}
 						disabled={trainingActive}
 					></DataSelectorPanel>
 
@@ -831,7 +830,7 @@ function App() {
 							height={quantum_circuit_height}
 							left={quantum_circuit_left}
 							top={quantum_circuit_top}
-							color_circuit_bg={color_circuit_bg}
+							color_circuit_bg={COLOR_CIRCUIT_BG}
 						></QuantumCircuitView>
 					)}
 
@@ -839,8 +838,8 @@ function App() {
 					{allData?.encoded_data && (
 						<EncodedMapView
 							dataset={allData.encoded_data}
-							circuit_id={data_port_map[data_name]}
-							colors={[[color_class1, color_class2], color_encoded_map_bg]}
+							circuit_id={DATA_PORT_MAP[data_name]}
+							colors={[[COLOR_CLASS_1, COLOR_CLASS_2], COLOR_ENCODED_MAP_BG]}
 							width={encoded_map_width}
 							height={encoded_map_height}
 							left={encoded_map_left}
@@ -852,7 +851,7 @@ function App() {
 					{allData?.encoded_data && (
 						<DataFlowLink
 							boundary={null}
-							colors={[[color_class1, color_class2], color_link_bg]}
+							colors={[[COLOR_CLASS_1, COLOR_CLASS_2], COLOR_LINK_BG]}
 							linkComp_width={data_flow_link_width}
 							linkComp_height={data_flow_link_height}
 							linkComp_left={data_flow_link_left}
@@ -867,8 +866,8 @@ function App() {
 							dataset1={dataset["performance"]}
 							dataset2={dataset["trained_data"]}
 							colors={[
-								[color_class1, color_class2],
-								color_model_performance_bg,
+								[COLOR_CLASS_1, COLOR_CLASS_2],
+								COLOR_MODEL_PERFORMANCE_BG,
 							]}
 							width={model_performance_view_width}
 							height={model_performance_view_height}
@@ -886,7 +885,7 @@ function App() {
 							height={encoder_step_mapping_height}
 							left={encoder_step_mapping_left}
 							top={encoder_step_mapping_top}
-							colors={[[color_class1, color_class2], color_encoder_step_map_bg]}
+							colors={[[COLOR_CLASS_1, COLOR_CLASS_2], COLOR_ENCODER_STEP_MAP_BG]}
 						></EncoderStepMappingView>
 					)}
 
@@ -899,8 +898,8 @@ function App() {
 							left={quantum_state_distribution_view_left}
 							top={quantum_state_distribution_view_top_adjusted}
 							colors={[
-								[color_class1, color_class2],
-								color_quantum_distribution_bg,
+								[COLOR_CLASS_1, COLOR_CLASS_2],
+								COLOR_QUANTUM_DISTRIBUTION_BG,
 							]}
 							onHoverIndex={(idx) => setSelectedDataIndex(idx)}
 						></QuantumStateDistributionView>
@@ -922,7 +921,7 @@ function App() {
 			<article>
 				<div
 					className="article-body"
-					style={{ width: article_width, background: centered_article_bgColor }}
+					style={{ width: ARTICLE_WIDTH, background: CENTERED_ARTICLE_BG_COLOR }}
 				>
 					<P1></P1> {/*Article here*/}
 				</div>
@@ -931,7 +930,7 @@ function App() {
 			<footer>
 				<div
 					className="centered-footer"
-					style={{ width: article_width, background: centered_footer_bgColor }}
+					style={{ width: ARTICLE_WIDTH, background: CENTERED_FOOTER_BG_COLOR }}
 				>
 					<Footer></Footer>
 				</div>

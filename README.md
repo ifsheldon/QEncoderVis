@@ -1,43 +1,17 @@
-# Environment buiding
+# XQAI-Eyes
 
+This is the source code of the XQAI-Eyes system from the paper _Towards Explainable Quantum AI: Informing the Encoder Selection of Quantum Neural Networks via Visualization_.
 
-### React-app building
-1. enter the frontend forder
-2. run `npm install` for installing all required packages
+## Project Setup
 
-### Backend building
-Use `uv` and just run `uv sync`.
+We use `uv` and `bun` to manage dependencies and `poethepoet` to run tasks. To set up the project:
+
+1. Install `uv` and `bun`
+2. Run `uv sync` in `.`
+3. (Optional) Edit `client/src/configs.json` to change the server address.
+4. Run `uv run poe setup-client` to set up the frontend.
 
 ### Launch the application
-1. run `npm start` to launch the frontend React app
-2. run `python app.py` to launch the backend Flask app
 
-### API
-Single endpoint for running circuits:
-
-POST `/api/run_circuit`
-
-Body:
-
-```
-{ "circuit": 0 }
-```
-
-Allowed circuit ids: 0, 1, 2, 3, 4, 5.
-
-Example:
-
-```bash
-curl -X POST http://127.0.0.1:3030/api/run_circuit \
-  -H 'Content-Type: application/json' \
-  -d '{"circuit": 5}'
-```
-
-## TODOs
-* Implement edge detection
-
-## Records:
-1. Dataset 4 + RyRz -> Acc = 1.0
-2. Dataset 3 + RyyRzz -> Acc = 0.84
-3. Dataset 4 + RyyRxx -> Acc = 0.91
-4. Dataset 5 + RzzRyy -> Acc = 0.92
+1. run `uv run poe run-client` to launch the frontend
+2. run `uv run poe run-server` to launch the backend

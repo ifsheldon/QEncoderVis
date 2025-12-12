@@ -1,7 +1,7 @@
 [project]
 name = "qencodervis"
 version = "0.1.0"
-description = "Add your description here"
+description = "Source code of the XQAI-Eyes system"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -29,11 +29,19 @@ line-length = 100
 ignore = ["F401", "F841"]
 
 [tool.poe.tasks.format-js]
-cmd = "npx @biomejs/biome format --write"
+cmd = "bunx biome format --write"
 cwd = "./client"
 
-[tool.poe.tasks.run-client]
-cmd = "npm start"
+[tool.poe.tasks.install-client]
+cmd = "bun install"
+cwd = "./client"
+
+[tool.poe.tasks.build-client]
+cmd = "bun run build"
+cwd = "./client"
+
+[tool.poe.tasks.start-client]
+cmd = "bun run start"
 cwd = "./client"
 
 [tool.poe.tasks.run-server]
@@ -41,7 +49,7 @@ cmd = "uv run python app.py"
 cwd = "./server"
 
 [tool.poe.tasks.check-js]
-cmd = "npx @biomejs/biome lint"
+cmd = "bunx biome lint --write"
 cwd = "./client"
 
 [tool.poe.tasks]
@@ -49,3 +57,5 @@ format-python = "uv run ruff format"
 format = ["format-python", "format-js"]
 check-python = "uv run ruff check"
 check = ["check-python", "check-js"]
+run-client = ["build-client", "start-client"]
+setup-client = ["install-client", "build-client"]
