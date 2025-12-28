@@ -124,7 +124,7 @@ function P1() {
 	return (
 		<div style={{ padding: "0 24px" }}>
 			<Title level={2} style={{ marginTop: 0, marginBottom: 32 }}>
-				XQAI Encoder Visualization Step-by-step Guide
+				XQAI-Eyes Step-by-step Guide
 			</Title>
 			<ConfigProvider
 				theme={{
