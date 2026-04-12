@@ -54,7 +54,7 @@ function DescriptionComp(props) {
 			<MathJaxContext>
 				<div>
 					{formula && (
-						<MathJax style={{ fontStyle: "italic", fill: "#000000" }}>
+						<MathJax dynamic style={{ fontStyle: "italic", fill: "#000000" }}>
 							{`\\(${formula}\\)`}
 						</MathJax>
 					)}
