@@ -17,7 +17,7 @@ from functions.encoding import (
     EncoderRzzRyy,
 )
 from routes.run_circuit import run_circuit as run_circuit_train, get_data
-from routes.run_circuit import run_circuit_stream
+from routes.run_circuit import run_circuit_stream, DELAY_BETWEEN_EPOCHS
 from pennylane import numpy as np
 from functions.hyperparameters import SEED
 from typing import Literal
@@ -180,6 +180,29 @@ def run_circuit():
         with open(cache_file_name, "rb") as f:
             return pickle.load(f)
 
+    # Also check stream cache — reconstruct result from last epoch
+    stream_cache = _stream_cache_path(
+        encoder_name or default_encoders[circuit_id],
+        circuit_id, req.lr, req.epoch_number,
+    )
+    if os.path.exists(stream_cache):
+        with open(stream_cache, "rb") as f:
+            cached_updates = pickle.load(f)
+        if cached_updates:
+            last = cached_updates[-1]
+            result = {
+                "performance": {
+                    "epoch_number": last["epoch_number"],
+                    "loss": [u["loss"] for u in cached_updates],
+                    "accuracy": [u["accuracy"] for u in cached_updates],
+                },
+                "trained_data": last["trained_data"],
+                "feature_map_formula": encoders.get(
+                    encoder_name or default_encoders[circuit_id], list(encoders.values())[0]
+                ).get_feature_mapping().get_formula(),
+            }
+            return result
+
     params = {}
     if encoder_name is None:
         encoder = encoders[default_encoders[circuit_id]]
@@ -204,6 +227,10 @@ def run_circuit():
 # --- Streaming training with session control ---
 
 
+def _stream_cache_path(encoder_name, circuit_id, lr, epoch_number):
+    return f"./cache/stream_encoder_{encoder_name}_circuit_{circuit_id}_lr_{lr:.3f}_epoch_{epoch_number}.pkl"
+
+
 @app.route("/api/train/start", methods=["POST"])
 def train_start():
     payload = request.get_json(silent=True) or {}
@@ -217,16 +244,20 @@ def train_start():
 
     if encoder_name is None:
         encoder = encoders[default_encoders[circuit_id]]
+        encoder_name = default_encoders[circuit_id]
     else:
         encoder = encoders.get(encoder_name, None)
         if encoder is None:
             return jsonify({"error": f"Unknown encoder name: {encoder_name}"}), 400
+
+    cache_file = _stream_cache_path(encoder_name, circuit_id, req.lr, req.epoch_number)
 
     session_id = uuid.uuid4().hex
     SESSIONS[session_id] = {
         "created_at": _now(),
         "last_touch": _now(),
         "control": {"paused": False, "stopped": False},
+        "cache_file": cache_file,
         "params": {
             "encoder": encoder,
             "dataset_source": get_dataset_source(circuit_id),
@@ -248,18 +279,45 @@ def train_stream():
     control = sess["control"]
     params = sess["params"]
 
+    cache_file = sess.get("cache_file")
+
     def sse_gen():
         # Set seed for deterministic behavior
         np.random.seed(SEED)
         # Initial event for confirmation
         init_event = {"type": "session", "session_id": session_id, "status": "started"}
         yield f"data: {json.dumps(init_event)}\n\n"
-        for update in run_circuit_stream(**params, control=control):
-            sess["last_touch"] = _now()
-            payload = {"type": "epoch", **update}
-            yield f"data: {json.dumps(payload)}\n\n"
-            if control.get("stopped"):
-                break
+
+        # Check for cached results
+        if cache_file and os.path.exists(cache_file):
+            with open(cache_file, "rb") as f:
+                cached_updates = pickle.load(f)
+            for update in cached_updates:
+                if control.get("stopped"):
+                    break
+                while control.get("paused") and not control.get("stopped"):
+                    time.sleep(0.1)
+                sess["last_touch"] = _now()
+                payload = {"type": "epoch", **update}
+                yield f"data: {json.dumps(payload)}\n\n"
+                time.sleep(DELAY_BETWEEN_EPOCHS)
+        else:
+            all_updates = []
+            for update in run_circuit_stream(**params, control=control):
+                sess["last_touch"] = _now()
+                all_updates.append(update)
+                payload = {"type": "epoch", **update}
+                yield f"data: {json.dumps(payload)}\n\n"
+                if control.get("stopped"):
+                    break
+            # Save cache if training completed without being stopped
+            if cache_file and not control.get("stopped"):
+                try:
+                    with open(cache_file, "wb") as f:
+                        pickle.dump(all_updates, f)
+                except OSError:
+                    pass
+
         done_event = {"type": "done"}
         yield f"data: {json.dumps(done_event)}\n\n"
 
