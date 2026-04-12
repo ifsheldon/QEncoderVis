@@ -80,6 +80,36 @@ class EncoderRxxRyyCnot(Encoder):
 #     qml.Snapshot("flag4")
 
 
+class EncoderRxxRyyRyyCnot(Encoder):
+    @staticmethod
+    def steps() -> List[List[str]]:
+        return [
+            ["RX(x)", "RX(x)"],  # encoder step 1
+            ["RY(x)", "RY(x)"],  # encoder step 2
+            ["RY(x)", "RY(x)"],  # encoder step 3
+            ["CNOT-0", "CNOT-1"],  # encoder step 4
+        ]
+
+    @staticmethod
+    def get_feature_mapping() -> FeatureMap:
+        return FMArcsin()
+
+    def encode(self, x):
+        flags = self.flags()
+        qml.Snapshot(flags[0])
+        qml.RX(x[0], wires=0)
+        qml.RX(x[1], wires=1)
+        qml.Snapshot(flags[1])
+        qml.RY(x[0], wires=0)
+        qml.RY(x[1], wires=1)
+        qml.Snapshot(flags[2])
+        qml.RY(x[0], wires=0)
+        qml.RY(x[1], wires=1)
+        qml.Snapshot(flags[3])
+        qml.CNOT(wires=[0, 1])
+        qml.Snapshot(flags[4])
+
+
 class EncoderRxyCnot(Encoder):
     @staticmethod
     def steps() -> List[List[str]]:

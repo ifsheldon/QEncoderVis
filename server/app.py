@@ -5,6 +5,7 @@ from pydantic import BaseModel, ValidationError
 
 from functions.encoding import (
     EncoderRxxRyyCnot,
+    EncoderRxxRyyRyyCnot,
     EncoderRxyCnot,
     EncoderRyyRzz,
     EncoderRyyRxx,
@@ -29,6 +30,7 @@ import pickle
 
 encoders = {
     "RxxRyyCnot": EncoderRxxRyyCnot(),
+    "RxxRyyRyyCnot": EncoderRxxRyyRyyCnot(),
     "RxyCnot": EncoderRxyCnot(),
     "RyyRzz": EncoderRyyRzz(),
     "RyyRxx": EncoderRyyRxx(),
