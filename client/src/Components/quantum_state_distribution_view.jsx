@@ -1,5 +1,5 @@
-import { useEffect } from "react";
 import * as d3 from "d3";
+import { useEffect } from "react";
 
 function QuantumStateDistributionView(props) {
 	// dataset
@@ -92,6 +92,7 @@ function QuantumStateDistributionView(props) {
 					onHoverIndex(null);
 				}
 			});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [dataset, width, height]);
 
 	//////////////////////////////////////////////

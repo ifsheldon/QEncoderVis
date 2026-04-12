@@ -1,27 +1,24 @@
-import React from "react";
-import { Typography, Steps, theme, ConfigProvider } from "antd";
+import { ConfigProvider, Steps, Typography } from "antd";
 
 const { Title, Text, Paragraph } = Typography;
 
 function P1() {
-	const { token } = theme.useToken();
-
 	const stepsItems = [
 		{
 			title: "Select Dataset",
 			description: (
 				<Paragraph>
-					Select a dataset with the <Text code>Data Selector</Text> view. You can
-					inspect the selected dataset using the <Text code>Original Data</Text>{" "}
-					view.
+					Select a dataset with the <Text code>Data Selector</Text> view. You
+					can inspect the selected dataset using the{" "}
+					<Text code>Original Data</Text> view.
 					<ul>
 						<li>
 							Each data point is color-coded to indicate its class (assigned
 							values of -1 and +1).
 						</li>
 						<li>
-							The view visualizes the original two-dimensional input before it is
-							encoded into quantum states.
+							The view visualizes the original two-dimensional input before it
+							is encoded into quantum states.
 						</li>
 					</ul>
 				</Paragraph>
@@ -57,7 +54,8 @@ function P1() {
 					<Text strong>Encoder Expectation Measurement</Text>.
 					<ul>
 						<li>
-							It maps the complex quantum states back to a scalar value (expectation value ranging from -1 to 1).
+							It maps the complex quantum states back to a scalar value
+							(expectation value ranging from -1 to 1).
 						</li>
 						<li>
 							Click <Text code>Show boundary line</Text> to overlay the original
@@ -72,16 +70,21 @@ function P1() {
 			title: "Analyze State Comparison",
 			description: (
 				<Paragraph>
-					The <Text code>State Comparison Map</Text> view reveals the separability of the two classes in the quantum feature space.
+					The <Text code>State Comparison Map</Text> view reveals the
+					separability of the two classes in the quantum feature space.
 					<ul>
 						<li>
-							It uses <Text strong>Principal Component Analysis (PCA)</Text> to project high-dimensional density matrices of quantum states into 2D coordinates.
+							It uses <Text strong>Principal Component Analysis (PCA)</Text> to
+							project high-dimensional density matrices of quantum states into
+							2D coordinates.
 						</li>
 						<li>
-							<Text strong>Well-encoded:</Text> Distinct clusters for different classes (e.g., yellow vs. green).
+							<Text strong>Well-encoded:</Text> Distinct clusters for different
+							classes (e.g., yellow vs. green).
 						</li>
 						<li>
-							<Text strong>Poorly-encoded:</Text> Mixed or overlapping clusters, indicating the encoder struggles to distinguish the classes.
+							<Text strong>Poorly-encoded:</Text> Mixed or overlapping clusters,
+							indicating the encoder struggles to distinguish the classes.
 						</li>
 					</ul>
 				</Paragraph>
@@ -97,7 +100,8 @@ function P1() {
 							<Text code>Epoch number</Text>: The number of training iterations.
 						</li>
 						<li>
-							<Text code>Learning rate</Text>: Controls the step size during optimization.
+							<Text code>Learning rate</Text>: Controls the step size during
+							optimization.
 						</li>
 					</ul>
 				</Paragraph>
@@ -107,13 +111,19 @@ function P1() {
 			title: "Start Training",
 			description: (
 				<Paragraph>
-					Start training by clicking the ▶️ button. The system provides real-time feedback:
+					Start training by clicking the ▶️ button. The system provides real-time
+					feedback:
 					<ul>
 						<li>
-							<Text code>Model Performance</Text> view: Displays training loss (blue line) and accuracy (orange line) evolving over epochs.
+							<Text code>Model Performance</Text> view: Displays training loss
+							(blue line) and accuracy (orange line) evolving over epochs.
 						</li>
 						<li>
-							<Text code>Trained Map</Text> view: Visualizes the learned decision boundaries and quantum state distribution of the trained model. Compare this against the <Text code>Encoder Map</Text> and <Text code>Original Data</Text> to assess how well the model captured the underlying patterns.
+							<Text code>Trained Map</Text> view: Visualizes the learned
+							decision boundaries and quantum state distribution of the trained
+							model. Compare this against the <Text code>Encoder Map</Text> and{" "}
+							<Text code>Original Data</Text> to assess how well the model
+							captured the underlying patterns.
 						</li>
 					</ul>
 				</Paragraph>

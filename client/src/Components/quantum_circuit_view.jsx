@@ -1,5 +1,5 @@
-import { useEffect } from "react";
 import * as d3 from "d3";
+import { useEffect } from "react";
 
 function QuantumCircuitView(props) {
 	// dataset
@@ -118,12 +118,11 @@ function QuantumCircuitView(props) {
 			step.forEach((gate, gate_i) => {
 				// 没有 “-”, 代表不是Controlled gate, 而是H等的gate
 				if (gate.includes("-") && !gate.includes("(")) {
-					const _gate_name = gate.split("-")[0];
 					const gate_role = gate.split("-")[1];
 
 					const gateY = gate_i * wire_height + wire_height / 2;
 
-					if (gate_role == "0") {
+					if (gate_role === "0") {
 						group
 							.append("circle")
 							.attr("cx", gateX)
@@ -165,8 +164,6 @@ function QuantumCircuitView(props) {
 			});
 		});
 
-		let Y_dotControl, Y_dotTarget, X_dot;
-
 		data.forEach((step, step_i) => {
 			const gateX = wire_gap_left + step_i * gate_width;
 			step.forEach((gate, gate_i) => {
@@ -177,7 +174,7 @@ function QuantumCircuitView(props) {
 
 					const gateY = gate_i * wire_height + wire_height / 2;
 
-					if (gate_role == "0") {
+					if (gate_role === "0") {
 						group
 							.append("circle")
 							.attr("cx", gateX)
@@ -185,9 +182,6 @@ function QuantumCircuitView(props) {
 							.attr("r", 2)
 							.attr("fill", "#000000")
 							.attr("stroke", "none");
-
-						Y_dotControl = gateY;
-						X_dot = gateX;
 					} else {
 						group
 							.append("text")
@@ -199,13 +193,11 @@ function QuantumCircuitView(props) {
 							.attr("font-weight", gate_symbol_text_fontWeight)
 							.attr("fill", gate_symbol_text_fill)
 							.text(gate_name);
-
-						Y_dotTarget = gateY;
 					}
 				} else if (!isEmptyGate(gate)) {
 					const gateY = gate_i * wire_height + wire_height / 2;
 
-					const _gateText = group
+					group
 						.append("text")
 						.attr("x", gateX)
 						.attr("y", gateY)
@@ -242,6 +234,7 @@ function QuantumCircuitView(props) {
 		if (typeof props.onRendered === "function") {
 			requestAnimationFrame(() => props.onRendered());
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [dataset, svgId, forCards, color_circuit_bg]);
 
 	return (

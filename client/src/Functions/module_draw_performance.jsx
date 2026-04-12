@@ -1,7 +1,7 @@
-import { useRef, useEffect } from "react";
 import * as d3 from "d3";
+import { useEffect, useRef } from "react";
 
-function Module_draw_performance(props) {
+function ModuleDrawPerformance(props) {
 	// data
 	const dataset = props.dataset;
 
@@ -14,6 +14,7 @@ function Module_draw_performance(props) {
 	// Re-render whenever performance dataset changes
 	useEffect(() => {
 		draw_func();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [dataset]);
 
 	function draw_func() {
@@ -30,7 +31,6 @@ function Module_draw_performance(props) {
 			right: size * 0.025,
 		};
 
-		const _axis_size = size * 0.05;
 		const axis_width = width - padding.left - padding.right;
 		const axis_height = (height - padding.top - padding.bottom) / 2;
 
@@ -200,4 +200,4 @@ function Module_draw_performance(props) {
 	return <g ref={divRef}></g>;
 }
 
-export default Module_draw_performance;
+export default ModuleDrawPerformance;

@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
 import { Checkbox } from "antd";
 import * as d3 from "d3";
+import { useEffect, useState } from "react";
 
-import Module_draw_2dplot from "../Functions/module_draw_2dplot";
+import ModuleDraw2dplot from "../Functions/module_draw_2dplot";
 
 function get_svg(size, circuit_id) {
-	// Layout constants matching Module_draw_2dplot for mode "large"
+	// Layout constants matching ModuleDraw2dplot for mode "large"
 	const axis_length = size * 0.15;
 	const g_paddingLeft = size * 0.027;
 	const g_paddingTop = size * 0.02;
@@ -211,7 +211,7 @@ function EncodedMapView(props) {
 	const circuit_id = props.circuit_id;
 
 	const { width, height, left, top, colors } = props;
-	const [class_color, _] = colors;
+	const [class_color] = colors;
 
 	const [showBoundary, setShowBoundary] = useState(false);
 
@@ -224,11 +224,11 @@ function EncodedMapView(props) {
 		smallSize = 320,
 		smallerSize = 240;
 	const size =
-		mode == "large"
+		mode === "large"
 			? largeSize
-			: mode == "medium"
+			: mode === "medium"
 				? mediumSize
-				: mode == "small"
+				: mode === "small"
 					? smallSize
 					: smallerSize;
 
@@ -261,7 +261,7 @@ function EncodedMapView(props) {
 				width={svg_width}
 				height={svg_height}
 			>
-				<Module_draw_2dplot
+				<ModuleDraw2dplot
 					dataset={dataset}
 					mode={mode}
 					translate={[0, 0]} // Position of the module

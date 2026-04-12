@@ -1,7 +1,7 @@
-import React, { useRef, useEffect } from "react";
 import * as d3 from "d3";
+import React, { useEffect, useRef } from "react";
 
-function Module_draw_2dplot(props) {
+function ModuleDraw2dplot(props) {
 	// data
 	const dataset = props.dataset;
 
@@ -18,12 +18,14 @@ function Module_draw_2dplot(props) {
 
 	// mount 的时候渲染一次
 	useEffect(() => {
+		const node = divRef.current;
 		draw_func();
 		return () => {
 			// cleanup appended elements and tooltips to avoid stacking between rerenders
-			d3.select(divRef.current).selectAll("*").remove();
+			d3.select(node).selectAll("*").remove();
 			d3.selectAll(`.${module_name}-tooltip`).remove();
 		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [dataset, module_name, selectedIndex]);
 
 	function draw_func() {
@@ -55,11 +57,11 @@ function Module_draw_2dplot(props) {
 			smallSize = 320,
 			smallerSize = 240;
 		const size =
-			mode == "large"
+			mode === "large"
 				? largeSize
-				: mode == "medium"
+				: mode === "medium"
 					? mediumSize
-					: mode == "small"
+					: mode === "small"
 						? smallSize
 						: smallerSize;
 
@@ -69,9 +71,9 @@ function Module_draw_2dplot(props) {
 		// let g_paddingLeft = 0,
 		const axis_size = size * 0.01;
 		const dot_stroke_width =
-			mode == "large" || mode == "medium" ? size * 0.001 : 0;
+			mode === "large" || mode === "medium" ? size * 0.001 : 0;
 		const dot_radius =
-			mode == "large" || mode == "medium" ? size * 0.004 : size * 0.005;
+			mode === "large" || mode === "medium" ? size * 0.004 : size * 0.005;
 		const legend_width = size * 0.1;
 		const legend_height = size * 0.018;
 		const legend_dot_r = size * 0.004;
@@ -120,7 +122,7 @@ function Module_draw_2dplot(props) {
 			.append("g")
 			.attr("transform", `translate(${g_paddingLeft},${g_paddingTop})`)
 			.attr("class", () => {
-				if (mode == "smaller") {
+				if (mode === "smaller") {
 					return `.${module_name} loading_count`;
 				}
 			});
@@ -147,7 +149,7 @@ function Module_draw_2dplot(props) {
 			.tickValues([0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
 			.tickSize(0);
 
-		if (mode == "large" || mode == "medium") {
+		if (mode === "large" || mode === "medium") {
 			g.append("g")
 				.attr("transform", `translate(0,${axis_length + axis_size})`)
 				.attr("class", "axis")
@@ -303,7 +305,7 @@ function Module_draw_2dplot(props) {
 		}
 
 		// 加交互
-		if (mode == "large" || mode == "medium") {
+		if (mode === "large" || mode === "medium") {
 			dot
 				.style("cursor", "pointer") // 只有large时有对每个dot的交互
 				.on("mouseover", function (event, d) {
@@ -371,4 +373,4 @@ function Module_draw_2dplot(props) {
 	return <g ref={divRef}></g>;
 }
 
-export default Module_draw_2dplot;
+export default ModuleDraw2dplot;

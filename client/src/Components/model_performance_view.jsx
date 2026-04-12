@@ -1,8 +1,5 @@
-import { useEffect } from "react";
-import * as d3 from "d3";
-
-import Module_draw_performance from "../Functions/module_draw_performance";
-import Module_draw_2dplot from "../Functions/module_draw_2dplot";
+import ModuleDraw2dplot from "../Functions/module_draw_2dplot";
+import ModuleDrawPerformance from "../Functions/module_draw_performance";
 
 function ModelPerformanceView(props) {
 	// dataset
@@ -45,7 +42,7 @@ function ModelPerformanceView(props) {
 					ry="10"
 				/>
 
-				<Module_draw_2dplot
+				<ModuleDraw2dplot
 					dataset={dataset2}
 					boundary={null}
 					mode={"medium"}
@@ -54,11 +51,11 @@ function ModelPerformanceView(props) {
 					class_color={class_color}
 				/>
 
-				<Module_draw_performance
+				<ModuleDrawPerformance
 					dataset={dataset1}
 					translate={[160, 0]} // Position of the module
 					module_name={"model_performance_plot"}
-				></Module_draw_performance>
+				></ModuleDrawPerformance>
 			</svg>
 		</div>
 	);

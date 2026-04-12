@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from "react";
 import * as d3 from "d3";
+import { useEffect, useRef, useState } from "react";
 
-import Module_draw_2dplot from "../Functions/module_draw_2dplot";
+import ModuleDraw2dplot from "../Functions/module_draw_2dplot";
 
 function EncoderStepMappingView(props) {
 	// dataset
@@ -229,7 +229,7 @@ function EncoderStepMappingView(props) {
 					symbol_positions.map((symbol_position, i) => {
 						return (
 							<g key={i}>
-								<Module_draw_2dplot
+								<ModuleDraw2dplot
 									dataset={encoded_data[i]}
 									boundary={null}
 									mode={"smaller"}
@@ -237,7 +237,7 @@ function EncoderStepMappingView(props) {
 									module_name={`encoder_step_view_${i}`}
 									class_color={class_color}
 									isLegend={false}
-								></Module_draw_2dplot>
+								></ModuleDraw2dplot>
 								<rect
 									x={margin.left + symbol_position - dx + 4}
 									y={margin.top + 3}
@@ -259,7 +259,7 @@ function EncoderStepMappingView(props) {
 					symbol_positions.map((symbol_position, i) => {
 						return (
 							<g key={i}>
-								<Module_draw_2dplot
+								<ModuleDraw2dplot
 									dataset={encoded_sub_data[i][0]}
 									boundary={null}
 									mode={"smaller"}
@@ -270,7 +270,7 @@ function EncoderStepMappingView(props) {
 									module_name={`encoder_step_view_sub_${i}`}
 									class_color={class_color}
 									isLegend={false}
-								></Module_draw_2dplot>
+								></ModuleDraw2dplot>
 								<rect
 									x={margin.left + symbol_position - dx + 4}
 									y={margin.top + g1_top + 3}
@@ -292,7 +292,7 @@ function EncoderStepMappingView(props) {
 					symbol_positions.map((symbol_position, i) => {
 						return (
 							<g key={i}>
-								<Module_draw_2dplot
+								<ModuleDraw2dplot
 									dataset={encoded_sub_data[i][1]}
 									boundary={null}
 									mode={"smaller"}
@@ -303,7 +303,7 @@ function EncoderStepMappingView(props) {
 									module_name={`encoder_step_view_sub_sub_${i}`}
 									class_color={class_color}
 									isLegend={false}
-								></Module_draw_2dplot>
+								></ModuleDraw2dplot>
 								<rect
 									x={margin.left + symbol_position - dx + 4}
 									y={margin.top + g2_top + 3}
