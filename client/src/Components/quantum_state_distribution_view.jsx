@@ -106,7 +106,7 @@ function QuantumStateDistributionView(props) {
 		// Highlight selected point
 		if (selectedIndex !== null && selectedIndex !== undefined) {
 			svg.selectAll("circle.data-point")
-				.filter((d, i) => i === selectedIndex)
+				.filter((d) => (d.index !== undefined ? d.index : -1) === selectedIndex)
 				.raise()
 				.attr("r", 7)
 				.attr("stroke-width", 2);
