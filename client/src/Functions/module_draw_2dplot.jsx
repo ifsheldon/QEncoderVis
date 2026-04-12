@@ -7,6 +7,7 @@ function ModuleDraw2dplot(props) {
 
 	const { mode, module_name, translate, class_color } = props;
 	const selectedIndex = props.selectedIndex;
+	const onHoverIndex = props.onHoverIndex;
 
 	const isLegend = props.isLegend || false;
 
@@ -328,9 +329,17 @@ function ModuleDraw2dplot(props) {
 						.attr("y", (d) => yScale(d.feature[1]) - dot_radius - 2.5)
 						.attr("stroke-width", dot_stroke_width + 1.5)
 						.style("z-index", 999);
+
+					const idx = +d3.select(this).attr("data-index");
+					if (typeof onHoverIndex === "function") {
+						onHoverIndex(idx);
+					}
 				})
 				.on("mouseout", () => {
 					tooltip.style("display", "none");
+					if (typeof onHoverIndex === "function") {
+						onHoverIndex(null);
+					}
 
 					d3.selectAll(`.${module_name} .dot`)
 						.transition() // Start a transition

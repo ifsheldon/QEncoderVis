@@ -9,6 +9,7 @@ function OriginalDataView(props) {
 	const features = props.features || [];
 	const labels = props.labels || [];
 	const selectedIndex = props.selectedIndex;
+	const onHoverIndex = props.onHoverIndex;
 
 	// 定义新的measure
 	const svg_width = width * 0.9;
@@ -49,6 +50,7 @@ function OriginalDataView(props) {
 						module_name={"original_data_view_2dplot"} /*module这个g的名字*/
 						isLegend={true}
 						selectedIndex={selectedIndex}
+						onHoverIndex={onHoverIndex}
 					></ModuleDraw2dplot>
 				) : (
 					<text>No original data</text>

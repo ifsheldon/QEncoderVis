@@ -9,6 +9,8 @@ function ModelPerformanceView(props) {
 	const { width, height, left, top } = props;
 
 	const [class_color, color_model_performance_bg] = props.colors;
+	const selectedIndex = props.selectedIndex;
+	const onHoverIndex = props.onHoverIndex;
 
 	// 定义新的measure
 	const svg_width = width * 0.9;
@@ -49,6 +51,8 @@ function ModelPerformanceView(props) {
 					translate={[6, -5]} // Position of the module
 					module_name={"trained_map_2dplot"}
 					class_color={class_color}
+					selectedIndex={selectedIndex}
+					onHoverIndex={onHoverIndex}
 				/>
 
 				<ModuleDrawPerformance

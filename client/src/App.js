@@ -795,6 +795,7 @@ function App() {
 						features={allData?.original_features}
 						labels={allData?.original_labels}
 						selectedIndex={selectedDataIndex}
+						onHoverIndex={setSelectedDataIndex}
 						class_color={[COLOR_CLASS_1, COLOR_CLASS_2]}
 						width={original_data_view_width}
 						height={original_data_view_height}
@@ -841,6 +842,8 @@ function App() {
 							height={encoded_map_height}
 							left={encoded_map_left}
 							top={encoded_map_top}
+							selectedIndex={selectedDataIndex}
+							onHoverIndex={setSelectedDataIndex}
 						></EncodedMapView>
 					)}
 
@@ -869,6 +872,8 @@ function App() {
 							height={model_performance_view_height}
 							left={model_performance_view_left}
 							top={model_performance_view_top_adjusted}
+							selectedIndex={selectedDataIndex}
+							onHoverIndex={setSelectedDataIndex}
 						></ModelPerformanceView>
 					)}
 
@@ -900,7 +905,8 @@ function App() {
 								[COLOR_CLASS_1, COLOR_CLASS_2],
 								COLOR_QUANTUM_DISTRIBUTION_BG,
 							]}
-							onHoverIndex={(idx) => setSelectedDataIndex(idx)}
+							selectedIndex={selectedDataIndex}
+							onHoverIndex={setSelectedDataIndex}
 						></QuantumStateDistributionView>
 					)}
 

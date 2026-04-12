@@ -212,6 +212,8 @@ function EncodedMapView(props) {
 
 	const { width, height, left, top, colors } = props;
 	const [class_color] = colors;
+	const selectedIndex = props.selectedIndex;
+	const onHoverIndex = props.onHoverIndex;
 
 	const [showBoundary, setShowBoundary] = useState(false);
 
@@ -268,6 +270,8 @@ function EncodedMapView(props) {
 					module_name={"encoded_map_view_2dplot"}
 					class_color={class_color}
 					isLegend={true}
+					selectedIndex={selectedIndex}
+					onHoverIndex={onHoverIndex}
 				/>
 				{/* Boundary overlay provided by helper */}
 				{get_svg(size, circuit_id)}

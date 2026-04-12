@@ -6,6 +6,7 @@ function QuantumStateDistributionView(props) {
 	const dataset = props.dataset;
 
 	const onHoverIndex = props.onHoverIndex;
+	const selectedIndex = props.selectedIndex;
 
 	const width = props.width;
 	const height = props.height;
@@ -94,6 +95,23 @@ function QuantumStateDistributionView(props) {
 			});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [dataset, width, height]);
+
+	// Lightweight highlight effect — avoids full D3 redraw on selection change
+	useEffect(() => {
+		const svg = d3.select("#quantum_state_distribution_view");
+		// Reset all points
+		svg.selectAll("circle.data-point")
+			.attr("r", 4)
+			.attr("stroke-width", 0.5);
+		// Highlight selected point
+		if (selectedIndex !== null && selectedIndex !== undefined) {
+			svg.selectAll("circle.data-point")
+				.filter((d, i) => i === selectedIndex)
+				.raise()
+				.attr("r", 7)
+				.attr("stroke-width", 2);
+		}
+	}, [selectedIndex]);
 
 	//////////////////////////////////////////////
 
