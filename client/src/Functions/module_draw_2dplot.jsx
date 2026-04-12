@@ -313,7 +313,7 @@ function ModuleDraw2dplot(props) {
 
 					tooltip
 						.html(
-							`X: ${d.feature[0]} Y: ${d.feature[1]}<br/>Value: ${d.label.toFixed(3)}`,
+							`X: ${d.feature[0]}<br/>Y: ${d.feature[1]}<br/>Value: ${d.label.toFixed(3)}`,
 						)
 						.style("left", `${event.pageX + 10}px`)
 						.style("top", `${event.pageY + 10}px`);
