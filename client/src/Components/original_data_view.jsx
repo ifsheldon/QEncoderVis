@@ -1,4 +1,4 @@
-import Module_draw_2dplot from "../Functions/module_draw_2dplot";
+import ModuleDraw2dplot from "../Functions/module_draw_2dplot";
 
 function OriginalDataView(props) {
 	const width = props.width;
@@ -40,7 +40,7 @@ function OriginalDataView(props) {
 				height={svg_height}
 			>
 				{hasData ? (
-					<Module_draw_2dplot
+					<ModuleDraw2dplot
 						dataset={{ feature: features, label: labels }}
 						class_color={class_color}
 						boundary={null}
@@ -49,7 +49,7 @@ function OriginalDataView(props) {
 						module_name={"original_data_view_2dplot"} /*module这个g的名字*/
 						isLegend={true}
 						selectedIndex={selectedIndex}
-					></Module_draw_2dplot>
+					></ModuleDraw2dplot>
 				) : (
 					<text>No original data</text>
 				)}

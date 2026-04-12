@@ -1,37 +1,35 @@
-import { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import {
-	Layout,
-	Form,
-	Button,
-	InputNumber,
-	Slider,
-	Row,
-	Col,
-	Progress,
-	Drawer,
-	Card,
-} from "antd";
-import {
-	RightOutlined,
-	PlayCircleFilled,
 	PauseCircleFilled,
+	PlayCircleFilled,
+	RightOutlined,
 } from "@ant-design/icons";
-
-import P1 from "./Articles/p1";
+import {
+	Button,
+	Card,
+	Col,
+	Drawer,
+	Form,
+	InputNumber,
+	Layout,
+	Progress,
+	Row,
+	Slider,
+} from "antd";
 import Footer from "./Articles/footer";
+import P1 from "./Articles/p1";
 import Top from "./Articles/top";
-
-import OriginalDataView from "./Components/original_data_view";
-import DataSelectorPanel from "./Components/data_selector_panel";
-import QuantumCircuitView from "./Components/quantum_circuit_view";
-import EncodedMapView from "./Components/encoded_map_view";
-import ModelPerformanceView from "./Components/model_performance_view";
-import EncoderStepMappingView from "./Components/encoder_step_mapping_view";
-import QuantumStateDistributionView from "./Components/quantum_state_distribution_view";
 import DataFlowLink from "./Components/data_flow_link";
+import DataSelectorPanel from "./Components/data_selector_panel";
 import DescriptionComp from "./Components/description";
+import EncodedMapView from "./Components/encoded_map_view";
+import EncoderStepMappingView from "./Components/encoder_step_mapping_view";
+import ModelPerformanceView from "./Components/model_performance_view";
+import OriginalDataView from "./Components/original_data_view";
+import QuantumCircuitView from "./Components/quantum_circuit_view";
+import QuantumStateDistributionView from "./Components/quantum_state_distribution_view";
 
 import appConfig from "./configs.json";
 
@@ -249,10 +247,7 @@ function App() {
 	// Sync selected encoder with dataset defaults when circuit changes
 	useEffect(() => {
 		const circuit_id = DATA_PORT_MAP[data_name];
-		if (
-			defaults &&
-			Object.prototype.hasOwnProperty.call(defaults, circuit_id)
-		) {
+		if (defaults && Object.hasOwn(defaults, circuit_id)) {
 			setSelectedEncoder(defaults[circuit_id]);
 		}
 	}, [data_name, defaults]);
@@ -291,6 +286,7 @@ function App() {
 			}
 		};
 		fetchData();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [defaults, selectedEncoder]);
 
 	// Unmount cleanup
@@ -298,6 +294,7 @@ function App() {
 		return () => {
 			cleanupStream(false);
 		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	// Start streaming training
@@ -434,7 +431,7 @@ function App() {
 		if (
 			selectedEncoder &&
 			encoders &&
-			Object.prototype.hasOwnProperty.call(encoders, selectedEncoder)
+			Object.hasOwn(encoders, selectedEncoder)
 		) {
 			const steps = encoders[selectedEncoder].steps || [];
 			const stepsCount = Array.isArray(steps) ? steps.length : 0;
@@ -885,7 +882,10 @@ function App() {
 							height={encoder_step_mapping_height}
 							left={encoder_step_mapping_left}
 							top={encoder_step_mapping_top}
-							colors={[[COLOR_CLASS_1, COLOR_CLASS_2], COLOR_ENCODER_STEP_MAP_BG]}
+							colors={[
+								[COLOR_CLASS_1, COLOR_CLASS_2],
+								COLOR_ENCODER_STEP_MAP_BG,
+							]}
 						></EncoderStepMappingView>
 					)}
 
@@ -921,7 +921,10 @@ function App() {
 			<article>
 				<div
 					className="article-body"
-					style={{ width: ARTICLE_WIDTH, background: CENTERED_ARTICLE_BG_COLOR }}
+					style={{
+						width: ARTICLE_WIDTH,
+						background: CENTERED_ARTICLE_BG_COLOR,
+					}}
 				>
 					<P1></P1> {/*Article here*/}
 				</div>

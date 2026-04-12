@@ -1,5 +1,5 @@
-import { useEffect } from "react";
 import * as d3 from "d3";
+import { useEffect } from "react";
 
 function DataFlowLink(props) {
 	// dataset
@@ -13,7 +13,7 @@ function DataFlowLink(props) {
 	const svg_height = data_flow_link_height;
 
 	// Colors
-	const [_class_color, color_link_bg] = props.colors;
+	const [, color_link_bg] = props.colors;
 
 	//////////////////////////////////////////////
 	// Mount the component once
@@ -76,6 +76,7 @@ function DataFlowLink(props) {
 		}
 
 		animateSegment();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	//////////////////////////////////////////////

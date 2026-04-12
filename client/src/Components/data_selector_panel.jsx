@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 function DataSelectorPanel(props) {
 	const onDatasetClick = props.onDatasetClick;
@@ -9,7 +9,7 @@ function DataSelectorPanel(props) {
 	};
 
 	const { width, height, left, top, vis_width } = props;
-	const [_, color_data_selector_panel_bg] = props.colors;
+	const [, color_data_selector_panel_bg] = props.colors;
 
 	const paddingLeft = vis_width * 0.01;
 	const paddingTop = vis_width * 0.01;
