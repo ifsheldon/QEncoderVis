@@ -64,7 +64,7 @@ def get_data(dataset_source: str, encoder: Encoder):
     distribution_map = []
     for i, coord in enumerate(coords):
         distribution_map.append(
-            {"x": float(coord[0]), "y": float(coord[1]), "label": float(original_labels[i])}
+            {"x": float(coord[0]), "y": float(coord[1]), "label": float(original_labels[i]), "index": i}
         )
 
     # test qubit 0 measured expectancy
@@ -92,9 +92,6 @@ def get_data(dataset_source: str, encoder: Encoder):
 
 def run_circuit(encoder: Encoder, epoch_number: int, lr: float, dataset_source: str):
     X, Y = get_dataset(dataset_source)
-    permutation = np.random.permutation(len(X))
-    X = X[permutation]
-    Y = Y[permutation]
 
     fm = encoder.get_feature_mapping()
     features = np.array([fm.feature_map(x) for x in X], requires_grad=False)
@@ -107,13 +104,16 @@ def run_circuit(encoder: Encoder, epoch_number: int, lr: float, dataset_source: 
         ansatz(weights)
         return qml.expval(qml.PauliZ(0))  ### single qubit measurement
 
-    # Prepare training and validation splits
+    # Prepare training and validation splits (random indices, data stays in original order)
     num_data = len(Y)
     num_train = int(TRAIN_SPLIT * num_data)
-    feats_train = features[:num_train]
-    Y_train = Y[:num_train]
-    feats_val = features[num_train:]
-    Y_val = Y[num_train:]
+    shuffled_indices = np.random.permutation(num_data)
+    train_idx = shuffled_indices[:num_train]
+    val_idx = shuffled_indices[num_train:]
+    feats_train = features[train_idx]
+    Y_train = Y[train_idx]
+    feats_val = features[val_idx]
+    Y_val = Y[val_idx]
 
     # Initialize weights
     weights_init = 0.01 * np.random.randn(4, requires_grad=True)
@@ -140,8 +140,6 @@ def run_circuit(encoder: Encoder, epoch_number: int, lr: float, dataset_source: 
         costs[iter] = cost_val
         acc_values[iter] = acc_val
 
-    original_feature = X.tolist()
-    # 创建trained map的数据
     trained_label = [float(x) for x in circuit(weights, features.T)]
 
     result_to_return = {
@@ -150,7 +148,7 @@ def run_circuit(encoder: Encoder, epoch_number: int, lr: float, dataset_source: 
             "loss": costs.tolist(),
             "accuracy": acc_values.tolist(),
         },
-        "trained_data": {"feature": original_feature, "label": trained_label},
+        "trained_data": {"feature": X.tolist(), "label": trained_label},
         "feature_map_formula": fm.get_formula(),
     }
 
@@ -169,9 +167,6 @@ def run_circuit_stream(
     """
 
     X, Y = get_dataset(dataset_source)
-    permutation = np.random.permutation(len(X))
-    X = X[permutation]
-    Y = Y[permutation]
 
     fm = encoder.get_feature_mapping()
     features = np.array([fm.feature_map(x) for x in X], requires_grad=False)
@@ -184,13 +179,16 @@ def run_circuit_stream(
         ansatz(weights)
         return qml.expval(qml.PauliZ(0))
 
-    # Prepare training and validation splits
+    # Prepare training and validation splits (random indices, data stays in original order)
     num_data = len(Y)
     num_train = int(TRAIN_SPLIT * num_data)
-    feats_train = features[:num_train]
-    Y_train = Y[:num_train]
-    feats_val = features[num_train:]
-    Y_val = Y[num_train:]
+    shuffled_indices = np.random.permutation(num_data)
+    train_idx = shuffled_indices[:num_train]
+    val_idx = shuffled_indices[num_train:]
+    feats_train = features[train_idx]
+    Y_train = Y[train_idx]
+    feats_val = features[val_idx]
+    Y_val = Y[val_idx]
 
     # Initialize weights
     weights = 0.01 * np.random.randn(4, requires_grad=True)
@@ -215,7 +213,6 @@ def run_circuit_stream(
         acc_val = accuracy(Y_val, predictions_val)
         cost_val = cost(weights, features, Y)
 
-        # Current trained labels for all features
         trained_label = [float(x) for x in circuit(weights, features.T)]
 
         time.sleep(DELAY_BETWEEN_EPOCHS)
