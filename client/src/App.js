@@ -859,7 +859,6 @@ function App() {
 					{/* Component-5: Model performance view*/}
 					{dataset && isCurrentSelectionTrained() && (
 						<ModelPerformanceView
-							key={`mp-${currentEpoch}`}
 							dataset1={dataset["performance"]}
 							dataset2={dataset["trained_data"]}
 							colors={[
