@@ -1,4 +1,8 @@
-import { GithubOutlined, FileTextOutlined } from "@ant-design/icons";
+import {
+  GithubOutlined,
+  FileTextOutlined,
+  FundProjectionScreenOutlined,
+} from "@ant-design/icons";
 import { Layout, Space, Tooltip } from "antd";
 
 const { Header } = Layout;
@@ -34,6 +38,17 @@ function Top(props) {
             rel="noopener noreferrer"
           >
             <FileTextOutlined
+              style={{ fontSize: 24, color: "rgba(255,255,255,0.7)" }}
+            />
+          </a>
+        </Tooltip>
+        <Tooltip title="Slides presented in PacificVis 2026">
+          <a
+            href="https://docs.google.com/presentation/d/1zQ_5IcW6n-U_qwhsXX1tZf12Lvvqe6G2Hld8stsjEFQ/edit?usp=sharing"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <FundProjectionScreenOutlined
               style={{ fontSize: 24, color: "rgba(255,255,255,0.7)" }}
             />
           </a>
